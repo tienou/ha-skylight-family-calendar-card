@@ -170,7 +170,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
         this._numberOfDaysIsMonth = this._isNumberOfDaysMonth(config.days ?? 7);
         this._title = config.title ?? null;
-        this._calendars = config.calendars;
+        this._calendars = this._applyDefaultColors(config.calendars);
         this._defaultCalendar = config.defaultCalendar ?? null;
         this._weather = this._getWeatherConfig(config.weather);
         this._numberOfDays = this._getNumberOfDays(config.days ?? 7);
@@ -274,6 +274,28 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _isNumberOfDaysMonth(numberOfDays) {
         return String(numberOfDays).toLowerCase().trim() === 'month';
+    }
+
+    static PASTEL_COLORS = [
+        '#7FC8F8', // soft blue
+        '#FFB5A7', // soft coral
+        '#B8E0D2', // soft mint
+        '#E4C1F9', // soft lavender
+        '#FFD6A5', // soft peach
+        '#CAFFBF', // soft green
+        '#FFC6FF', // soft pink
+        '#A0C4FF', // soft periwinkle
+        '#FDFFB6', // soft yellow
+        '#BDB2FF', // soft violet
+    ];
+
+    _applyDefaultColors(calendars) {
+        return calendars.map((cal, i) => {
+            if (!cal.color) {
+                return { ...cal, color: this.constructor.PASTEL_COLORS[i % this.constructor.PASTEL_COLORS.length] };
+            }
+            return cal;
+        });
     }
 
     _getWeatherConfig(weatherConfiguration) {
