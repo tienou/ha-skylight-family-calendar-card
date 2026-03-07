@@ -123,7 +123,7 @@ export default css`
     ha-card.skylight .container .day .events .event {
         border-left: none;
         border-radius: var(--event-border-radius);
-        background-color: color-mix(in srgb, var(--event-bg-tint, #888) 15%, var(--card-background-color, white) 85%);
+        background-color: color-mix(in srgb, var(--event-bg-tint, #888) 20%, transparent);
         color: var(--primary-text-color);
     }
 
