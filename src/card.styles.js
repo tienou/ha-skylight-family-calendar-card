@@ -376,6 +376,10 @@ export default css`
         font-size: var(--day-date-text-font-size);
     }
 
+    .container .day .date .text.mobile-only {
+        display: none;
+    }
+
     .container .day.header .date .text {
         font-size: var(--day-header-font-size, var(--day-date-text-font-size));
         color: var(--day-header-color, var(--primary-text-color));
@@ -716,6 +720,14 @@ export default css`
         ha-card.compact .container .day {
             --days-columns: var(--days-columns-sm, 4);
         }
+        /* Hide weekday headers when columns < 7 (makes no sense) */
+        ha-card .container .day.header {
+            display: none;
+        }
+        /* Show inline day name as fallback */
+        ha-card .container .day .date .text.mobile-only {
+            display: inline;
+        }
     }
 
     @container weekplanner (width <= 640px) {
@@ -724,6 +736,42 @@ export default css`
         }
         ha-card.compact .container .day {
             --days-columns: var(--days-columns-xs, 2);
+        }
+
+        /* ── Month view: mini-calendar with 7 columns ── */
+        ha-card .container.month-view .day {
+            --days-columns: 7;
+            --days-spacing: 2px;
+            min-height: auto;
+            padding: 4px 2px;
+            align-items: center;
+            justify-content: center;
+        }
+        ha-card .container.month-view .day .events,
+        ha-card .container.month-view .day .weather,
+        ha-card .container.month-view .day .add-event {
+            display: none;
+        }
+        ha-card .container.month-view .day .date .number {
+            font-size: 0.9em;
+            line-height: 1.1em;
+            text-align: center;
+        }
+        ha-card .container.month-view .day .date .text {
+            display: none;
+        }
+        /* Re-show weekday headers in month view (7 cols restored) */
+        ha-card .container.month-view .day.header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        ha-card .container.month-view .day.header .date .text {
+            display: block;
+            font-size: 0.7em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
 
@@ -777,6 +825,71 @@ export default css`
         }
         .clock {
             font-size: 2em;
+        }
+
+        /* ── Mobile spacing & typography ── */
+        ha-card {
+            --days-spacing: 6px;
+            --day-date-number-font-size: 2em;
+            --day-date-number-line-height: 1.1em;
+            --day-date-text-font-size: 0.9em;
+            --navigation-month-font-size: 1.5em;
+            --event-font-size: 0.85em;
+            --event-line-height: 1.1em;
+            --event-padding: 6px 8px;
+            --weather-icon-size: 22px;
+            --weather-temperature-font-size: 0.85em;
+        }
+        ha-card.compact {
+            --days-spacing: 3px;
+            --day-date-number-font-size: 1.3em;
+        }
+
+        /* ── Touch-friendly targets ── */
+        .container .navigation ul li {
+            padding: 8px;
+            --mdc-icon-size: 24px;
+        }
+        .container .day .add-event {
+            width: 36px;
+            height: 36px;
+            opacity: 0.5;
+            --mdc-icon-size: 22px;
+        }
+        .filter-btn {
+            min-height: 36px;
+        }
+        .view-btn {
+            min-height: 36px;
+        }
+
+        /* ── Horizontal scroll for filter buttons ── */
+        .calendar-filters {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .calendar-filters::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    @media (max-width: 360px) {
+        ha-card {
+            --skylight-radius: 16px;
+            --days-spacing: 4px;
+            --day-date-number-font-size: 1.8em;
+            --navigation-month-font-size: 1.3em;
+        }
+        .skylight-header {
+            padding: 8px 12px 4px;
+        }
+        .controls {
+            padding: 4px 12px 6px;
+        }
+        .clock {
+            font-size: 1.8em;
         }
     }
 `;

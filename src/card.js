@@ -603,7 +603,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </div>
                     </div>
                     <div class="calendar-container">
-                        <div class="container${this._actions ? ' hasActions' : ''}" style="${this._dayHeaderFontSize ? '--day-header-font-size: ' + this._dayHeaderFontSize + ';' : ''}${this._dayHeaderColor ? '--day-header-color: ' + this._dayHeaderColor + ';' : ''}" @click="${this._handleContainerClick}">
+                        <div class="container${this._actions ? ' hasActions' : ''}${this._numberOfDaysIsMonth ? ' month-view' : ''}" style="${this._dayHeaderFontSize ? '--day-header-font-size: ' + this._dayHeaderFontSize + ';' : ''}${this._dayHeaderColor ? '--day-header-color: ' + this._dayHeaderColor + ';' : ''}" @click="${this._handleContainerClick}">
                             ${this._renderHeader()}
                             ${this._renderWeekDays()}
                             ${this._renderDays()}
@@ -753,7 +753,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                     <span class="number">${day.date.day}</span>
                                     ${this._showDayName || (this._showWeekDayText && !this._numberOfDaysIsMonth && this._numberOfDays < 7) ?
                                         html`<span class="text">${this._getWeekDayText(day.date)}</span>` :
-                                        ''
+                                        html`<span class="text mobile-only">${this._getWeekDayText(day.date)}</span>`
                                     }
                                 `
                             }
