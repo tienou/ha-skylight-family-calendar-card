@@ -923,7 +923,7 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
                         data-start-minute="${e.start.toFormat("mm")}"
                         data-end-hour="${e.end.toFormat("H")}"
                         data-end-minute="${e.end.toFormat("mm")}"
-                        style="--border-color: ${e.colors[0]}${this._colorFullEvent?"; background-color: "+e.colors[0]+"20; border-left-width: 0":""}"
+                        style="--border-color: ${e.colors[0]}${this._colorFullEvent?"; background-color: "+e.colors[0]+"; color: #fff; border-left-width: 0":""}"
                         @click="${()=>{this._handleEventClick(e)}}"
                     >
                         ${e.colors.map(e=>t.indexOf(e)>-1?"":(t.push(e),j`

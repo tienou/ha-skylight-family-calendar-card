@@ -852,7 +852,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         data-start-minute="${event.start.toFormat('mm')}"
                         data-end-hour="${event.end.toFormat('H')}"
                         data-end-minute="${event.end.toFormat('mm')}"
-                        style="--border-color: ${event.colors[0]}${this._colorFullEvent ? '; background-color: ' + event.colors[0] + '20; border-left-width: 0' : ''}"
+                        style="--border-color: ${event.colors[0]}${this._colorFullEvent ? '; background-color: ' + event.colors[0] + '; color: #fff; border-left-width: 0' : ''}"
                         @click="${() => {
                             this._handleEventClick(event)
                         }}"
