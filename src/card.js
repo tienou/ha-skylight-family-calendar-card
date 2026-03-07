@@ -1677,18 +1677,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (this._actions) {
             return;
         }
-        if (event.uid) {
-            this._editFormData = {
-                title: event.summary || '',
-                calendar: event.calendars[0] || '',
-                start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
-                end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
-                location: event.location || '',
-            };
-            this._showEditEventDialog = event;
-        } else {
-            this._currentEventDetails = event;
-        }
+        this._currentEventDetails = event;
     }
 
     _closeDialog() {
