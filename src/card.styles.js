@@ -376,6 +376,13 @@ export default css`
         font-size: var(--day-date-text-font-size);
     }
 
+    .container .day.header .date .text {
+        font-size: var(--day-header-font-size, var(--day-date-text-font-size));
+        color: var(--day-header-color, var(--primary-text-color));
+        font-weight: bold;
+        text-transform: capitalize;
+    }
+
     .container .day .add-event {
         display: flex;
         align-items: center;

@@ -200,6 +200,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._googleApiKey = config.googleApiKey ?? '';
         this._showTime = config.showTime ?? false;
         this._showDayName = config.showDayName ?? false;
+        this._dayHeaderFontSize = config.dayHeaderFontSize ?? null;
+        this._dayHeaderColor = config.dayHeaderColor ?? null;
         this._showDate = config.showDate ?? false;
         this._showCalendarName = config.showCalendarName ?? false;
         this._showWeather = config.showWeather ?? true;
@@ -600,7 +602,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </div>
                     </div>
                     <div class="calendar-container">
-                        <div class="container${this._actions ? ' hasActions' : ''}" @click="${this._handleContainerClick}">
+                        <div class="container${this._actions ? ' hasActions' : ''}" style="${this._dayHeaderFontSize ? '--day-header-font-size: ' + this._dayHeaderFontSize + ';' : ''}${this._dayHeaderColor ? '--day-header-color: ' + this._dayHeaderColor + ';' : ''}" @click="${this._handleContainerClick}">
                             ${this._renderHeader()}
                             ${this._renderWeekDays()}
                             ${this._renderDays()}
