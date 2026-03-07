@@ -1,0 +1,75 @@
+Skylight:
+  card-mod-theme: Skylight
+
+  # This file defines variables you can use to customize the look of your calendar.
+  # The dashboard and package YAML files in many places use the format: `var(--variable-name)` to substitute values
+  # defined in here.
+  #
+  # Example YAML using a variable `my-custom-value`:
+  #
+  ### define the variable in this file
+  # my-custom-value: "Something good"
+  # 
+  ### use the variable in a card_mod.style section in another YAML file
+  # card_mod:
+  #   style: |
+  #     .title-text {
+  #       content: "var(--my-custom-value)"
+  #     }
+  #
+  ### the resulting substitution if you inspect the run-time value of `.title-text.content` is:
+  # card_mod:
+  #   style: |
+  #     .title-text {
+  #       content: "Something good"
+  #     }
+  #
+  ### !!REMEMBER!!
+  # After making changes to this file, you must do one of the following for the changes to take effect (from fast to slow):
+  # 1. Invoke the `frontend.reload_themes` service (from Developer tools -> Actions)
+  # 2. Invoke the `All YAML configuration` reload (from Developer tools -> YAML)
+  # 3. Reload Home Assistant (without restart from Settings -> System -> Power -> Quick Reload)
+  # 4. Restart Home Assistant (from Settings -> System -> Power -> Restart Home Assistant)
+  
+  ###################################
+  #### Font Variables
+  ###################################
+  # --- 1. Load the Font (via card-mod) from Google with special notation so it appears in the header (or it won't work) ---
+  card-mod-root-yaml: |
+    .: |
+      @import url('https://fonts.googleapis.com/css2?family=Ovo&display=swap');
+  
+  # defines the primary font value as "Ovo", falling back to any "serif" font if Ovo isn't available
+  primary-font-family: "'Ovo', serif"
+
+  # --- 2. Apply the Font (using standard Home Assistant variables) ---
+  # font values for for the majority of the UI (titles, sidebar, etc.) uses the naming convention:
+  # ha-card-[class]-font-family
+
+  # set the font specifically for card headers
+  ha-card-header-font-family: "var(--primary-font-family)"
+  #ha-card-body-font-family: "var(--primary-font-family) !important"
+
+  # legacy "Paper" variables (Polymer elements) - ensures deep UI elements match (common practice)
+  paper-font-common-base_-_font-family: "var(--primary-font-family)"
+  paper-font-common-code_-_font-family: "var(--primary-font-family)"
+  paper-font-body1_-_font-family: "var(--primary-font-family)"
+  paper-font-subhead_-_font-family: "var(--primary-font-family)"
+  paper-font-headline_-_font-family: "var(--primary-font-family)"
+  paper-font-caption_-_font-family: "var(--primary-font-family)"
+  paper-font-title_-_font-family: "var(--primary-font-family)"
+
+  ###################################
+  #### Custom Variables
+  ###################################
+  # In this section, add your own variables and values that you can use to reduce redundancy
+  
+  #### Custom family member default colors
+  #### default calendar colors - format: [family-member.name]-default-primary-color: "[color value/name]"
+  calendar1-default-primary-color: "#fb8072"
+  calendar2-default-primary-color: "#fdbf6f"
+  calendar3-default-primary-color: "#a6cee3"
+  calendar4-default-primary-color: "#cab2d6"
+  family-default-primary-color: "#4A90E2"
+  birthdays-default-primary-color: "#33a02c"
+  holidays-default-primary-color: "#ff7f00"
