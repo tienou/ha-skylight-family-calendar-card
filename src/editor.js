@@ -213,16 +213,6 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 ${this.addExpansionPanel(
                     'Appearance',
                     html`
-                        ${this.addSelectField('theme', 'Theme', [
-                            {
-                                value: 'default',
-                                label: 'Default',
-                            }, {
-                                value: 'skylight',
-                                label: 'Skylight',
-                            }
-                        ], true)}
-                        ${this.addHint('Choose a visual theme for the card')}
                         ${this.addBooleanField('colorFullEvent', 'Color full event background', true)}
                         ${this.addHint('Color entire event block with calendar color instead of left border only')}
                         ${this.addBooleanField('noCardBackground', 'No card background')}
