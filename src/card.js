@@ -494,7 +494,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                         @click="${() => this._toggleCalendarVisibility(cal.entity)}"
                                     >
                                         ${cal.icon ? html`<ha-icon icon="${cal.icon}"></ha-icon>` : ''}
-                                        <span>${cal.name || cal.entity.replace('calendar.', '')}</span>
+                                        <span>${this._getCalendarDisplayName(cal)}</span>
                                     </button>
                                 `)}
                             </div>
@@ -575,7 +575,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                         html`<ha-icon icon="${calendar.icon}"></ha-icon>` :
                                         ''
                                     }
-                                    ${calendar.name ?? calendar.entity}
+                                    ${this._getCalendarDisplayName(calendar)}
                                 </li>
                             `;
                         }
@@ -1001,7 +1001,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <label for="event-calendar">${this._language.eventCalendar}</label>
                         <select id="event-calendar" class="form-input">
                             ${this._calendars.map((calendar) => html`
-                                <option value="${calendar.entity}" ?selected="${calendar.entity === this._defaultCalendar}">${calendar.name ?? calendar.entity}</option>
+                                <option value="${calendar.entity}" ?selected="${calendar.entity === this._defaultCalendar}">${this._getCalendarDisplayName(calendar)}</option>
                             `)}
                         </select>
                     </div>
@@ -1061,7 +1061,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <select id="edit-event-calendar" class="form-input"
                             @change="${(e) => { this._editFormData = { ...this._editFormData, calendar: e.target.value }; }}">
                             ${this._calendars.map((calendar) => html`
-                                <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${calendar.name ?? calendar.entity}</option>
+                                <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${this._getCalendarDisplayName(calendar)}</option>
                             `)}
                         </select>
                     </div>
@@ -1774,6 +1774,15 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 console.error('Skylight Family Calendar: Failed to update event:', e);
             }
         }
+    }
+
+    _getCalendarDisplayName(calendar) {
+        if (calendar.name) return calendar.name;
+        if (this.hass && calendar.entity && this.hass.states[calendar.entity]) {
+            const friendly = this.hass.states[calendar.entity].attributes?.friendly_name;
+            if (friendly) return friendly;
+        }
+        return calendar.entity?.replace('calendar.', '') ?? '';
     }
 
     _handleLegendClick(calendar) {
