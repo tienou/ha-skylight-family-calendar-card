@@ -191,6 +191,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._multiDayMode = config.multiDayMode ?? 'default';
         this._locationLink = config.locationLink ?? 'https://www.google.com/maps/search/?api=1&query=';
         this._showTitle = config.showTitle ?? true;
+        this._showHeaderDate = config.showHeaderDate ?? true;
+        this._showHeaderClock = config.showHeaderClock ?? true;
         this._showDescription = config.showDescription ?? false;
         this._showLocation = config.showLocation ?? false;
         this._showTime = config.showTime ?? false;
@@ -222,6 +224,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (config.locale) {
             LuxonSettings.defaultLocale = config.locale;
         }
+        const localeTexts = this.constructor.LOCALE_TEXTS[config.locale] ?? {};
         this._language = Object.assign(
             {},
             {
@@ -250,7 +253,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 save: 'Save',
                 editEventTitle: 'Edit event',
                 titleRequired: 'Title is required',
+                week: 'Week',
+                biweek: 'Biweek',
+                month: 'Month',
             },
+            localeTexts,
             config.texts ?? {}
         );
 
@@ -275,6 +282,69 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _isNumberOfDaysMonth(numberOfDays) {
         return String(numberOfDays).toLowerCase().trim() === 'month';
     }
+
+    static LOCALE_TEXTS = {
+        fr: {
+            fullDay: 'Toute la journ\u00e9e', noEvents: 'Aucun \u00e9v\u00e9nement', moreEvents: 'Plus d\'\u00e9v\u00e9nements',
+            today: 'Aujourd\'hui', tomorrow: 'Demain', yesterday: 'Hier',
+            editEvent: 'Modifier', deleteEvent: 'Supprimer', eventTitle: 'Titre',
+            eventCalendar: 'Calendrier', eventStart: 'D\u00e9but', eventEnd: 'Fin',
+            cancel: 'Annuler', create: 'Cr\u00e9er', newEvent: 'Nouvel \u00e9v\u00e9nement',
+            save: 'Enregistrer', editEventTitle: 'Modifier l\'\u00e9v\u00e9nement',
+            titleRequired: 'Le titre est requis',
+            week: 'Semaine', biweek: '2 Semaines', month: 'Mois',
+        },
+        de: {
+            fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
+            today: 'Heute', tomorrow: 'Morgen', yesterday: 'Gestern',
+            editEvent: 'Bearbeiten', deleteEvent: 'L\u00f6schen', eventTitle: 'Titel',
+            eventCalendar: 'Kalender', eventStart: 'Beginn', eventEnd: 'Ende',
+            cancel: 'Abbrechen', create: 'Erstellen', newEvent: 'Neuer Termin',
+            save: 'Speichern', editEventTitle: 'Termin bearbeiten',
+            titleRequired: 'Titel ist erforderlich',
+            week: 'Woche', biweek: '2 Wochen', month: 'Monat',
+        },
+        es: {
+            fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
+            today: 'Hoy', tomorrow: 'Ma\u00f1ana', yesterday: 'Ayer',
+            editEvent: 'Editar', deleteEvent: 'Eliminar', eventTitle: 'T\u00edtulo',
+            eventCalendar: 'Calendario', eventStart: 'Inicio', eventEnd: 'Fin',
+            cancel: 'Cancelar', create: 'Crear', newEvent: 'Nuevo evento',
+            save: 'Guardar', editEventTitle: 'Editar evento',
+            titleRequired: 'El t\u00edtulo es obligatorio',
+            week: 'Semana', biweek: '2 Semanas', month: 'Mes',
+        },
+        it: {
+            fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
+            today: 'Oggi', tomorrow: 'Domani', yesterday: 'Ieri',
+            editEvent: 'Modifica', deleteEvent: 'Elimina', eventTitle: 'Titolo',
+            eventCalendar: 'Calendario', eventStart: 'Inizio', eventEnd: 'Fine',
+            cancel: 'Annulla', create: 'Crea', newEvent: 'Nuovo evento',
+            save: 'Salva', editEventTitle: 'Modifica evento',
+            titleRequired: 'Il titolo \u00e8 obbligatorio',
+            week: 'Settimana', biweek: '2 Settimane', month: 'Mese',
+        },
+        nl: {
+            fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
+            today: 'Vandaag', tomorrow: 'Morgen', yesterday: 'Gisteren',
+            editEvent: 'Bewerken', deleteEvent: 'Verwijderen', eventTitle: 'Titel',
+            eventCalendar: 'Agenda', eventStart: 'Begin', eventEnd: 'Einde',
+            cancel: 'Annuleren', create: 'Aanmaken', newEvent: 'Nieuw evenement',
+            save: 'Opslaan', editEventTitle: 'Evenement bewerken',
+            titleRequired: 'Titel is verplicht',
+            week: 'Week', biweek: '2 Weken', month: 'Maand',
+        },
+        pt: {
+            fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
+            today: 'Hoje', tomorrow: 'Amanh\u00e3', yesterday: 'Ontem',
+            editEvent: 'Editar', deleteEvent: 'Excluir', eventTitle: 'T\u00edtulo',
+            eventCalendar: 'Calend\u00e1rio', eventStart: 'In\u00edcio', eventEnd: 'Fim',
+            cancel: 'Cancelar', create: 'Criar', newEvent: 'Novo evento',
+            save: 'Salvar', editEventTitle: 'Editar evento',
+            titleRequired: 'O t\u00edtulo \u00e9 obrigat\u00f3rio',
+            week: 'Semana', biweek: '2 Semanas', month: 'M\u00eas',
+        },
+    };
 
     static PASTEL_COLORS = [
         '#7FC8F8', // soft blue
@@ -320,8 +390,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
             Object.assign(configuration, weatherConfiguration);
         }
 
-        if (!configuration.hasOwnProperty('entity') || configuration.entity === null) {
-            return null;
+        // Auto-detect weather entity if none set or configured one doesn't exist
+        if (!configuration.entity || (this.hass && !this.hass.states[configuration.entity])) {
+            if (this.hass) {
+                const weatherEntity = Object.keys(this.hass.states).find(k => k.startsWith('weather.'));
+                if (weatherEntity) {
+                    configuration.entity = weatherEntity;
+                } else {
+                    return null;
+                }
+            } else if (!configuration.entity) {
+                return null;
+            }
         }
 
         return configuration;
@@ -472,15 +552,19 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     ${this._showHeader ? html`
                         <div class="skylight-header">
                             <div class="date-section">
-                                <div class="day-name">${now.toLocaleDateString(locale, { weekday: 'long' })}</div>
-                                <div class="full-date">${now.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-                                <div class="clock">${now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}</div>
+                                ${this._showHeaderDate ? html`
+                                    <div class="day-name">${now.toLocaleDateString(locale, { weekday: 'long' })}</div>
+                                    <div class="full-date">${now.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                                ` : ''}
+                                ${this._showHeaderClock ? html`
+                                    <div class="clock">${now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}</div>
+                                ` : ''}
                             </div>
-                            ${this._renderHeaderWeather()}
+                            ${this._showCurrentWeather ? this._renderHeaderWeather() : ''}
                         </div>
                     ` : ''}
                     <div class="controls">
-                        ${this._title ? html`
+                        ${this._title && this._showTitle ? html`
                             <div class="title-row">
                                 <span class="calendar-title">${this._title}</span>
                             </div>
@@ -503,7 +587,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                     <button
                                         class="view-btn ${view === this._currentView ? 'active' : ''}"
                                         @click="${() => this._setView(view)}"
-                                    >${view}</button>
+                                    >${this._getViewLabel(view)}</button>
                                 `)}
                             </div>
                         </div>
@@ -1774,6 +1858,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 console.error('Skylight Family Calendar: Failed to update event:', e);
             }
         }
+    }
+
+    _getViewLabel(view) {
+        const key = view.toLowerCase();
+        return this._language[key] ?? view;
     }
 
     _getCalendarDisplayName(calendar) {

@@ -37,6 +37,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     'General',
                     html`
                         ${this.addTextField('title', 'Title')}
+                        ${this.addBooleanField('showTitle', 'Show title', true)}
                         ${this.addSelectField('locale', 'Locale', [
                             { value: 'en', label: 'English' },
                             { value: 'fr', label: 'Fran\u00e7ais' },
@@ -67,6 +68,8 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                             { value: 'month', label: 'Month' },
                         ], true)}
                         ${this.addBooleanField('showHeader', 'Show Skylight header', true)}
+                        ${this.addBooleanField('showHeaderDate', 'Show date in header', true)}
+                        ${this.addBooleanField('showHeaderClock', 'Show clock in header', true)}
                         ${this.addEntityPickerField('defaultCalendar', 'Default calendar for event creation', ['calendar'])}
                     `,
                     true
