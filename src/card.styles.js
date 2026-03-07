@@ -352,6 +352,16 @@ export default css`
         margin: 0 0 var(--days-spacing) 0;
     }
 
+    .container .day.today {
+        background-color: #03a9f410;
+        border-radius: 12px;
+    }
+
+    .container .day.today .date .number {
+        color: var(--skylight-accent, #03a9f4);
+        font-weight: bold;
+    }
+
     .container .day .date {
         position: relative;
         z-index: 1;
@@ -577,6 +587,45 @@ export default css`
     .create-event-form .form-input:focus {
         outline: none;
         border-color: var(--primary-color, #03a9f4);
+    }
+
+    .create-event-form .location-row {
+        position: relative;
+    }
+
+    .create-event-form .location-suggestions {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        background: var(--card-background-color, #fff);
+        border: 1px solid var(--divider-color, #e0e0e0);
+        border-radius: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .create-event-form .location-suggestions li {
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 0.85em;
+        border-bottom: 1px solid var(--divider-color, #e0e0e0);
+        color: var(--primary-text-color);
+    }
+
+    .create-event-form .location-suggestions li:last-child {
+        border-bottom: none;
+    }
+
+    .create-event-form .location-suggestions li:hover {
+        background-color: var(--primary-color, #03a9f4);
+        color: #fff;
     }
 
     .create-event-form .form-actions {

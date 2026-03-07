@@ -175,7 +175,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._weather = this._getWeatherConfig(config.weather);
         this._numberOfDays = this._getNumberOfDays(config.days ?? 7);
         this._hideWeekend = config.hideWeekend ?? false;
-        this._showNavigation = config.showNavigation ?? false;
+        this._showNavigation = config.showNavigation ?? true;
         this._startingDay = config.startingDay ?? 'today';
         this._startingDayOffset = config.startingDayOffset ?? 0;
         this._showWeekDayText = config.showWeekDayText ?? true;
@@ -183,7 +183,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._updateInterval = config.updateInterval ?? 60;
         this._noCardBackground = config.noCardBackground ?? false;
         this._eventBackground = config.eventBackground ?? 'var(--card-background-color, inherit)';
-        this._compact = config.compact ?? false;
+        this._compact = config.compact ?? true;
         this._dayFormat = config.dayFormat ?? null;
         this._dateFormat = config.dateFormat ?? 'cccc d LLLL yyyy';
         this._timeFormat = config.timeFormat ?? 'HH:mm';
@@ -193,6 +193,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._showTitle = config.showTitle ?? true;
         this._showHeaderDate = config.showHeaderDate ?? true;
         this._showHeaderClock = config.showHeaderClock ?? true;
+        this._colorFullEvent = config.colorFullEvent ?? true;
         this._showDescription = config.showDescription ?? false;
         this._showLocation = config.showLocation ?? false;
         this._showTime = config.showTime ?? false;
@@ -247,6 +248,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 eventCalendar: 'Calendar',
                 eventStart: 'Start',
                 eventEnd: 'End',
+                eventLocation: 'Location',
                 cancel: 'Cancel',
                 create: 'Create',
                 newEvent: 'New event',
@@ -263,7 +265,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
         // Skylight-specific config
         this._showHeader = config.showHeader ?? true;
-        this._views = config.views ?? ['Today', 'Tomorrow', 'Week', 'Biweek', 'Month'];
+        const defaultViews = ['Today', 'Tomorrow', 'Week', 'Biweek', 'Month'];
+        this._views = typeof config.views === 'string'
+            ? config.views.split(',').map(v => v.trim()).filter(Boolean)
+            : (config.views ?? defaultViews);
         this._currentView = config.defaultView ?? 'Week';
 
         // Initialize calendar visibility
@@ -288,7 +293,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             fullDay: 'Toute la journ\u00e9e', noEvents: 'Aucun \u00e9v\u00e9nement', moreEvents: 'Plus d\'\u00e9v\u00e9nements',
             today: 'Aujourd\'hui', tomorrow: 'Demain', yesterday: 'Hier',
             editEvent: 'Modifier', deleteEvent: 'Supprimer', eventTitle: 'Titre',
-            eventCalendar: 'Calendrier', eventStart: 'D\u00e9but', eventEnd: 'Fin',
+            eventCalendar: 'Calendrier', eventStart: 'D\u00e9but', eventEnd: 'Fin', eventLocation: 'Lieu',
             cancel: 'Annuler', create: 'Cr\u00e9er', newEvent: 'Nouvel \u00e9v\u00e9nement',
             save: 'Enregistrer', editEventTitle: 'Modifier l\'\u00e9v\u00e9nement',
             titleRequired: 'Le titre est requis',
@@ -298,7 +303,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
             today: 'Heute', tomorrow: 'Morgen', yesterday: 'Gestern',
             editEvent: 'Bearbeiten', deleteEvent: 'L\u00f6schen', eventTitle: 'Titel',
-            eventCalendar: 'Kalender', eventStart: 'Beginn', eventEnd: 'Ende',
+            eventCalendar: 'Kalender', eventStart: 'Beginn', eventEnd: 'Ende', eventLocation: 'Ort',
             cancel: 'Abbrechen', create: 'Erstellen', newEvent: 'Neuer Termin',
             save: 'Speichern', editEventTitle: 'Termin bearbeiten',
             titleRequired: 'Titel ist erforderlich',
@@ -308,7 +313,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
             today: 'Hoy', tomorrow: 'Ma\u00f1ana', yesterday: 'Ayer',
             editEvent: 'Editar', deleteEvent: 'Eliminar', eventTitle: 'T\u00edtulo',
-            eventCalendar: 'Calendario', eventStart: 'Inicio', eventEnd: 'Fin',
+            eventCalendar: 'Calendario', eventStart: 'Inicio', eventEnd: 'Fin', eventLocation: 'Ubicaci\u00f3n',
             cancel: 'Cancelar', create: 'Crear', newEvent: 'Nuevo evento',
             save: 'Guardar', editEventTitle: 'Editar evento',
             titleRequired: 'El t\u00edtulo es obligatorio',
@@ -318,7 +323,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
             today: 'Oggi', tomorrow: 'Domani', yesterday: 'Ieri',
             editEvent: 'Modifica', deleteEvent: 'Elimina', eventTitle: 'Titolo',
-            eventCalendar: 'Calendario', eventStart: 'Inizio', eventEnd: 'Fine',
+            eventCalendar: 'Calendario', eventStart: 'Inizio', eventEnd: 'Fine', eventLocation: 'Luogo',
             cancel: 'Annulla', create: 'Crea', newEvent: 'Nuovo evento',
             save: 'Salva', editEventTitle: 'Modifica evento',
             titleRequired: 'Il titolo \u00e8 obbligatorio',
@@ -328,7 +333,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
             today: 'Vandaag', tomorrow: 'Morgen', yesterday: 'Gisteren',
             editEvent: 'Bewerken', deleteEvent: 'Verwijderen', eventTitle: 'Titel',
-            eventCalendar: 'Agenda', eventStart: 'Begin', eventEnd: 'Einde',
+            eventCalendar: 'Agenda', eventStart: 'Begin', eventEnd: 'Einde', eventLocation: 'Locatie',
             cancel: 'Annuleren', create: 'Aanmaken', newEvent: 'Nieuw evenement',
             save: 'Opslaan', editEventTitle: 'Evenement bewerken',
             titleRequired: 'Titel is verplicht',
@@ -338,7 +343,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
             today: 'Hoje', tomorrow: 'Amanh\u00e3', yesterday: 'Ontem',
             editEvent: 'Editar', deleteEvent: 'Excluir', eventTitle: 'T\u00edtulo',
-            eventCalendar: 'Calend\u00e1rio', eventStart: 'In\u00edcio', eventEnd: 'Fim',
+            eventCalendar: 'Calend\u00e1rio', eventStart: 'In\u00edcio', eventEnd: 'Fim', eventLocation: 'Local',
             cancel: 'Cancelar', create: 'Criar', newEvent: 'Novo evento',
             save: 'Salvar', editEventTitle: 'Editar evento',
             titleRequired: 'O t\u00edtulo \u00e9 obrigat\u00f3rio',
@@ -846,7 +851,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         data-start-minute="${event.start.toFormat('mm')}"
                         data-end-hour="${event.end.toFormat('H')}"
                         data-end-minute="${event.end.toFormat('mm')}"
-                        style="--border-color: ${event.colors[0]}"
+                        style="--border-color: ${event.colors[0]}${this._colorFullEvent ? '; background-color: ' + event.colors[0] + '20; border-left-width: 0' : ''}"
                         @click="${() => {
                             this._handleEventClick(event)
                         }}"
@@ -1097,6 +1102,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <label for="event-end">${this._language.eventEnd}</label>
                         <input type="datetime-local" id="event-end" class="form-input" .value="${endValue}" />
                     </div>
+                    <div class="form-row location-row">
+                        <label for="event-location">${this._language.eventLocation ?? 'Location'}</label>
+                        <input type="text" id="event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
+                            @input="${this._handleLocationInput}" autocomplete="off" />
+                        <ul class="location-suggestions" id="event-location-suggestions"></ul>
+                    </div>
                     <div class="form-actions">
                         <button class="btn btn-cancel" @click="${this._closeCreateEventDialog}">${this._language.cancel}</button>
                         <button class="btn btn-submit" @click="${this._handleCreateEvent}">${this._language.create}</button>
@@ -1160,6 +1171,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <input type="datetime-local" id="edit-event-end" class="form-input"
                             .value="${form.end}"
                             @input="${(e) => { this._editFormData = { ...this._editFormData, end: e.target.value }; }}" />
+                    </div>
+                    <div class="form-row location-row">
+                        <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
+                        <input type="text" id="edit-event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
+                            .value="${form.location ?? ''}"
+                            @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
+                            autocomplete="off" />
+                        <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
                     </div>
                     <div class="form-actions">
                         <button class="btn btn-delete" @click="${this._handleDeleteEventFromEdit}">
@@ -1659,6 +1678,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 calendar: event.calendars[0] || '',
                 start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
                 end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
+                location: event.location || '',
             };
             this._showEditEventDialog = event;
         } else {
@@ -1679,11 +1699,68 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._showCreateEventDialog = null;
     }
 
+    _handleLocationInput(e) {
+        const value = e.target.value?.trim();
+        const input = e.target;
+        clearTimeout(this._locationSearchTimeout);
+        if (!value || value.length < 3) {
+            this._clearLocationSuggestions(input);
+            return;
+        }
+        this._locationSearchTimeout = setTimeout(() => this._searchLocation(value, input), 400);
+    }
+
+    async _searchLocation(query, input) {
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
+                { headers: { 'Accept-Language': this._language?.locale || 'en' } }
+            );
+            const results = await response.json();
+            this._showLocationSuggestions(results, input);
+        } catch (e) {
+            console.error('Location search failed:', e);
+        }
+    }
+
+    _showLocationSuggestions(results, input) {
+        const list = input.parentElement.querySelector('.location-suggestions');
+        if (!list) return;
+        list.innerHTML = '';
+        if (results.length === 0) {
+            list.style.display = 'none';
+            return;
+        }
+        results.forEach(result => {
+            const li = document.createElement('li');
+            li.textContent = result.display_name;
+            li.addEventListener('click', () => {
+                input.value = result.display_name;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                if (this._editFormData) {
+                    this._editFormData = { ...this._editFormData, location: result.display_name };
+                }
+                list.style.display = 'none';
+            });
+            list.appendChild(li);
+        });
+        list.style.display = 'block';
+    }
+
+    _clearLocationSuggestions(input) {
+        const list = input.parentElement.querySelector('.location-suggestions');
+        if (list) {
+            list.innerHTML = '';
+            list.style.display = 'none';
+        }
+    }
+
     async _handleCreateEvent() {
         const title = this.shadowRoot.querySelector('#event-title')?.value?.trim();
         const calendar = this.shadowRoot.querySelector('#event-calendar')?.value;
         const startInput = this.shadowRoot.querySelector('#event-start')?.value;
         const endInput = this.shadowRoot.querySelector('#event-end')?.value;
+        const location = this.shadowRoot.querySelector('#event-location')?.value?.trim();
 
         if (!title) {
             return;
@@ -1696,13 +1773,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const start = DateTime.fromISO(startInput);
         const end = endInput ? DateTime.fromISO(endInput) : start.plus({ hours: 1 });
 
+        const serviceData = {
+            entity_id: calendar,
+            summary: title,
+            start_date_time: start.toFormat('yyyy-MM-dd HH:mm:ss'),
+            end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
+        };
+        if (location) serviceData.location = location;
+
         try {
-            await this.hass.callService('calendar', 'create_event', {
-                entity_id: calendar,
-                summary: title,
-                start_date_time: start.toFormat('yyyy-MM-dd HH:mm:ss'),
-                end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
-            });
+            await this.hass.callService('calendar', 'create_event', serviceData);
 
             this._showCreateEventDialog = null;
             this._updateEvents();
@@ -1744,6 +1824,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             calendar: event.calendars[0] || '',
             start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
             end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
+            location: event.location || '',
         };
         this._showEditEventDialog = event;
     }
@@ -1792,6 +1873,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const calendar = form.calendar;
         const startInput = form.start;
         const endInput = form.end;
+        const location = form.location?.trim() ?? '';
 
         if (!title || !startInput) {
             console.error('Skylight Family Calendar: Missing required fields', { title, startInput });
@@ -1806,15 +1888,17 @@ export class SkylightFamilyCalendarCard extends LitElement {
         try {
             // Try native update first
             if (event.uid) {
+                const eventData = {
+                    summary: title,
+                    dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                    dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                };
+                if (location) eventData.location = location;
                 const wsData = {
                     type: 'calendar/event/update',
                     entity_id: entityId,
                     uid: event.uid,
-                    event: {
-                        summary: title,
-                        dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
-                        dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
-                    },
+                    event: eventData,
                 };
                 if (event.recurrence_id) {
                     wsData.recurrence_id = event.recurrence_id;
@@ -1841,12 +1925,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     }
                     await this.hass.callWS(deleteData);
 
-                    await this.hass.callService('calendar', 'create_event', {
+                    const fallbackData = {
                         entity_id: entityId,
                         summary: title,
                         start_date_time: start.toFormat('yyyy-MM-dd HH:mm:ss'),
                         end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
-                    });
+                    };
+                    if (location) fallbackData.location = location;
+                    await this.hass.callService('calendar', 'create_event', fallbackData);
 
                     this._showEditEventDialog = null;
                     this._editFormData = null;

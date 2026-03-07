@@ -37,6 +37,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     'General',
                     html`
                         ${this.addTextField('title', 'Title')}
+                        ${this.addHint('Card title displayed above the calendar')}
                         ${this.addBooleanField('showTitle', 'Show title', true)}
                         ${this.addSelectField('locale', 'Locale', [
                             { value: 'en', label: 'English' },
@@ -47,6 +48,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                             { value: 'nl', label: 'Nederlands' },
                             { value: 'pt', label: 'Portugu\u00eas' },
                         ], true)}
+                        ${this.addHint('Language for dates, buttons and UI texts')}
                         ${this.addSelectField('defaultView', 'Default view', [
                             { value: 'Today', label: 'Today' },
                             { value: 'Tomorrow', label: 'Tomorrow' },
@@ -54,6 +56,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                             { value: 'Biweek', label: 'Biweek' },
                             { value: 'Month', label: 'Month' },
                         ], true)}
+                        ${this.addHint('View shown when the card loads')}
                         ${this.addSelectField('startingDay', 'Starting day', [
                             { value: 'today', label: 'Today' },
                             { value: 'tomorrow', label: 'Tomorrow' },
@@ -67,10 +70,13 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                             { value: 'saturday', label: 'Saturday' },
                             { value: 'month', label: 'Month' },
                         ], true)}
+                        ${this.addHint('First day shown in the calendar')}
                         ${this.addBooleanField('showHeader', 'Show Skylight header', true)}
+                        ${this.addHint('Show the date/time/weather header at the top')}
                         ${this.addBooleanField('showHeaderDate', 'Show date in header', true)}
                         ${this.addBooleanField('showHeaderClock', 'Show clock in header', true)}
                         ${this.addEntityPickerField('defaultCalendar', 'Default calendar for event creation', ['calendar'])}
+                        ${this.addHint('Pre-selected calendar when creating a new event')}
                     `,
                     true
                 )}
@@ -84,13 +90,18 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                                     html`
                                         ${this.addEntityPickerField('calendars.' + index + '.entity', 'Entity', ['calendar'])}
                                         ${this.addTextField('calendars.' + index + '.name', 'Name')}
+                                        ${this.addHint('Custom display name (uses HA friendly name if empty)')}
                                         ${this.addTextField('calendars.' + index + '.color', 'Color')}
+                                        ${this.addHint('Hex color code (e.g. #FF5733). Auto-assigned if empty')}
                                         ${this.addIconPickerField('calendars.' + index + '.icon', 'Icon')}
                                         ${this.addTextField('calendars.' + index + '.eventTitleField', 'Event title field', 'text', 'summary')}
+                                        ${this.addHint('Event attribute to use as title (default: summary)')}
                                         ${this.addTextField('calendars.' + index + '.filter', 'Filter events (regex)')}
+                                        ${this.addHint('Only show events matching this pattern')}
                                         ${this.addTextField('calendars.' + index + '.filterText', 'Filter event text (regex)')}
-                                        ${this.addBooleanField('calendars.' + index + '.hideInLegend', 'Hide in legend')}
+                                        ${this.addHint('Replace event text matching this pattern')}
                                         ${this.addBooleanField('calendars.' + index + '.initiallyHidden', 'Initially hide calendar events')}
+                                        ${this.addHint('Events hidden by default, toggle via filter buttons')}
                                         ${this.addButton('Remove calendar', 'mdi:trash-can', () => {
                                             const config = JSON.parse(JSON.stringify(this._config));
                                             if (config.calendars.length === 1) {
@@ -115,20 +126,22 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 ${this.addExpansionPanel(
                     'Days',
                     html`
-                        ${this.addTextField('days', 'Days')}
-                        ${this.addTextField('startingDayOffset', 'Starting day offset', 'number')}
                         ${this.addBooleanField('showWeekDayText', 'Show week day text', true)}
+                        ${this.addHint('Display day names (Mon, Tue...) above columns')}
                         ${this.addBooleanField('hideWeekend', 'Hide weekend')}
                         ${this.addBooleanField('hideDaysWithoutEvents', 'Hide days without events except for today')}
                         ${this.addBooleanField('hideTodayWithoutEvents', 'Also hide today without events')}
                         ${this.addTextField('maxDayEvents', 'Maximum number of events per day (0 is no maximum)', 'number', 0)}
+                        ${this.addHint('Limit events per day, extra shown as "+X more"')}
                         ${this.addBooleanField('showNavigation', 'Show navigation')}
+                        ${this.addHint('Show arrows to navigate between weeks/months')}
                     `
                 )}
                 ${this.addExpansionPanel(
                     'Events',
                     html`
                         ${this.addTextField('maxEvents', 'Maximum number of events (0 is no maximum)', 'number', 0)}
+                        ${this.addHint('Total event limit across all days')}
                         ${this.addBooleanField('hidePastEvents', 'Hide past events')}
                         ${this.addBooleanField('hideAllDayEvents', 'Hide all day events')}
                         ${this.addSelectField('multiDayMode', 'Multi day mode', [
@@ -136,17 +149,19 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                             { value: 'multiple', label: 'Multiple' },
                             { value: 'single', label: 'Single' },
                         ], true)}
+                        ${this.addHint('How multi-day events are displayed: once, on each day, or first day only')}
                         ${this.addTextField('filter', 'Filter events (regex)')}
+                        ${this.addHint('Only show events whose title matches this pattern')}
                         ${this.addTextField('filterText', 'Filter event text (regex)')}
+                        ${this.addHint('Replace displayed event text matching this pattern')}
                         ${this.addBooleanField('combineSimilarEvents', 'Combine similar events')}
+                        ${this.addHint('Merge identical events from multiple calendars')}
                         ${this.addBooleanField('showDayName', 'Show day name')}
-                        ${this.addBooleanField('showDate', 'Show date in event details')}
+                        ${this.addHint('Show day name (Mon, Tue...) in each event')}
                         ${this.addBooleanField('showTime', 'Show time')}
-                        ${this.addBooleanField('showCalendarName', 'Show calendar name in event details')}
+                        ${this.addHint('Show start/end time in each event')}
                         ${this.addBooleanField('showTitle', 'Show title in overview', true)}
-                        ${this.addBooleanField('showDescription', 'Show description in overview')}
-                        ${this.addBooleanField('showLocation', 'Show location in overview')}
-                        ${this.addTextField('locationLink', 'Override location link base URL')}
+                        ${this.addHint('Show event title in the calendar view')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -154,22 +169,30 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     html`
                         <p>These formats use <a href="https://moment.github.io/luxon/#/formatting?id=table-of-tokens" target="_blank">Luxon format tokens</a></p>
                         ${this.addTextField('dateFormat', 'Date format')}
+                        ${this.addHint('e.g. dd/MM for "07/03", d MMM for "7 mars"')}
                         ${this.addTextField('timeFormat', 'Time format')}
+                        ${this.addHint('e.g. HH:mm for "15:00", h:mm a for "3:00 PM"')}
                         ${this.addTextField('multiDayTimeFormat', 'Multi day time format')}
+                        ${this.addHint('Format for multi-day events (default: d LLL HH:mm)')}
                         ${this.addTextField('dayFormat', 'Override day number')}
+                        ${this.addHint('Custom format for the day number in column headers')}
                     `
                 )}
                 ${this.addExpansionPanel(
                     'Weather',
                     html`
                         ${this.addEntityPickerField('weather.entity', 'Weather entity', ['weather'])}
+                        ${this.addHint('Weather entity to use (auto-detected if empty)')}
                         ${this.addBooleanField('showCurrentWeather', 'Show current weather in header')}
+                        ${this.addHint('Display current temperature and icon in the header')}
                         ${this.addBooleanField('showWeather', 'Show weather in calendar', true)}
+                        ${this.addHint('Display weather forecast in day columns')}
                         ${this.addBooleanField('weather.showCondition', 'Show condition icon')}
                         ${this.addBooleanField('weather.showTemperature', 'Show temperature')}
                         ${this.addBooleanField('weather.showLowTemperature', 'Show low temperature')}
                         ${this.addBooleanField('weather.roundTemperature', 'Round temperatures to nearest integer')}
                         ${this.addBooleanField('weather.useTwiceDaily', 'Use twice daily if entity does not support daily')}
+                        ${this.addHint('Fallback for weather entities without daily forecast')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -186,16 +209,14 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 ${this.addExpansionPanel(
                     'Appearance',
                     html`
+                        ${this.addBooleanField('colorFullEvent', 'Color full event background', true)}
+                        ${this.addHint('Color entire event block with calendar color instead of left border only')}
                         ${this.addBooleanField('noCardBackground', 'No card background')}
+                        ${this.addHint('Make the card background transparent')}
                         ${this.addTextField('eventBackground', 'Override events background color')}
+                        ${this.addHint('Custom background color for all events (hex or CSS color)')}
                         ${this.addBooleanField('compact', 'Compact mode')}
-                    `
-                )}
-                ${this.addExpansionPanel(
-                    'Legend',
-                    html`
-                        ${this.addBooleanField('showLegend', 'Show legend')}
-                        ${this.addBooleanField('legendToggle', 'Toggle calendars by clicking on the legend')}
+                        ${this.addHint('Reduce spacing and padding for smaller displays')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -203,11 +224,13 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     html`
                         <p>Select which view buttons are displayed. Leave empty for all views.</p>
                         ${this.addTextField('views', 'Views (comma separated: Today,Tomorrow,Week,Biweek,Month)')}
+                        ${this.addHint('e.g. "Week,Month" to show only these two views')}
                     `
                 )}
                 ${this.addExpansionPanel(
                     'Texts',
                     html`
+                        <p style="color: var(--secondary-text-color); font-size: 0.85em; margin: 0 0 8px 0">Override auto-translated UI texts. Leave empty to use locale defaults.</p>
                         ${this.addTextField('texts.fullDay', 'Entire day')}
                         ${this.addTextField('texts.noEvents', 'No events')}
                         ${this.addTextField('texts.moreEvents', 'More events')}
@@ -238,10 +261,15 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     'Miscellaneous',
                     html`
                         ${this.addTextField('updateInterval', 'Override update interval', 'number')}
+                        ${this.addHint('Auto-refresh interval in seconds (default: 60)')}
                     `
                 )}
             </div>
         `;
+    }
+
+    addHint(text) {
+        return html`<p style="color: var(--secondary-text-color); font-size: 0.8em; margin: -4px 0 8px 0; padding: 0;">${text}</p>`;
     }
 
     addTextField(name, label, type, defaultValue) {
