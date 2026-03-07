@@ -1124,6 +1124,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _subscribeToWeatherForecast() {
+        if (!this._weather?.entity || !this.hass.states[this._weather.entity]) {
+            this._weatherForecast = [];
+            return;
+        }
         this._loading++;
         this._updateLoader();
         let loadingWeather = true;
@@ -1137,6 +1141,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             type: 'weather/subscribe_forecast',
             forecast_type: this._weather.useTwiceDaily ? 'twice_daily' : 'daily',
             entity_id: this._weather.entity
+        }).catch(() => {
+            this._weatherForecast = [];
+            if (loadingWeather) {
+                this._loading--;
+                loadingWeather = false;
+            }
         });
     }
 
