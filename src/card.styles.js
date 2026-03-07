@@ -1014,4 +1014,33 @@ export default css`
             font-size: 1.8em;
         }
     }
+
+    /* ── Dark mode ──────────────────── */
+
+    @media (prefers-color-scheme: dark) {
+        :host {
+            --skylight-bg: rgba(40, 40, 40, 0.85);
+        }
+
+        .view-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .view-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .filter-btn {
+            color: var(--primary-text-color, #e0e0e0);
+        }
+
+        .container .day.today {
+            background-color: rgba(3, 169, 244, 0.12);
+        }
+
+        .container .day .events .event {
+            border-left-color: var(--border-color, var(--divider-color, #555));
+        }
+    }
 `;
