@@ -284,18 +284,12 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
             <ha-select
                 name="${name}"
                 label="${label ?? name}"
-                value="${this.getConfigValue(name, defaultValue)}"
+                .value="${this.getConfigValue(name, defaultValue)}"
                 .clearable="${clearable}"
-                @change="${this._valueChanged}"
+                .options="${options}"
+                @value-changed="${this._valueChanged}"
                 @closed="${(event) => { event.stopPropagation(); }}"
             >
-                ${options.map((option) => {
-                    return html`
-                        <mwc-list-item
-                            value="${option.value}"
-                        >${option.label ?? option.value}</mwc-list-item>
-                    `;
-                })}
             </ha-select>
         `;
     }

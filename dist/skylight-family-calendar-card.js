@@ -1235,16 +1235,12 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
             <ha-select
                 name="${e}"
                 label="${t??e}"
-                value="${this.getConfigValue(e,r)}"
+                .value="${this.getConfigValue(e,r)}"
                 .clearable="${i}"
-                @change="${this._valueChanged}"
+                .options="${n}"
+                @value-changed="${this._valueChanged}"
                 @closed="${e=>{e.stopPropagation()}}"
             >
-                ${n.map(e=>j`
-                        <mwc-list-item
-                            value="${e.value}"
-                        >${e.label??e.value}</mwc-list-item>
-                    `)}
             </ha-select>
         `}addBooleanField(e,t,n){return j`
             <ha-formfield
