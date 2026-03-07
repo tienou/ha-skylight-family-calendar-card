@@ -1183,6 +1183,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
                             autocomplete="off" />
                         <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
+                        ${form.location ? html`
+                        <a class="location-maps-link" href="${this._locationLink}${encodeURI(form.location)}" target="_blank">
+                            <ha-icon icon="mdi:map-marker"></ha-icon> ${this._language.openInMaps ?? 'Google Maps'}
+                        </a>
+                        ` : ''}
                     </div>
                     ` : ''}
                     <div class="form-actions">
@@ -1677,7 +1682,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (this._actions) {
             return;
         }
-        this._currentEventDetails = event;
+        if (event.uid) {
+            this._editFormData = {
+                title: event.summary || '',
+                calendar: event.calendars[0] || '',
+                start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
+                end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
+                location: event.location || '',
+            };
+            this._showEditEventDialog = event;
+        } else {
+            this._currentEventDetails = event;
+        }
     }
 
     _closeDialog() {

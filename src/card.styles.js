@@ -639,6 +639,25 @@ export default css`
         color: #fff;
     }
 
+    .create-event-form .location-maps-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 6px;
+        color: var(--primary-color, #03a9f4);
+        text-decoration: none;
+        font-size: 0.9em;
+        cursor: pointer;
+    }
+
+    .create-event-form .location-maps-link:hover {
+        text-decoration: underline;
+    }
+
+    .create-event-form .location-maps-link ha-icon {
+        --mdc-icon-size: 16px;
+    }
+
     .create-event-form .form-actions {
         display: flex;
         justify-content: flex-end;
