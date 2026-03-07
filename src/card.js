@@ -197,6 +197,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._showDescription = config.showDescription ?? false;
         this._showLocation = config.showLocation ?? true;
         this._showLocationInForm = config.showLocationInForm ?? true;
+        this._googleApiKey = config.googleApiKey ?? '';
         this._showTime = config.showTime ?? false;
         this._showDayName = config.showDayName ?? false;
         this._showDate = config.showDate ?? false;
@@ -693,7 +694,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _renderWeekDays() {
-        if (this._showWeekDayText || !this._days) {
+        if (!this._showWeekDayText || !this._days) {
             return html``;
         }
 
@@ -1705,6 +1706,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _handleLocationInput(e) {
+        if (!this._googleApiKey) return;
         const value = e.target.value?.trim();
         const input = e.target;
         clearTimeout(this._locationSearchTimeout);
@@ -1718,10 +1720,27 @@ export class SkylightFamilyCalendarCard extends LitElement {
     async _searchLocation(query, input) {
         try {
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
-                { headers: { 'Accept-Language': this._language?.locale || 'en' } }
+                `https://places.googleapis.com/v1/places:autocomplete`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Goog-Api-Key': this._googleApiKey,
+                    },
+                    body: JSON.stringify({
+                        input: query,
+                        languageCode: this._language?.locale || 'en',
+                    }),
+                }
             );
-            const results = await response.json();
+            const data = await response.json();
+            const results = (data.suggestions || [])
+                .filter(s => s.placePrediction)
+                .map(s => ({
+                    name: s.placePrediction.structuredFormat?.mainText?.text || '',
+                    address: s.placePrediction.structuredFormat?.secondaryText?.text || '',
+                    fullText: s.placePrediction.text?.text || '',
+                }));
             this._showLocationSuggestions(results, input);
         } catch (e) {
             console.error('Location search failed:', e);
@@ -1738,12 +1757,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
         results.forEach(result => {
             const li = document.createElement('li');
-            li.textContent = result.display_name;
+            li.innerHTML = `<strong>${result.name}</strong> <span style="color: var(--secondary-text-color); font-size: 0.85em;">${result.address}</span>`;
             li.addEventListener('click', () => {
-                input.value = result.display_name;
+                input.value = result.fullText;
                 input.dispatchEvent(new Event('input', { bubbles: true }));
                 if (this._editFormData) {
-                    this._editFormData = { ...this._editFormData, location: result.display_name };
+                    this._editFormData = { ...this._editFormData, location: result.fullText };
                 }
                 list.style.display = 'none';
             });

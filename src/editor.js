@@ -264,6 +264,8 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 ${this.addExpansionPanel(
                     'Miscellaneous',
                     html`
+                        ${this.addTextField('googleApiKey', 'Google Places API key')}
+                        ${this.addHint('Enable location autocomplete in event forms. Without key, location is a simple text field.')}
                         ${this.addTextField('updateInterval', 'Override update interval', 'number')}
                         ${this.addHint('Auto-refresh interval in seconds (default: 60)')}
                     `
