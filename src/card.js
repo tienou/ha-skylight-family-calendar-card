@@ -191,6 +191,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._multiDayMode = config.multiDayMode ?? 'default';
         this._locationLink = config.locationLink ?? 'https://www.google.com/maps/search/?api=1&query=';
         this._showTitle = config.showTitle ?? true;
+        this._showEventTitle = config.showEventTitle ?? true;
         this._showHeaderDate = config.showHeaderDate ?? true;
         this._showHeaderClock = config.showHeaderClock ?? true;
         this._colorFullEvent = config.colorFullEvent ?? true;
@@ -879,9 +880,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                 </div>` :
                                 ''
                             }
-                            <div class="title">
+                            ${this._showEventTitle ? html`<div class="title">
                                 ${event.summary}
-                            </div>
+                            </div>` : ''}
                             ${this._showDescription ?
                                 html`
                                     <div class="description">
