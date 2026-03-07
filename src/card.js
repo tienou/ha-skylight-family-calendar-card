@@ -94,6 +94,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _updateEventsTimeouts = [];
     _calendarErrors = [];
 
+    // Skylight-specific properties
+    _calendarVisibility = {};
+    _currentView = 'Week';
+    _clockInterval = null;
+    _views;
+    _showHeader;
+
     /**
      * Get config element
      *
@@ -111,28 +118,21 @@ export class SkylightFamilyCalendarCard extends LitElement {
      */
     static getStubConfig() {
         return {
-            calendars: [],
-            days: 7,
-            startingDay: 'today',
-            startingDayOffset: 0,
-            showWeekDayText: true,
-            hideWeekend: false,
-            noCardBackground: false,
-            compact: false,
-            weather: {
-                showCondition: true,
-                showTemperature: false,
-                showLowTemperature: false,
-                roundTemperature: false,
-                useTwiceDaily: false,
-            },
+            title: 'Family Calendar',
             locale: 'en',
-            showLocation: false,
-            hidePastEvents: false,
-            hideDaysWithoutEvents: false,
-            hideTodayWithoutEvents: false,
-            combineSimilarEvents: false,
-            showLegend: false
+            defaultView: 'Week',
+            startingDay: 'monday',
+            showHeader: true,
+            views: ['Today', 'Tomorrow', 'Week', 'Biweek', 'Month'],
+            calendars: [
+                { entity: 'calendar.family', name: 'Family', icon: 'mdi:calendar', color: '#4A90E2' },
+            ],
+            weather: {
+                entity: 'weather.home',
+                showCondition: true,
+                showTemperature: true,
+                showLowTemperature: true,
+            },
         };
     }
 
@@ -150,7 +150,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _hideCalendars: { type: Array },
             _showCreateEventDialog: { type: Object },
             _showEditEventDialog: { type: Object },
-            _editFormData: { type: Object }
+            _editFormData: { type: Object },
+            _currentView: { type: String },
+            _calendarVisibility: { type: Object }
         }
     }
 
@@ -168,12 +170,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
         this._numberOfDaysIsMonth = this._isNumberOfDaysMonth(config.days ?? 7);
         this._title = config.title ?? null;
-        this._calendars = config.calendars;
+        this._calendars = this._applyDefaultColors(config.calendars);
         this._defaultCalendar = config.defaultCalendar ?? null;
         this._weather = this._getWeatherConfig(config.weather);
         this._numberOfDays = this._getNumberOfDays(config.days ?? 7);
         this._hideWeekend = config.hideWeekend ?? false;
-        this._showNavigation = config.showNavigation ?? false;
+        this._showNavigation = config.showNavigation ?? true;
         this._startingDay = config.startingDay ?? 'today';
         this._startingDayOffset = config.startingDayOffset ?? 0;
         this._showWeekDayText = config.showWeekDayText ?? true;
@@ -181,7 +183,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._updateInterval = config.updateInterval ?? 60;
         this._noCardBackground = config.noCardBackground ?? false;
         this._eventBackground = config.eventBackground ?? 'var(--card-background-color, inherit)';
-        this._compact = config.compact ?? false;
+        this._compact = config.compact ?? true;
         this._dayFormat = config.dayFormat ?? null;
         this._dateFormat = config.dateFormat ?? 'cccc d LLLL yyyy';
         this._timeFormat = config.timeFormat ?? 'HH:mm';
@@ -189,8 +191,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._multiDayMode = config.multiDayMode ?? 'default';
         this._locationLink = config.locationLink ?? 'https://www.google.com/maps/search/?api=1&query=';
         this._showTitle = config.showTitle ?? true;
+        this._showHeaderDate = config.showHeaderDate ?? true;
+        this._showHeaderClock = config.showHeaderClock ?? true;
+        this._colorFullEvent = config.colorFullEvent ?? true;
         this._showDescription = config.showDescription ?? false;
-        this._showLocation = config.showLocation ?? false;
+        this._showLocation = config.showLocation ?? true;
+        this._showLocationInForm = config.showLocationInForm ?? true;
+        this._googleApiKey = config.googleApiKey ?? '';
         this._showTime = config.showTime ?? false;
         this._showDayName = config.showDayName ?? false;
         this._showDate = config.showDate ?? false;
@@ -209,8 +216,6 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._legendToggle = config.legendToggle ?? false;
         this._actions = config.actions ?? false;
         this._columns = config.columns ?? {};
-        this._dayHeaderFontSize = config.dayHeaderFontSize ?? null;
-        this._dayHeaderColor = config.dayHeaderColor ?? null;
         this._maxEvents = config.maxEvents ?? false;
         this._maxDayEvents = config.maxDayEvents ?? false;
         this._hideCalendars = (config.calendars || []).reduce((acc, calendar) => {
@@ -222,6 +227,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (config.locale) {
             LuxonSettings.defaultLocale = config.locale;
         }
+        const localeTexts = this.constructor.LOCALE_TEXTS[config.locale] ?? {};
         this._language = Object.assign(
             {},
             {
@@ -237,14 +243,136 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 wednesday: LuxonInfo.weekdays('long')[2],
                 thursday: LuxonInfo.weekdays('long')[3],
                 friday: LuxonInfo.weekdays('long')[4],
-                saturday: LuxonInfo.weekdays('long')[5]
+                saturday: LuxonInfo.weekdays('long')[5],
+                editEvent: 'Edit',
+                deleteEvent: 'Delete',
+                eventTitle: 'Title',
+                eventCalendar: 'Calendar',
+                eventStart: 'Start',
+                eventEnd: 'End',
+                eventLocation: 'Location',
+                cancel: 'Cancel',
+                create: 'Create',
+                newEvent: 'New event',
+                save: 'Save',
+                editEventTitle: 'Edit event',
+                titleRequired: 'Title is required',
+                week: 'Week',
+                biweek: 'Biweek',
+                month: 'Month',
             },
+            localeTexts,
             config.texts ?? {}
         );
+
+        // Skylight-specific config
+        this._showHeader = config.showHeader ?? true;
+        const defaultViews = ['Today', 'Tomorrow', 'Week', 'Biweek', 'Month'];
+        this._views = typeof config.views === 'string'
+            ? config.views.split(',').map(v => v.trim()).filter(Boolean)
+            : (config.views ?? defaultViews);
+        this._currentView = config.defaultView ?? 'Week';
+
+        // Initialize calendar visibility
+        const newVisibility = {};
+        (config.calendars || []).forEach(cal => {
+            newVisibility[cal.entity] = this._calendarVisibility?.hasOwnProperty(cal.entity)
+                ? this._calendarVisibility[cal.entity]
+                : true;
+        });
+        this._calendarVisibility = newVisibility;
+
+        // Apply current view settings
+        this._applyViewSettings();
     }
 
     _isNumberOfDaysMonth(numberOfDays) {
         return String(numberOfDays).toLowerCase().trim() === 'month';
+    }
+
+    static LOCALE_TEXTS = {
+        fr: {
+            fullDay: 'Toute la journ\u00e9e', noEvents: 'Aucun \u00e9v\u00e9nement', moreEvents: 'Plus d\'\u00e9v\u00e9nements',
+            today: 'Aujourd\'hui', tomorrow: 'Demain', yesterday: 'Hier',
+            editEvent: 'Modifier', deleteEvent: 'Supprimer', eventTitle: 'Titre',
+            eventCalendar: 'Calendrier', eventStart: 'D\u00e9but', eventEnd: 'Fin', eventLocation: 'Lieu',
+            cancel: 'Annuler', create: 'Cr\u00e9er', newEvent: 'Nouvel \u00e9v\u00e9nement',
+            save: 'Enregistrer', editEventTitle: 'Modifier l\'\u00e9v\u00e9nement',
+            titleRequired: 'Le titre est requis',
+            week: 'Semaine', biweek: '2 Semaines', month: 'Mois',
+        },
+        de: {
+            fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
+            today: 'Heute', tomorrow: 'Morgen', yesterday: 'Gestern',
+            editEvent: 'Bearbeiten', deleteEvent: 'L\u00f6schen', eventTitle: 'Titel',
+            eventCalendar: 'Kalender', eventStart: 'Beginn', eventEnd: 'Ende', eventLocation: 'Ort',
+            cancel: 'Abbrechen', create: 'Erstellen', newEvent: 'Neuer Termin',
+            save: 'Speichern', editEventTitle: 'Termin bearbeiten',
+            titleRequired: 'Titel ist erforderlich',
+            week: 'Woche', biweek: '2 Wochen', month: 'Monat',
+        },
+        es: {
+            fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
+            today: 'Hoy', tomorrow: 'Ma\u00f1ana', yesterday: 'Ayer',
+            editEvent: 'Editar', deleteEvent: 'Eliminar', eventTitle: 'T\u00edtulo',
+            eventCalendar: 'Calendario', eventStart: 'Inicio', eventEnd: 'Fin', eventLocation: 'Ubicaci\u00f3n',
+            cancel: 'Cancelar', create: 'Crear', newEvent: 'Nuevo evento',
+            save: 'Guardar', editEventTitle: 'Editar evento',
+            titleRequired: 'El t\u00edtulo es obligatorio',
+            week: 'Semana', biweek: '2 Semanas', month: 'Mes',
+        },
+        it: {
+            fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
+            today: 'Oggi', tomorrow: 'Domani', yesterday: 'Ieri',
+            editEvent: 'Modifica', deleteEvent: 'Elimina', eventTitle: 'Titolo',
+            eventCalendar: 'Calendario', eventStart: 'Inizio', eventEnd: 'Fine', eventLocation: 'Luogo',
+            cancel: 'Annulla', create: 'Crea', newEvent: 'Nuovo evento',
+            save: 'Salva', editEventTitle: 'Modifica evento',
+            titleRequired: 'Il titolo \u00e8 obbligatorio',
+            week: 'Settimana', biweek: '2 Settimane', month: 'Mese',
+        },
+        nl: {
+            fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
+            today: 'Vandaag', tomorrow: 'Morgen', yesterday: 'Gisteren',
+            editEvent: 'Bewerken', deleteEvent: 'Verwijderen', eventTitle: 'Titel',
+            eventCalendar: 'Agenda', eventStart: 'Begin', eventEnd: 'Einde', eventLocation: 'Locatie',
+            cancel: 'Annuleren', create: 'Aanmaken', newEvent: 'Nieuw evenement',
+            save: 'Opslaan', editEventTitle: 'Evenement bewerken',
+            titleRequired: 'Titel is verplicht',
+            week: 'Week', biweek: '2 Weken', month: 'Maand',
+        },
+        pt: {
+            fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
+            today: 'Hoje', tomorrow: 'Amanh\u00e3', yesterday: 'Ontem',
+            editEvent: 'Editar', deleteEvent: 'Excluir', eventTitle: 'T\u00edtulo',
+            eventCalendar: 'Calend\u00e1rio', eventStart: 'In\u00edcio', eventEnd: 'Fim', eventLocation: 'Local',
+            cancel: 'Cancelar', create: 'Criar', newEvent: 'Novo evento',
+            save: 'Salvar', editEventTitle: 'Editar evento',
+            titleRequired: 'O t\u00edtulo \u00e9 obrigat\u00f3rio',
+            week: 'Semana', biweek: '2 Semanas', month: 'M\u00eas',
+        },
+    };
+
+    static PASTEL_COLORS = [
+        '#7FC8F8', // soft blue
+        '#FFB5A7', // soft coral
+        '#B8E0D2', // soft mint
+        '#E4C1F9', // soft lavender
+        '#FFD6A5', // soft peach
+        '#CAFFBF', // soft green
+        '#FFC6FF', // soft pink
+        '#A0C4FF', // soft periwinkle
+        '#FDFFB6', // soft yellow
+        '#BDB2FF', // soft violet
+    ];
+
+    _applyDefaultColors(calendars) {
+        return calendars.map((cal, i) => {
+            if (!cal.color) {
+                return { ...cal, color: this.constructor.PASTEL_COLORS[i % this.constructor.PASTEL_COLORS.length] };
+            }
+            return cal;
+        });
     }
 
     _getWeatherConfig(weatherConfiguration) {
@@ -269,12 +397,112 @@ export class SkylightFamilyCalendarCard extends LitElement {
             Object.assign(configuration, weatherConfiguration);
         }
 
-        if (!configuration.hasOwnProperty('entity') || configuration.entity === null) {
-            return null;
+        // Auto-detect weather entity if none set or configured one doesn't exist
+        if (!configuration.entity || (this.hass && !this.hass.states[configuration.entity])) {
+            if (this.hass) {
+                const weatherEntity = Object.keys(this.hass.states).find(k => k.startsWith('weather.'));
+                if (weatherEntity) {
+                    configuration.entity = weatherEntity;
+                } else {
+                    return null;
+                }
+            } else if (!configuration.entity) {
+                return null;
+            }
         }
 
         return configuration;
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Skylight view/calendar methods
+    // ═══════════════════════════════════════════════════════════════
+
+    _applyViewSettings() {
+        const startingDay = this._config.startingDay ?? 'monday';
+        switch (this._currentView) {
+            case 'Today':
+                this._startingDay = 'today';
+                this._numberOfDays = 1;
+                this._numberOfDaysIsMonth = false;
+                break;
+            case 'Tomorrow':
+                this._startingDay = 'tomorrow';
+                this._numberOfDays = 1;
+                this._numberOfDaysIsMonth = false;
+                break;
+            case 'Week':
+                this._startingDay = startingDay;
+                this._numberOfDays = 7;
+                this._numberOfDaysIsMonth = false;
+                break;
+            case 'Biweek':
+                this._startingDay = startingDay;
+                this._numberOfDays = 14;
+                this._numberOfDaysIsMonth = false;
+                break;
+            case 'Month':
+                this._startingDay = startingDay;
+                this._numberOfDaysIsMonth = true;
+                this._numberOfDays = this._getNumberOfDays('month');
+                break;
+            default:
+                this._startingDay = startingDay;
+                this._numberOfDays = 7;
+                this._numberOfDaysIsMonth = false;
+        }
+        this._startDate = this._getStartDate();
+    }
+
+    _setView(viewName) {
+        this._currentView = viewName;
+        this._navigationOffset = 0;
+        this._applyViewSettings();
+        this._updateEvents();
+    }
+
+    _toggleCalendarVisibility(entity) {
+        this._calendarVisibility = {
+            ...this._calendarVisibility,
+            [entity]: !this._calendarVisibility[entity]
+        };
+        // Sync with _hideCalendars
+        const hideCalendars = [];
+        for (const [ent, visible] of Object.entries(this._calendarVisibility)) {
+            if (!visible) hideCalendars.push(ent);
+        }
+        this._hideCalendars = hideCalendars;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Clock methods
+    // ═══════════════════════════════════════════════════════════════
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._startClock();
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this._stopClock();
+    }
+
+    _startClock() {
+        this._stopClock();
+        this._clockInterval = setInterval(() => this.requestUpdate(), 30000);
+    }
+
+    _stopClock() {
+        if (this._clockInterval) {
+            clearInterval(this._clockInterval);
+            this._clockInterval = null;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Render
+    // ═══════════════════════════════════════════════════════════════
 
     /**
      * Render
@@ -317,31 +545,66 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (this._columns.extraSmall) {
             cardStyles.push('--days-columns-xs: ' + this._columns.extraSmall + ';');
         }
-        if (this._dayHeaderFontSize) {
-            cardStyles.push('--day-header-font-size: ' + this._dayHeaderFontSize + ';');
-        }
-        if (this._dayHeaderColor) {
-            cardStyles.push('--day-header-color: ' + this._dayHeaderColor + ';');
-        }
+
+        const locale = this._config?.locale || 'en';
+        const now = new Date();
 
         return html`
             <ha-card class="${cardClasses.join(' ')}" style="${cardStyles.join(' ')}">
-                <div class="card-content">
+                <div class="card-content skylight">
                     ${this._error ?
                         html`<div class="errors"><ha-alert alert-type="error">${this._error}</ha-alert></div>` :
                         ''
                     }
-                    ${(this._title && this._showTitle) || this._showCurrentWeather ?
-                        html`<div class="card-header-row">
-                            ${this._title && this._showTitle ? html`<h1 class="card-title">${this._title}</h1>` : html`<div></div>`}
-                            ${this._renderCurrentWeather()}
-                        </div>` :
-                        ''
-                    }
-                    <div class="container${this._actions ? ' hasActions' : ''}" @click="${this._handleContainerClick}">
-                        ${this._renderHeader()}
-                        ${this._renderWeekDays()}
-                        ${this._renderDays()}
+                    ${this._showHeader ? html`
+                        <div class="skylight-header">
+                            <div class="date-section">
+                                ${this._showHeaderDate ? html`
+                                    <div class="day-name">${now.toLocaleDateString(locale, { weekday: 'long' })}</div>
+                                    <div class="full-date">${now.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                                ` : ''}
+                                ${this._showHeaderClock ? html`
+                                    <div class="clock">${now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}</div>
+                                ` : ''}
+                            </div>
+                            ${this._showCurrentWeather ? this._renderHeaderWeather() : ''}
+                        </div>
+                    ` : ''}
+                    <div class="controls">
+                        ${this._title && this._showTitle ? html`
+                            <div class="title-row">
+                                <span class="calendar-title">${this._title}</span>
+                            </div>
+                        ` : ''}
+                        <div class="buttons-row">
+                            <div class="calendar-filters">
+                                ${this._calendars.map(cal => html`
+                                    <button
+                                        class="filter-btn ${this._calendarVisibility[cal.entity] !== false ? 'active' : ''}"
+                                        style="--cal-color: ${cal.color || '#888'}"
+                                        @click="${() => this._toggleCalendarVisibility(cal.entity)}"
+                                    >
+                                        ${cal.icon ? html`<ha-icon icon="${cal.icon}"></ha-icon>` : ''}
+                                        <span>${this._getCalendarDisplayName(cal)}</span>
+                                    </button>
+                                `)}
+                            </div>
+                            <div class="view-selector">
+                                ${this._views.map(view => html`
+                                    <button
+                                        class="view-btn ${view === this._currentView ? 'active' : ''}"
+                                        @click="${() => this._setView(view)}"
+                                    >${this._getViewLabel(view)}</button>
+                                `)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="calendar-container">
+                        <div class="container${this._actions ? ' hasActions' : ''}" @click="${this._handleContainerClick}">
+                            ${this._renderHeader()}
+                            ${this._renderWeekDays()}
+                            ${this._renderDays()}
+                        </div>
                     </div>
                     ${this._renderEventDetailsDialog()}
                     ${this._renderCreateEventDialog()}
@@ -349,6 +612,26 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     ${this._loader}
                 </div>
             </ha-card>
+        `;
+    }
+
+    _renderHeaderWeather() {
+        if (!this._weather || !this.hass) return html``;
+
+        const weatherState = this.hass.states[this._weather.entity];
+        if (!weatherState) return html``;
+
+        const condition = weatherState.state;
+        const temperature = this._weather.roundTemperature
+            ? Math.round(weatherState.attributes.temperature)
+            : weatherState.attributes.temperature;
+        const unit = weatherState.attributes.temperature_unit || '°C';
+
+        return html`
+            <div class="weather-section" @click="${this._handleWeatherClick}">
+                ${this._getWeatherIcon(condition, this.hass.formatEntityState(weatherState))}
+                <div class="weather-temp">${Math.round(temperature)}${unit}</div>
+            </div>
         `;
     }
 
@@ -383,7 +666,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                         html`<ha-icon icon="${calendar.icon}"></ha-icon>` :
                                         ''
                                     }
-                                    ${calendar.name ?? calendar.entity}
+                                    ${this._getCalendarDisplayName(calendar)}
                                 </li>
                             `;
                         }
@@ -411,7 +694,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _renderWeekDays() {
-        if (this._showWeekDayText || !this._days) {
+        if (!this._showWeekDayText || !this._days) {
             return html``;
         }
 
@@ -570,7 +853,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         data-start-minute="${event.start.toFormat('mm')}"
                         data-end-hour="${event.end.toFormat('H')}"
                         data-end-minute="${event.end.toFormat('mm')}"
-                        style="--border-color: ${event.colors[0]}"
+                        style="--border-color: ${event.colors[0]}${this._colorFullEvent ? '; background-color: ' + event.colors[0] + '; color: #fff; border-left-width: 0' : ''}"
                         @click="${() => {
                             this._handleEventClick(event)
                         }}"
@@ -661,30 +944,6 @@ export class SkylightFamilyCalendarCard extends LitElement {
         `;
     }
 
-    _renderCurrentWeather() {
-        if (!this._showCurrentWeather || !this._weather) {
-            return html``;
-        }
-
-        const weatherState = this.hass?.states[this._weather.entity];
-        if (!weatherState) {
-            return html``;
-        }
-
-        const condition = weatherState.state;
-        const temperature = this._weather.roundTemperature
-            ? Math.round(weatherState.attributes.temperature)
-            : weatherState.attributes.temperature;
-        const formattedTemp = this.hass.formatEntityAttributeValue(weatherState, 'temperature', temperature);
-
-        return html`
-            <div class="current-weather" @click="${this._handleWeatherClick}">
-                ${this._getWeatherIcon(condition, this.hass.formatEntityState(weatherState))}
-                <span class="temperature">${formattedTemp}</span>
-            </div>
-        `;
-    }
-
     _renderEventDetailsDialog() {
         if (!this._currentEventDetails) {
             return html``;
@@ -738,10 +997,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         html`
                             <div class="event-actions">
                                 <button class="btn btn-edit" @click="${this._handleEditEventClick}">
-                                    <ha-icon icon="mdi:pencil"></ha-icon> Modifier
+                                    <ha-icon icon="mdi:pencil"></ha-icon> ${this._language.editEvent}
                                 </button>
                                 <button class="btn btn-delete" @click="${this._handleDeleteEvent}">
-                                    <ha-icon icon="mdi:delete"></ha-icon> Supprimer
+                                    <ha-icon icon="mdi:delete"></ha-icon> ${this._language.deleteEvent}
                                 </button>
                             </div>
                         ` :
@@ -821,28 +1080,36 @@ export class SkylightFamilyCalendarCard extends LitElement {
             >
                 <div class="create-event-form">
                     <div class="form-row">
-                        <label for="event-title">Titre *</label>
-                        <input type="text" id="event-title" class="form-input" required placeholder="Titre de l'événement" />
+                        <label for="event-title">${this._language.eventTitle} *</label>
+                        <input type="text" id="event-title" class="form-input" required placeholder="${this._language.eventTitle}" />
                     </div>
                     <div class="form-row">
-                        <label for="event-calendar">Calendrier</label>
+                        <label for="event-calendar">${this._language.eventCalendar}</label>
                         <select id="event-calendar" class="form-input">
                             ${this._calendars.map((calendar) => html`
-                                <option value="${calendar.entity}" ?selected="${calendar.entity === this._defaultCalendar}">${calendar.name ?? calendar.entity}</option>
+                                <option value="${calendar.entity}" ?selected="${calendar.entity === this._defaultCalendar}">${this._getCalendarDisplayName(calendar)}</option>
                             `)}
                         </select>
                     </div>
                     <div class="form-row">
-                        <label for="event-start">Début *</label>
+                        <label for="event-start">${this._language.eventStart} *</label>
                         <input type="datetime-local" id="event-start" class="form-input" .value="${startValue}" required />
                     </div>
                     <div class="form-row">
-                        <label for="event-end">Fin</label>
+                        <label for="event-end">${this._language.eventEnd}</label>
                         <input type="datetime-local" id="event-end" class="form-input" .value="${endValue}" />
                     </div>
+                    ${this._showLocationInForm ? html`
+                    <div class="form-row location-row">
+                        <label for="event-location">${this._language.eventLocation ?? 'Location'}</label>
+                        <input type="text" id="event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
+                            @input="${this._handleLocationInput}" autocomplete="off" />
+                        <ul class="location-suggestions" id="event-location-suggestions"></ul>
+                    </div>
+                    ` : ''}
                     <div class="form-actions">
-                        <button class="btn btn-cancel" @click="${this._closeCreateEventDialog}">Annuler</button>
-                        <button class="btn btn-submit" @click="${this._handleCreateEvent}">Créer</button>
+                        <button class="btn btn-cancel" @click="${this._closeCreateEventDialog}">${this._language.cancel}</button>
+                        <button class="btn btn-submit" @click="${this._handleCreateEvent}">${this._language.create}</button>
                     </div>
                 </div>
             </ha-dialog>
@@ -852,7 +1119,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _renderCreateEventDialogHeading() {
         return html`
             <div class="header_title">
-                <span>Nouvel événement</span>
+                <span>${this._language.newEvent}</span>
                 <ha-icon-button
                     .label="${this.hass?.localize('ui.dialogs.generic.close') ?? 'Close'}"
                     dialogAction="close"
@@ -878,38 +1145,48 @@ export class SkylightFamilyCalendarCard extends LitElement {
             >
                 <div class="create-event-form">
                     <div class="form-row">
-                        <label for="edit-event-title">Titre *</label>
+                        <label for="edit-event-title">${this._language.eventTitle} *</label>
                         <input type="text" id="edit-event-title" class="form-input" required
                             .value="${form.title}"
                             @input="${(e) => { this._editFormData = { ...this._editFormData, title: e.target.value }; }}" />
                     </div>
                     <div class="form-row">
-                        <label for="edit-event-calendar">Calendrier</label>
+                        <label for="edit-event-calendar">${this._language.eventCalendar}</label>
                         <select id="edit-event-calendar" class="form-input"
                             @change="${(e) => { this._editFormData = { ...this._editFormData, calendar: e.target.value }; }}">
                             ${this._calendars.map((calendar) => html`
-                                <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${calendar.name ?? calendar.entity}</option>
+                                <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${this._getCalendarDisplayName(calendar)}</option>
                             `)}
                         </select>
                     </div>
                     <div class="form-row">
-                        <label for="edit-event-start">Début *</label>
+                        <label for="edit-event-start">${this._language.eventStart} *</label>
                         <input type="datetime-local" id="edit-event-start" class="form-input" required
                             .value="${form.start}"
                             @input="${(e) => { this._editFormData = { ...this._editFormData, start: e.target.value }; }}" />
                     </div>
                     <div class="form-row">
-                        <label for="edit-event-end">Fin</label>
+                        <label for="edit-event-end">${this._language.eventEnd}</label>
                         <input type="datetime-local" id="edit-event-end" class="form-input"
                             .value="${form.end}"
                             @input="${(e) => { this._editFormData = { ...this._editFormData, end: e.target.value }; }}" />
                     </div>
+                    ${this._showLocationInForm ? html`
+                    <div class="form-row location-row">
+                        <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
+                        <input type="text" id="edit-event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
+                            .value="${form.location ?? ''}"
+                            @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
+                            autocomplete="off" />
+                        <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
+                    </div>
+                    ` : ''}
                     <div class="form-actions">
                         <button class="btn btn-delete" @click="${this._handleDeleteEventFromEdit}">
-                            <ha-icon icon="mdi:delete"></ha-icon> Supprimer
+                            <ha-icon icon="mdi:delete"></ha-icon> ${this._language.deleteEvent}
                         </button>
-                        <button class="btn btn-cancel" @click="${this._closeEditEventDialog}">Annuler</button>
-                        <button class="btn btn-submit" @click="${this._handleUpdateEvent}">Enregistrer</button>
+                        <button class="btn btn-cancel" @click="${this._closeEditEventDialog}">${this._language.cancel}</button>
+                        <button class="btn btn-submit" @click="${this._handleUpdateEvent}">${this._language.save}</button>
                     </div>
                 </div>
             </ha-dialog>
@@ -919,7 +1196,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _renderEditEventDialogHeading() {
         return html`
             <div class="header_title">
-                <span>Modifier l'événement</span>
+                <span>${this._language.editEventTitle}</span>
                 <ha-icon-button
                     .label="${this.hass?.localize('ui.dialogs.generic.close') ?? 'Close'}"
                     dialogAction="close"
@@ -973,6 +1250,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _subscribeToWeatherForecast() {
+        if (!this._weather?.entity || !this.hass.states[this._weather.entity]) {
+            this._weatherForecast = [];
+            return;
+        }
         this._loading++;
         this._updateLoader();
         let loadingWeather = true;
@@ -986,6 +1267,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             type: 'weather/subscribe_forecast',
             forecast_type: this._weather.useTwiceDaily ? 'twice_daily' : 'daily',
             entity_id: this._weather.entity
+        }).catch(() => {
+            this._weatherForecast = [];
+            if (loadingWeather) {
+                this._loading--;
+                loadingWeather = false;
+            }
         });
     }
 
@@ -1392,6 +1679,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 calendar: event.calendars[0] || '',
                 start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
                 end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
+                location: event.location || '',
             };
             this._showEditEventDialog = event;
         } else {
@@ -1412,11 +1700,88 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._showCreateEventDialog = null;
     }
 
+    _handleLocationInput(e) {
+        if (!this._googleApiKey) return;
+        if (this._locationSelected) { this._locationSelected = false; return; }
+        const value = e.target.value?.trim();
+        const input = e.target;
+        clearTimeout(this._locationSearchTimeout);
+        if (!value || value.length < 3) {
+            this._clearLocationSuggestions(input);
+            return;
+        }
+        this._locationSearchTimeout = setTimeout(() => this._searchLocation(value, input), 400);
+    }
+
+    async _searchLocation(query, input) {
+        try {
+            const response = await fetch(
+                `https://places.googleapis.com/v1/places:autocomplete`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Goog-Api-Key': this._googleApiKey,
+                    },
+                    body: JSON.stringify({
+                        input: query,
+                        languageCode: this._language?.locale || 'en',
+                    }),
+                }
+            );
+            const data = await response.json();
+            const results = (data.suggestions || [])
+                .filter(s => s.placePrediction)
+                .map(s => ({
+                    name: s.placePrediction.structuredFormat?.mainText?.text || '',
+                    address: s.placePrediction.structuredFormat?.secondaryText?.text || '',
+                    fullText: s.placePrediction.text?.text || '',
+                }));
+            this._showLocationSuggestions(results, input);
+        } catch (e) {
+            console.error('Location search failed:', e);
+        }
+    }
+
+    _showLocationSuggestions(results, input) {
+        const list = input.parentElement.querySelector('.location-suggestions');
+        if (!list) return;
+        list.innerHTML = '';
+        if (results.length === 0) {
+            list.style.display = 'none';
+            return;
+        }
+        results.forEach(result => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${result.name}</strong> <span style="color: var(--secondary-text-color); font-size: 0.85em;">${result.address}</span>`;
+            li.addEventListener('click', () => {
+                this._locationSelected = true;
+                input.value = result.fullText;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                if (this._editFormData) {
+                    this._editFormData = { ...this._editFormData, location: result.fullText };
+                }
+                list.style.display = 'none';
+            });
+            list.appendChild(li);
+        });
+        list.style.display = 'block';
+    }
+
+    _clearLocationSuggestions(input) {
+        const list = input.parentElement.querySelector('.location-suggestions');
+        if (list) {
+            list.innerHTML = '';
+            list.style.display = 'none';
+        }
+    }
+
     async _handleCreateEvent() {
         const title = this.shadowRoot.querySelector('#event-title')?.value?.trim();
         const calendar = this.shadowRoot.querySelector('#event-calendar')?.value;
         const startInput = this.shadowRoot.querySelector('#event-start')?.value;
         const endInput = this.shadowRoot.querySelector('#event-end')?.value;
+        const location = this.shadowRoot.querySelector('#event-location')?.value?.trim();
 
         if (!title) {
             return;
@@ -1429,13 +1794,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const start = DateTime.fromISO(startInput);
         const end = endInput ? DateTime.fromISO(endInput) : start.plus({ hours: 1 });
 
+        const serviceData = {
+            entity_id: calendar,
+            summary: title,
+            start_date_time: start.toFormat('yyyy-MM-dd HH:mm:ss'),
+            end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
+        };
+        if (location) serviceData.location = location;
+
         try {
-            await this.hass.callService('calendar', 'create_event', {
-                entity_id: calendar,
-                summary: title,
-                start_date_time: start.toFormat('yyyy-MM-dd HH:mm:ss'),
-                end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
-            });
+            await this.hass.callService('calendar', 'create_event', serviceData);
 
             this._showCreateEventDialog = null;
             this._updateEvents();
@@ -1477,6 +1845,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             calendar: event.calendars[0] || '',
             start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
             end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
+            location: event.location || '',
         };
         this._showEditEventDialog = event;
     }
@@ -1508,7 +1877,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             this._editFormData = null;
             this._updateEvents();
         } catch (e) {
-            console.error('Week Planner: Failed to delete event:', e);
+            console.error('Skylight Family Calendar: Failed to delete event:', e);
         }
     }
 
@@ -1517,7 +1886,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const form = this._editFormData;
 
         if (!event || !form) {
-            console.error('Week Planner: No event or form data for update');
+            console.error('Skylight Family Calendar: No event or form data for update');
             return;
         }
 
@@ -1525,9 +1894,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const calendar = form.calendar;
         const startInput = form.start;
         const endInput = form.end;
+        const location = form.location?.trim() ?? '';
 
         if (!title || !startInput) {
-            console.error('Week Planner: Missing required fields', { title, startInput });
+            console.error('Skylight Family Calendar: Missing required fields', { title, startInput });
             return;
         }
 
@@ -1539,15 +1909,17 @@ export class SkylightFamilyCalendarCard extends LitElement {
         try {
             // Try native update first
             if (event.uid) {
+                const eventData = {
+                    summary: title,
+                    dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                    dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                };
+                if (location) eventData.location = location;
                 const wsData = {
                     type: 'calendar/event/update',
                     entity_id: entityId,
                     uid: event.uid,
-                    event: {
-                        summary: title,
-                        dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
-                        dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
-                    },
+                    event: eventData,
                 };
                 if (event.recurrence_id) {
                     wsData.recurrence_id = event.recurrence_id;
@@ -1574,23 +1946,39 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     }
                     await this.hass.callWS(deleteData);
 
-                    await this.hass.callService('calendar', 'create_event', {
+                    const fallbackData = {
                         entity_id: entityId,
                         summary: title,
                         start_date_time: start.toFormat('yyyy-MM-dd HH:mm:ss'),
                         end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
-                    });
+                    };
+                    if (location) fallbackData.location = location;
+                    await this.hass.callService('calendar', 'create_event', fallbackData);
 
                     this._showEditEventDialog = null;
                     this._editFormData = null;
                     this._updateEvents();
                 } catch (fallbackError) {
-                    console.error('Week Planner: Failed to update event (fallback):', fallbackError);
+                    console.error('Skylight Family Calendar: Failed to update event (fallback):', fallbackError);
                 }
             } else {
-                console.error('Week Planner: Failed to update event:', e);
+                console.error('Skylight Family Calendar: Failed to update event:', e);
             }
         }
+    }
+
+    _getViewLabel(view) {
+        const key = view.toLowerCase();
+        return this._language[key] ?? view;
+    }
+
+    _getCalendarDisplayName(calendar) {
+        if (calendar.name) return calendar.name;
+        if (this.hass && calendar.entity && this.hass.states[calendar.entity]) {
+            const friendly = this.hass.states[calendar.entity].attributes?.friendly_name;
+            if (friendly) return friendly;
+        }
+        return calendar.entity?.replace('calendar.', '') ?? '';
     }
 
     _handleLegendClick(calendar) {
