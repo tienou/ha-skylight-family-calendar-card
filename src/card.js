@@ -877,14 +877,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                 </div>` :
                                 ''
                             }
-                            ${this._showTitle ?
-                                    html`
-                                        <div class="title">
-                                            ${event.summary}
-                                        </div>
-                                    ` :
-                                    ''
-                            }
+                            <div class="title">
+                                ${event.summary}
+                            </div>
                             ${this._showDescription ?
                                 html`
                                     <div class="description">
@@ -1707,6 +1702,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _handleLocationInput(e) {
         if (!this._googleApiKey) return;
+        if (this._locationSelected) { this._locationSelected = false; return; }
         const value = e.target.value?.trim();
         const input = e.target;
         clearTimeout(this._locationSearchTimeout);
@@ -1759,6 +1755,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             const li = document.createElement('li');
             li.innerHTML = `<strong>${result.name}</strong> <span style="color: var(--secondary-text-color); font-size: 0.85em;">${result.address}</span>`;
             li.addEventListener('click', () => {
+                this._locationSelected = true;
                 input.value = result.fullText;
                 input.dispatchEvent(new Event('input', { bubbles: true }));
                 if (this._editFormData) {
