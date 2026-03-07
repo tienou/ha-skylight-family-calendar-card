@@ -162,6 +162,10 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                         ${this.addHint('Show start/end time in each event')}
                         ${this.addBooleanField('showTitle', 'Show title in overview', true)}
                         ${this.addHint('Show event title in the calendar view')}
+                        ${this.addBooleanField('showLocation', 'Show location in calendar', true)}
+                        ${this.addHint('Display event location in the calendar day view')}
+                        ${this.addBooleanField('showLocationInForm', 'Show location in event forms', true)}
+                        ${this.addHint('Show location field with autocomplete in create/edit forms')}
                     `
                 )}
                 ${this.addExpansionPanel(

@@ -195,7 +195,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._showHeaderClock = config.showHeaderClock ?? true;
         this._colorFullEvent = config.colorFullEvent ?? true;
         this._showDescription = config.showDescription ?? false;
-        this._showLocation = config.showLocation ?? false;
+        this._showLocation = config.showLocation ?? true;
+        this._showLocationInForm = config.showLocationInForm ?? true;
         this._showTime = config.showTime ?? false;
         this._showDayName = config.showDayName ?? false;
         this._showDate = config.showDate ?? false;
@@ -1102,12 +1103,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <label for="event-end">${this._language.eventEnd}</label>
                         <input type="datetime-local" id="event-end" class="form-input" .value="${endValue}" />
                     </div>
+                    ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="event-location">${this._language.eventLocation ?? 'Location'}</label>
                         <input type="text" id="event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
                             @input="${this._handleLocationInput}" autocomplete="off" />
                         <ul class="location-suggestions" id="event-location-suggestions"></ul>
                     </div>
+                    ` : ''}
                     <div class="form-actions">
                         <button class="btn btn-cancel" @click="${this._closeCreateEventDialog}">${this._language.cancel}</button>
                         <button class="btn btn-submit" @click="${this._handleCreateEvent}">${this._language.create}</button>
@@ -1172,6 +1175,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             .value="${form.end}"
                             @input="${(e) => { this._editFormData = { ...this._editFormData, end: e.target.value }; }}" />
                     </div>
+                    ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
                         <input type="text" id="edit-event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
@@ -1180,6 +1184,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             autocomplete="off" />
                         <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
                     </div>
+                    ` : ''}
                     <div class="form-actions">
                         <button class="btn btn-delete" @click="${this._handleDeleteEventFromEdit}">
                             <ha-icon icon="mdi:delete"></ha-icon> ${this._language.deleteEvent}
