@@ -1238,7 +1238,7 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
                 .value="${this.getConfigValue(e,r)}"
                 .clearable="${i}"
                 .options="${n}"
-                @value-changed="${this._valueChanged}"
+                @selected="${this._valueChanged}"
                 @closed="${e=>{e.stopPropagation()}}"
             >
             </ha-select>

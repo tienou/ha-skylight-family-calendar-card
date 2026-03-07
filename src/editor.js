@@ -287,7 +287,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 .value="${this.getConfigValue(name, defaultValue)}"
                 .clearable="${clearable}"
                 .options="${options}"
-                @value-changed="${this._valueChanged}"
+                @selected="${this._valueChanged}"
                 @closed="${(event) => { event.stopPropagation(); }}"
             >
             </ha-select>
