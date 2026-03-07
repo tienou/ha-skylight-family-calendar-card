@@ -639,23 +639,39 @@ export default css`
         color: #fff;
     }
 
-    .create-event-form .location-maps-link {
-        display: inline-flex;
+    .create-event-form .location-input-wrapper {
+        position: relative;
+        display: flex;
         align-items: center;
-        gap: 4px;
-        margin-top: 6px;
+    }
+
+    .create-event-form .location-input-wrapper .form-input {
+        flex: 1;
+        padding-right: 36px;
+    }
+
+    .create-event-form .location-maps-icon {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
         color: var(--primary-color, #03a9f4);
         text-decoration: none;
-        font-size: 0.9em;
         cursor: pointer;
+        border-radius: 4px;
     }
 
-    .create-event-form .location-maps-link:hover {
-        text-decoration: underline;
+    .create-event-form .location-maps-icon:hover {
+        background: rgba(3, 169, 244, 0.1);
     }
 
-    .create-event-form .location-maps-link ha-icon {
-        --mdc-icon-size: 16px;
+    .create-event-form .location-maps-icon ha-icon {
+        --mdc-icon-size: 20px;
     }
 
     .create-event-form .form-actions {

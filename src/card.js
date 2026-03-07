@@ -1178,16 +1178,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
-                        <input type="text" id="edit-event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
-                            .value="${form.location ?? ''}"
-                            @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
-                            autocomplete="off" />
+                        <div class="location-input-wrapper">
+                            <input type="text" id="edit-event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
+                                .value="${form.location ?? ''}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
+                                autocomplete="off" />
+                            ${form.location ? html`
+                            <a class="location-maps-icon" href="${this._locationLink}${encodeURI(form.location)}" target="_blank" title="${this._language.openInMaps ?? 'Google Maps'}">
+                                <ha-icon icon="mdi:map-marker"></ha-icon>
+                            </a>
+                            ` : ''}
+                        </div>
                         <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
-                        ${form.location ? html`
-                        <a class="location-maps-link" href="${this._locationLink}${encodeURI(form.location)}" target="_blank">
-                            <ha-icon icon="mdi:map-marker"></ha-icon> ${this._language.openInMaps ?? 'Google Maps'}
-                        </a>
-                        ` : ''}
                     </div>
                     ` : ''}
                     <div class="form-actions">
