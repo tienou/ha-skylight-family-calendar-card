@@ -596,6 +596,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                 ${this._views.map(view => html`
                                     <button
                                         class="view-btn ${view === this._currentView ? 'active' : ''}"
+                                        data-view="${view.toLowerCase()}"
                                         @click="${() => this._setView(view)}"
                                     >${this._getViewLabel(view)}</button>
                                 `)}

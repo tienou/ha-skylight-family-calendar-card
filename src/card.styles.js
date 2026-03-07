@@ -827,6 +827,12 @@ export default css`
             font-size: 2em;
         }
 
+        /* ── Hide Month & Biweek views on mobile ── */
+        .view-btn[data-view="month"],
+        .view-btn[data-view="biweek"] {
+            display: none;
+        }
+
         /* ── Mobile spacing & typography ── */
         ha-card {
             --days-spacing: 6px;
