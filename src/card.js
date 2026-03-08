@@ -2114,17 +2114,20 @@ export class SkylightFamilyCalendarCard extends LitElement {
             rrule = this._buildRrule(freq, interval, byDay, byMonthDay, endType, endDate, endCount);
         }
 
-        const serviceData = {
-            entity_id: calendar,
+        const eventData = {
             summary: title,
-            start_date_time: start.toFormat('yyyy-MM-dd HH:mm:ss'),
-            end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
+            dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+            dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
         };
-        if (location) serviceData.location = location;
-        if (rrule) serviceData.rrule = rrule;
+        if (location) eventData.location = location;
+        if (rrule) eventData.rrule = rrule;
 
         try {
-            await this.hass.callService('calendar', 'create_event', serviceData);
+            await this.hass.callWS({
+                type: 'calendar/event/create',
+                entity_id: calendar,
+                event: eventData,
+            });
 
             this._showCreateEventDialog = null;
             this._updateEvents();
@@ -2383,15 +2386,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     }
                     await this.hass.callWS(deleteData);
 
-                    const fallbackData = {
-                        entity_id: entityId,
+                    const fallbackEventData = {
                         summary: title,
-                        start_date_time: start.toFormat('yyyy-MM-dd HH:mm:ss'),
-                        end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
+                        dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                        dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
                     };
-                    if (location) fallbackData.location = location;
-                    if (recurrence) fallbackData.rrule = recurrence;
-                    await this.hass.callService('calendar', 'create_event', fallbackData);
+                    if (location) fallbackEventData.location = location;
+                    if (recurrence) fallbackEventData.rrule = recurrence;
+                    await this.hass.callWS({
+                        type: 'calendar/event/create',
+                        entity_id: entityId,
+                        event: fallbackEventData,
+                    });
 
                     this._showEditEventDialog = null;
                     this._editFormData = null;
