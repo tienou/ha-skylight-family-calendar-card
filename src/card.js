@@ -154,7 +154,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _currentView: { type: String },
             _calendarVisibility: { type: Object },
             _showRecurringConfirmDialog: { type: Object },
-            _showDeleteRecurringDialog: { type: Object }
+            _showDeleteRecurringDialog: { type: Object },
+            _createRecurrenceType: { type: String },
+            _createRecurrenceEndType: { type: String }
         }
     }
 
@@ -277,6 +279,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 deleteThisEvent: 'This event only',
                 deleteAllEvents: 'All events',
                 deleteRecurringTitle: 'Delete recurring event',
+                recurrenceInterval: 'Repeat interval',
+                recurrenceEnds: 'Ends',
+                recurrenceEndsNever: 'Never',
+                recurrenceEndsOnDate: 'On date',
+                recurrenceEndsAfter: 'After',
+                recurrenceOccurrences: 'occurrences',
+                recurrenceDays: 'days',
+                recurrenceWeeks: 'weeks',
+                recurrenceMonths: 'months',
+                recurrenceMonthlyOn: 'Monthly on day',
             },
             localeTexts,
             config.texts ?? {}
@@ -325,6 +337,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
             editRecurringTitle: 'Modifier l\'\u00e9v\u00e9nement r\u00e9current',
             deleteThisEvent: 'Cet \u00e9v\u00e9nement uniquement', deleteAllEvents: 'Tous les \u00e9v\u00e9nements',
             deleteRecurringTitle: 'Supprimer l\'\u00e9v\u00e9nement r\u00e9current',
+            recurrenceInterval: 'Intervalle de r\u00e9p\u00e9tition',
+            recurrenceEnds: 'Se termine',
+            recurrenceEndsNever: 'Jamais',
+            recurrenceEndsOnDate: '\u00c0 une date',
+            recurrenceEndsAfter: 'Apr\u00e8s',
+            recurrenceOccurrences: 'occurrences',
+            recurrenceDays: 'jours',
+            recurrenceWeeks: 'semaines',
+            recurrenceMonths: 'mois',
+            recurrenceMonthlyOn: 'Chaque mois le',
         },
         de: {
             fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
@@ -341,6 +363,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
             editRecurringTitle: 'Wiederkehrendes Ereignis bearbeiten',
             deleteThisEvent: 'Nur dieses Ereignis', deleteAllEvents: 'Alle Ereignisse',
             deleteRecurringTitle: 'Wiederkehrendes Ereignis l\u00f6schen',
+            recurrenceInterval: 'Wiederholungsintervall',
+            recurrenceEnds: 'Endet',
+            recurrenceEndsNever: 'Nie',
+            recurrenceEndsOnDate: 'Am Datum',
+            recurrenceEndsAfter: 'Nach',
+            recurrenceOccurrences: 'Wiederholungen',
+            recurrenceDays: 'Tagen',
+            recurrenceWeeks: 'Wochen',
+            recurrenceMonths: 'Monaten',
+            recurrenceMonthlyOn: 'Monatlich am',
         },
         es: {
             fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
@@ -357,6 +389,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
             editRecurringTitle: 'Editar evento recurrente',
             deleteThisEvent: 'Solo este evento', deleteAllEvents: 'Todos los eventos',
             deleteRecurringTitle: 'Eliminar evento recurrente',
+            recurrenceInterval: 'Intervalo de repetici\u00f3n',
+            recurrenceEnds: 'Termina',
+            recurrenceEndsNever: 'Nunca',
+            recurrenceEndsOnDate: 'En una fecha',
+            recurrenceEndsAfter: 'Despu\u00e9s de',
+            recurrenceOccurrences: 'ocurrencias',
+            recurrenceDays: 'd\u00edas',
+            recurrenceWeeks: 'semanas',
+            recurrenceMonths: 'meses',
+            recurrenceMonthlyOn: 'Cada mes el',
         },
         it: {
             fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
@@ -373,6 +415,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
             editRecurringTitle: 'Modifica evento ricorrente',
             deleteThisEvent: 'Solo questo evento', deleteAllEvents: 'Tutti gli eventi',
             deleteRecurringTitle: 'Elimina evento ricorrente',
+            recurrenceInterval: 'Intervallo di ripetizione',
+            recurrenceEnds: 'Termina',
+            recurrenceEndsNever: 'Mai',
+            recurrenceEndsOnDate: 'In una data',
+            recurrenceEndsAfter: 'Dopo',
+            recurrenceOccurrences: 'occorrenze',
+            recurrenceDays: 'giorni',
+            recurrenceWeeks: 'settimane',
+            recurrenceMonths: 'mesi',
+            recurrenceMonthlyOn: 'Ogni mese il',
         },
         nl: {
             fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
@@ -389,6 +441,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
             editRecurringTitle: 'Terugkerend evenement bewerken',
             deleteThisEvent: 'Alleen dit evenement', deleteAllEvents: 'Alle evenementen',
             deleteRecurringTitle: 'Terugkerend evenement verwijderen',
+            recurrenceInterval: 'Herhalingsinterval',
+            recurrenceEnds: 'Eindigt',
+            recurrenceEndsNever: 'Nooit',
+            recurrenceEndsOnDate: 'Op datum',
+            recurrenceEndsAfter: 'Na',
+            recurrenceOccurrences: 'herhalingen',
+            recurrenceDays: 'dagen',
+            recurrenceWeeks: 'weken',
+            recurrenceMonths: 'maanden',
+            recurrenceMonthlyOn: 'Maandelijks op',
         },
         pt: {
             fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
@@ -405,6 +467,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
             editRecurringTitle: 'Editar evento recorrente',
             deleteThisEvent: 'Apenas este evento', deleteAllEvents: 'Todos os eventos',
             deleteRecurringTitle: 'Excluir evento recorrente',
+            recurrenceInterval: 'Intervalo de repeti\u00e7\u00e3o',
+            recurrenceEnds: 'Termina',
+            recurrenceEndsNever: 'Nunca',
+            recurrenceEndsOnDate: 'Em uma data',
+            recurrenceEndsAfter: 'Ap\u00f3s',
+            recurrenceOccurrences: 'ocorr\u00eancias',
+            recurrenceDays: 'dias',
+            recurrenceWeeks: 'semanas',
+            recurrenceMonths: 'meses',
+            recurrenceMonthlyOn: 'Todo m\u00eas no dia',
         },
     };
 
@@ -1159,7 +1231,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     </div>
                     <div class="form-row">
                         <label for="event-recurrence">${this._language.eventRecurrence}</label>
-                        <select id="event-recurrence" class="form-input">
+                        <select id="event-recurrence" class="form-input"
+                            @change="${(e) => { this._createRecurrenceType = e.target.value || null; this._createRecurrenceEndType = 'never'; }}">
                             <option value="">${this._language.recurrenceNone}</option>
                             <option value="FREQ=DAILY">${this._language.recurrenceDaily}</option>
                             <option value="FREQ=WEEKLY">${this._language.recurrenceWeekly}</option>
@@ -1167,6 +1240,57 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             <option value="FREQ=YEARLY">${this._language.recurrenceYearly}</option>
                         </select>
                     </div>
+                    ${this._createRecurrenceType ? html`
+                        ${this._createRecurrenceType !== 'FREQ=YEARLY' ? html`
+                        <div class="form-row recurrence-inline">
+                            <label>${this._language.recurrenceInterval}</label>
+                            <input type="number" id="event-recurrence-interval" class="form-input recurrence-number" min="1" value="1" />
+                            <span class="recurrence-unit">${
+                                this._createRecurrenceType === 'FREQ=DAILY' ? this._language.recurrenceDays :
+                                this._createRecurrenceType === 'FREQ=WEEKLY' ? this._language.recurrenceWeeks :
+                                this._language.recurrenceMonths
+                            }</span>
+                        </div>
+                        ` : ''}
+                        ${this._createRecurrenceType === 'FREQ=WEEKLY' ? html`
+                        <div class="form-row">
+                            <div class="day-picker" id="event-day-picker">
+                                ${['MO','TU','WE','TH','FR','SA','SU'].map(d => html`
+                                    <button type="button" class="day-btn" data-day="${d}"
+                                        @click="${this._toggleDayBtn}">${this._dayLabel(d)}</button>
+                                `)}
+                            </div>
+                        </div>
+                        ` : ''}
+                        ${this._createRecurrenceType === 'FREQ=MONTHLY' ? html`
+                        <div class="form-row recurrence-inline">
+                            <label>${this._language.recurrenceMonthlyOn}</label>
+                            <input type="number" id="event-recurrence-monthday" class="form-input recurrence-number"
+                                min="1" max="31" value="${this._getDefaultMonthDay()}" />
+                        </div>
+                        ` : ''}
+                        <div class="form-row">
+                            <label>${this._language.recurrenceEnds}</label>
+                            <select id="event-recurrence-end" class="form-input"
+                                @change="${(e) => { this._createRecurrenceEndType = e.target.value; }}">
+                                <option value="never">${this._language.recurrenceEndsNever}</option>
+                                <option value="date">${this._language.recurrenceEndsOnDate}</option>
+                                <option value="count">${this._language.recurrenceEndsAfter}</option>
+                            </select>
+                        </div>
+                        ${this._createRecurrenceEndType === 'date' ? html`
+                        <div class="form-row">
+                            <input type="date" id="event-recurrence-end-date" class="form-input" />
+                        </div>
+                        ` : ''}
+                        ${this._createRecurrenceEndType === 'count' ? html`
+                        <div class="form-row recurrence-inline">
+                            <input type="number" id="event-recurrence-end-count" class="form-input recurrence-number"
+                                min="1" value="10" />
+                            <span class="recurrence-unit">${this._language.recurrenceOccurrences}</span>
+                        </div>
+                        ` : ''}
+                    ` : ''}
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="event-location">${this._language.eventLocation ?? 'Location'}</label>
@@ -1243,7 +1367,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <label for="edit-event-recurrence">${this._language.eventRecurrence}</label>
                         <select id="edit-event-recurrence" class="form-input"
                             .value="${form.recurrence || ''}"
-                            @change="${(e) => { this._editFormData = { ...this._editFormData, recurrence: e.target.value }; }}">
+                            @change="${(e) => { this._editFormData = { ...this._editFormData, recurrence: e.target.value, recurrenceByDay: [], recurrenceEndType: 'never' }; }}">
                             <option value="" ?selected="${!form.recurrence}">${this._language.recurrenceNone}</option>
                             <option value="FREQ=DAILY" ?selected="${form.recurrence === 'FREQ=DAILY'}">${this._language.recurrenceDaily}</option>
                             <option value="FREQ=WEEKLY" ?selected="${form.recurrence === 'FREQ=WEEKLY'}">${this._language.recurrenceWeekly}</option>
@@ -1251,6 +1375,63 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             <option value="FREQ=YEARLY" ?selected="${form.recurrence === 'FREQ=YEARLY'}">${this._language.recurrenceYearly}</option>
                         </select>
                     </div>
+                    ${form.recurrence ? html`
+                        ${form.recurrence !== 'FREQ=YEARLY' ? html`
+                        <div class="form-row recurrence-inline">
+                            <label>${this._language.recurrenceInterval}</label>
+                            <input type="number" id="edit-event-recurrence-interval" class="form-input recurrence-number" min="1"
+                                .value="${String(form.recurrenceInterval || 1)}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceInterval: parseInt(e.target.value) || 1 }; }}" />
+                            <span class="recurrence-unit">${
+                                form.recurrence === 'FREQ=DAILY' ? this._language.recurrenceDays :
+                                form.recurrence === 'FREQ=WEEKLY' ? this._language.recurrenceWeeks :
+                                this._language.recurrenceMonths
+                            }</span>
+                        </div>
+                        ` : ''}
+                        ${form.recurrence === 'FREQ=WEEKLY' ? html`
+                        <div class="form-row">
+                            <div class="day-picker" id="edit-event-day-picker">
+                                ${['MO','TU','WE','TH','FR','SA','SU'].map(d => html`
+                                    <button type="button" class="day-btn ${(form.recurrenceByDay || []).includes(d) ? 'active' : ''}" data-day="${d}"
+                                        @click="${(e) => this._toggleEditDayBtn(e, d)}">${this._dayLabel(d)}</button>
+                                `)}
+                            </div>
+                        </div>
+                        ` : ''}
+                        ${form.recurrence === 'FREQ=MONTHLY' ? html`
+                        <div class="form-row recurrence-inline">
+                            <label>${this._language.recurrenceMonthlyOn}</label>
+                            <input type="number" id="edit-event-recurrence-monthday" class="form-input recurrence-number"
+                                min="1" max="31" .value="${String(form.recurrenceByMonthDay || 1)}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceByMonthDay: parseInt(e.target.value) || 1 }; }}" />
+                        </div>
+                        ` : ''}
+                        <div class="form-row">
+                            <label>${this._language.recurrenceEnds}</label>
+                            <select id="edit-event-recurrence-end" class="form-input"
+                                @change="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndType: e.target.value }; }}">
+                                <option value="never" ?selected="${form.recurrenceEndType === 'never'}">${this._language.recurrenceEndsNever}</option>
+                                <option value="date" ?selected="${form.recurrenceEndType === 'date'}">${this._language.recurrenceEndsOnDate}</option>
+                                <option value="count" ?selected="${form.recurrenceEndType === 'count'}">${this._language.recurrenceEndsAfter}</option>
+                            </select>
+                        </div>
+                        ${form.recurrenceEndType === 'date' ? html`
+                        <div class="form-row">
+                            <input type="date" id="edit-event-recurrence-end-date" class="form-input"
+                                .value="${form.recurrenceEndDate || ''}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndDate: e.target.value }; }}" />
+                        </div>
+                        ` : ''}
+                        ${form.recurrenceEndType === 'count' ? html`
+                        <div class="form-row recurrence-inline">
+                            <input type="number" id="edit-event-recurrence-end-count" class="form-input recurrence-number"
+                                min="1" .value="${String(form.recurrenceEndCount || 10)}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndCount: parseInt(e.target.value) || 10 }; }}" />
+                            <span class="recurrence-unit">${this._language.recurrenceOccurrences}</span>
+                        </div>
+                        ` : ''}
+                    ` : ''}
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
@@ -1817,6 +1998,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _closeCreateEventDialog() {
         this._showCreateEventDialog = null;
+        this._createRecurrenceType = null;
+        this._createRecurrenceEndType = 'never';
     }
 
     _handleLocationInput(e) {
@@ -1901,7 +2084,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const startInput = this.shadowRoot.querySelector('#event-start')?.value;
         const endInput = this.shadowRoot.querySelector('#event-end')?.value;
         const location = this.shadowRoot.querySelector('#event-location')?.value?.trim();
-        const recurrence = this.shadowRoot.querySelector('#event-recurrence')?.value;
+        const freq = this.shadowRoot.querySelector('#event-recurrence')?.value;
 
         if (!title) {
             return;
@@ -1914,6 +2097,23 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const start = DateTime.fromISO(startInput);
         const end = endInput ? DateTime.fromISO(endInput) : start.plus({ hours: 1 });
 
+        let rrule = '';
+        if (freq) {
+            const interval = parseInt(this.shadowRoot.querySelector('#event-recurrence-interval')?.value) || 1;
+            let byDay = [];
+            if (freq === 'FREQ=WEEKLY') {
+                byDay = [...this.shadowRoot.querySelectorAll('#event-day-picker .day-btn.active')]
+                    .map(btn => btn.dataset.day);
+            }
+            const byMonthDay = freq === 'FREQ=MONTHLY'
+                ? parseInt(this.shadowRoot.querySelector('#event-recurrence-monthday')?.value)
+                : null;
+            const endType = this.shadowRoot.querySelector('#event-recurrence-end')?.value || 'never';
+            const endDate = this.shadowRoot.querySelector('#event-recurrence-end-date')?.value || '';
+            const endCount = parseInt(this.shadowRoot.querySelector('#event-recurrence-end-count')?.value) || 10;
+            rrule = this._buildRrule(freq, interval, byDay, byMonthDay, endType, endDate, endCount);
+        }
+
         const serviceData = {
             entity_id: calendar,
             summary: title,
@@ -1921,7 +2121,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
         };
         if (location) serviceData.location = location;
-        if (recurrence) serviceData.rrule = recurrence;
+        if (rrule) serviceData.rrule = rrule;
 
         try {
             await this.hass.callService('calendar', 'create_event', serviceData);
@@ -1964,24 +2164,26 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const event = this._currentEventDetails;
         this._currentEventDetails = null;
         // Extract recurrence rule from event if available
-        let recurrence = '';
+        let rruleStr = '';
         if (event.rrule) {
-            recurrence = event.rrule;
+            rruleStr = event.rrule;
         } else if (event.recurrence_rule) {
-            recurrence = event.recurrence_rule;
+            rruleStr = event.recurrence_rule;
         }
-        // Normalize: extract FREQ= part
-        if (recurrence) {
-            const freqMatch = recurrence.match(/FREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)/);
-            recurrence = freqMatch ? 'FREQ=' + freqMatch[1] : '';
-        }
+        const parsed = this._parseRrule(rruleStr);
         this._editFormData = {
             title: event.summary || '',
             calendar: event.calendars[0] || '',
             start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
             end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
             location: event.location || '',
-            recurrence: recurrence,
+            recurrence: parsed.freq,
+            recurrenceInterval: parsed.interval,
+            recurrenceByDay: parsed.byDay,
+            recurrenceByMonthDay: parsed.byMonthDay ?? (event.originalStart ? event.originalStart.day : DateTime.now().day),
+            recurrenceEndType: parsed.endType,
+            recurrenceEndDate: parsed.endDate,
+            recurrenceEndCount: parsed.endCount,
         };
         this._showEditEventDialog = event;
     }
@@ -2114,7 +2316,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const startInput = form.start;
         const endInput = form.end;
         const location = form.location?.trim() ?? '';
-        const recurrence = form.recurrence || '';
+        const recurrence = this._buildRrule(
+            form.recurrence, form.recurrenceInterval, form.recurrenceByDay,
+            form.recurrenceByMonthDay, form.recurrenceEndType,
+            form.recurrenceEndDate, form.recurrenceEndCount
+        );
 
         if (!title || !startInput) {
             console.error('Skylight Family Calendar: Missing required fields', { title, startInput });
@@ -2197,6 +2403,79 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 console.error('Skylight Family Calendar: Failed to update event:', e);
             }
         }
+    }
+
+    _toggleDayBtn(e) {
+        e.target.classList.toggle('active');
+    }
+
+    _toggleEditDayBtn(e, day) {
+        const byDay = [...(this._editFormData.recurrenceByDay || [])];
+        const idx = byDay.indexOf(day);
+        if (idx >= 0) {
+            byDay.splice(idx, 1);
+        } else {
+            byDay.push(day);
+        }
+        this._editFormData = { ...this._editFormData, recurrenceByDay: byDay };
+    }
+
+    _dayLabel(code) {
+        const map = { MO: 0, TU: 1, WE: 2, TH: 3, FR: 4, SA: 5, SU: 6 };
+        const weekdays = LuxonInfo.weekdays('short');
+        return weekdays[map[code]] ?? code;
+    }
+
+    _getDefaultMonthDay() {
+        const startInput = this.shadowRoot?.querySelector('#event-start')?.value;
+        if (startInput) return DateTime.fromISO(startInput).day;
+        return DateTime.now().day;
+    }
+
+    _buildRrule(freq, interval, byDay, byMonthDay, endType, endDate, endCount) {
+        if (!freq) return '';
+        let rrule = freq;
+        if (interval && interval > 1) rrule += ';INTERVAL=' + interval;
+        if (freq === 'FREQ=WEEKLY' && byDay && byDay.length > 0) {
+            rrule += ';BYDAY=' + byDay.join(',');
+        }
+        if (freq === 'FREQ=MONTHLY' && byMonthDay) {
+            rrule += ';BYMONTHDAY=' + byMonthDay;
+        }
+        if (endType === 'date' && endDate) {
+            const dt = DateTime.fromISO(endDate).endOf('day');
+            rrule += ';UNTIL=' + dt.toFormat("yyyyMMdd'T'HHmmss");
+        } else if (endType === 'count' && endCount > 0) {
+            rrule += ';COUNT=' + endCount;
+        }
+        return rrule;
+    }
+
+    _parseRrule(rruleStr) {
+        const result = {
+            freq: '', interval: 1, byDay: [], byMonthDay: null,
+            endType: 'never', endDate: '', endCount: 10
+        };
+        if (!rruleStr) return result;
+        const parts = rruleStr.split(';');
+        for (const part of parts) {
+            const [key, val] = part.split('=');
+            switch(key) {
+                case 'FREQ': result.freq = 'FREQ=' + val; break;
+                case 'INTERVAL': result.interval = parseInt(val) || 1; break;
+                case 'BYDAY': result.byDay = val.split(','); break;
+                case 'BYMONTHDAY': result.byMonthDay = parseInt(val); break;
+                case 'UNTIL':
+                    result.endType = 'date';
+                    result.endDate = DateTime.fromFormat(val, "yyyyMMdd'T'HHmmss").toFormat('yyyy-MM-dd');
+                    break;
+                case 'COUNT':
+                    result.endType = 'count';
+                    result.endCount = parseInt(val) || 10;
+                    break;
+            }
+        }
+        return result;
     }
 
     _getViewLabel(view) {

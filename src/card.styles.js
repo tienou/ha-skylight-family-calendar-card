@@ -995,4 +995,39 @@ export default css`
     ha-dialog .event-actions {
         border-top-color: var(--divider-color, rgba(0, 0, 0, 0.12));
     }
+
+    .recurrence-inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .recurrence-number {
+        width: 70px !important;
+        text-align: center;
+    }
+    .recurrence-unit {
+        font-size: 0.9em;
+        color: var(--secondary-text-color, #666);
+        white-space: nowrap;
+    }
+    .day-picker {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+    .day-btn {
+        padding: 6px 10px;
+        border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.15));
+        border-radius: 4px;
+        background: transparent;
+        color: var(--primary-text-color, #333);
+        cursor: pointer;
+        font-size: 0.85em;
+        font-family: var(--skylight-font);
+    }
+    .day-btn.active {
+        background-color: var(--primary-color, #03a9f4);
+        color: var(--text-primary-color, #fff);
+        border-color: var(--primary-color, #03a9f4);
+    }
 `;
