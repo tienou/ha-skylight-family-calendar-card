@@ -152,7 +152,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _showEditEventDialog: { type: Object },
             _editFormData: { type: Object },
             _currentView: { type: String },
-            _calendarVisibility: { type: Object }
+            _calendarVisibility: { type: Object },
+            _showRecurringConfirmDialog: { type: Object },
+            _showDeleteRecurringDialog: { type: Object }
         }
     }
 
@@ -263,6 +265,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 week: 'Week',
                 biweek: 'Biweek',
                 month: 'Month',
+                eventRecurrence: 'Repeat',
+                recurrenceNone: 'No repeat',
+                recurrenceDaily: 'Daily',
+                recurrenceWeekly: 'Weekly',
+                recurrenceMonthly: 'Monthly',
+                recurrenceYearly: 'Yearly',
+                editThisEvent: 'This event only',
+                editAllEvents: 'All events',
+                editRecurringTitle: 'Edit recurring event',
+                deleteThisEvent: 'This event only',
+                deleteAllEvents: 'All events',
+                deleteRecurringTitle: 'Delete recurring event',
             },
             localeTexts,
             config.texts ?? {}
@@ -305,6 +319,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             save: 'Enregistrer', editEventTitle: 'Modifier l\'\u00e9v\u00e9nement',
             titleRequired: 'Le titre est requis',
             week: 'Semaine', biweek: '2 Semaines', month: 'Mois',
+            eventRecurrence: 'R\u00e9p\u00e9tition', recurrenceNone: 'Pas de r\u00e9p\u00e9tition', recurrenceDaily: 'Journalier',
+            recurrenceWeekly: 'Hebdomadaire', recurrenceMonthly: 'Mensuelle', recurrenceYearly: 'Annuelle',
+            editThisEvent: 'Cet \u00e9v\u00e9nement uniquement', editAllEvents: 'Tous les \u00e9v\u00e9nements',
+            editRecurringTitle: 'Modifier l\'\u00e9v\u00e9nement r\u00e9current',
+            deleteThisEvent: 'Cet \u00e9v\u00e9nement uniquement', deleteAllEvents: 'Tous les \u00e9v\u00e9nements',
+            deleteRecurringTitle: 'Supprimer l\'\u00e9v\u00e9nement r\u00e9current',
         },
         de: {
             fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
@@ -315,6 +335,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             save: 'Speichern', editEventTitle: 'Termin bearbeiten',
             titleRequired: 'Titel ist erforderlich',
             week: 'Woche', biweek: '2 Wochen', month: 'Monat',
+            eventRecurrence: 'Wiederholung', recurrenceNone: 'Keine Wiederholung', recurrenceDaily: 'T\u00e4glich',
+            recurrenceWeekly: 'W\u00f6chentlich', recurrenceMonthly: 'Monatlich', recurrenceYearly: 'J\u00e4hrlich',
+            editThisEvent: 'Nur dieses Ereignis', editAllEvents: 'Alle Ereignisse',
+            editRecurringTitle: 'Wiederkehrendes Ereignis bearbeiten',
+            deleteThisEvent: 'Nur dieses Ereignis', deleteAllEvents: 'Alle Ereignisse',
+            deleteRecurringTitle: 'Wiederkehrendes Ereignis l\u00f6schen',
         },
         es: {
             fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
@@ -325,6 +351,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             save: 'Guardar', editEventTitle: 'Editar evento',
             titleRequired: 'El t\u00edtulo es obligatorio',
             week: 'Semana', biweek: '2 Semanas', month: 'Mes',
+            eventRecurrence: 'Repetici\u00f3n', recurrenceNone: 'Sin repetici\u00f3n', recurrenceDaily: 'Diario',
+            recurrenceWeekly: 'Semanal', recurrenceMonthly: 'Mensual', recurrenceYearly: 'Anual',
+            editThisEvent: 'Solo este evento', editAllEvents: 'Todos los eventos',
+            editRecurringTitle: 'Editar evento recurrente',
+            deleteThisEvent: 'Solo este evento', deleteAllEvents: 'Todos los eventos',
+            deleteRecurringTitle: 'Eliminar evento recurrente',
         },
         it: {
             fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
@@ -335,6 +367,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             save: 'Salva', editEventTitle: 'Modifica evento',
             titleRequired: 'Il titolo \u00e8 obbligatorio',
             week: 'Settimana', biweek: '2 Settimane', month: 'Mese',
+            eventRecurrence: 'Ripetizione', recurrenceNone: 'Nessuna ripetizione', recurrenceDaily: 'Giornaliero',
+            recurrenceWeekly: 'Settimanale', recurrenceMonthly: 'Mensile', recurrenceYearly: 'Annuale',
+            editThisEvent: 'Solo questo evento', editAllEvents: 'Tutti gli eventi',
+            editRecurringTitle: 'Modifica evento ricorrente',
+            deleteThisEvent: 'Solo questo evento', deleteAllEvents: 'Tutti gli eventi',
+            deleteRecurringTitle: 'Elimina evento ricorrente',
         },
         nl: {
             fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
@@ -345,6 +383,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             save: 'Opslaan', editEventTitle: 'Evenement bewerken',
             titleRequired: 'Titel is verplicht',
             week: 'Week', biweek: '2 Weken', month: 'Maand',
+            eventRecurrence: 'Herhaling', recurrenceNone: 'Geen herhaling', recurrenceDaily: 'Dagelijks',
+            recurrenceWeekly: 'Wekelijks', recurrenceMonthly: 'Maandelijks', recurrenceYearly: 'Jaarlijks',
+            editThisEvent: 'Alleen dit evenement', editAllEvents: 'Alle evenementen',
+            editRecurringTitle: 'Terugkerend evenement bewerken',
+            deleteThisEvent: 'Alleen dit evenement', deleteAllEvents: 'Alle evenementen',
+            deleteRecurringTitle: 'Terugkerend evenement verwijderen',
         },
         pt: {
             fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
@@ -355,6 +399,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             save: 'Salvar', editEventTitle: 'Editar evento',
             titleRequired: 'O t\u00edtulo \u00e9 obrigat\u00f3rio',
             week: 'Semana', biweek: '2 Semanas', month: 'M\u00eas',
+            eventRecurrence: 'Repeti\u00e7\u00e3o', recurrenceNone: 'Sem repeti\u00e7\u00e3o', recurrenceDaily: 'Di\u00e1rio',
+            recurrenceWeekly: 'Semanal', recurrenceMonthly: 'Mensal', recurrenceYearly: 'Anual',
+            editThisEvent: 'Apenas este evento', editAllEvents: 'Todos os eventos',
+            editRecurringTitle: 'Editar evento recorrente',
+            deleteThisEvent: 'Apenas este evento', deleteAllEvents: 'Todos os eventos',
+            deleteRecurringTitle: 'Excluir evento recorrente',
         },
     };
 
@@ -615,6 +665,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     ${this._renderEventDetailsDialog()}
                     ${this._renderCreateEventDialog()}
                     ${this._renderEditEventDialog()}
+                    ${this._renderRecurringConfirmDialog()}
+                    ${this._renderDeleteRecurringDialog()}
                     ${this._loader}
                 </div>
             </ha-card>
@@ -1105,6 +1157,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <label for="event-end">${this._language.eventEnd}</label>
                         <input type="datetime-local" id="event-end" class="form-input" .value="${endValue}" />
                     </div>
+                    <div class="form-row">
+                        <label for="event-recurrence">${this._language.eventRecurrence}</label>
+                        <select id="event-recurrence" class="form-input">
+                            <option value="">${this._language.recurrenceNone}</option>
+                            <option value="FREQ=DAILY">${this._language.recurrenceDaily}</option>
+                            <option value="FREQ=WEEKLY">${this._language.recurrenceWeekly}</option>
+                            <option value="FREQ=MONTHLY">${this._language.recurrenceMonthly}</option>
+                            <option value="FREQ=YEARLY">${this._language.recurrenceYearly}</option>
+                        </select>
+                    </div>
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="event-location">${this._language.eventLocation ?? 'Location'}</label>
@@ -1177,6 +1239,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             .value="${form.end}"
                             @input="${(e) => { this._editFormData = { ...this._editFormData, end: e.target.value }; }}" />
                     </div>
+                    <div class="form-row">
+                        <label for="edit-event-recurrence">${this._language.eventRecurrence}</label>
+                        <select id="edit-event-recurrence" class="form-input"
+                            .value="${form.recurrence || ''}"
+                            @change="${(e) => { this._editFormData = { ...this._editFormData, recurrence: e.target.value }; }}">
+                            <option value="" ?selected="${!form.recurrence}">${this._language.recurrenceNone}</option>
+                            <option value="FREQ=DAILY" ?selected="${form.recurrence === 'FREQ=DAILY'}">${this._language.recurrenceDaily}</option>
+                            <option value="FREQ=WEEKLY" ?selected="${form.recurrence === 'FREQ=WEEKLY'}">${this._language.recurrenceWeekly}</option>
+                            <option value="FREQ=MONTHLY" ?selected="${form.recurrence === 'FREQ=MONTHLY'}">${this._language.recurrenceMonthly}</option>
+                            <option value="FREQ=YEARLY" ?selected="${form.recurrence === 'FREQ=YEARLY'}">${this._language.recurrenceYearly}</option>
+                        </select>
+                    </div>
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
@@ -1216,6 +1290,38 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     class="header_button"
                 ><ha-icon icon="mdi:close"></ha-icon></ha-icon-button>
             </div>
+        `;
+    }
+
+    _renderRecurringConfirmDialog() {
+        if (!this._showRecurringConfirmDialog) return html``;
+        return html`
+            <ha-dialog open @closed="${() => { this._showRecurringConfirmDialog = null; }}">
+                <div class="create-event-form">
+                    <h3 style="margin: 0 0 16px 0; font-size: 1.1em;">${this._language.editRecurringTitle}</h3>
+                    <div class="form-actions" style="justify-content: center; gap: 8px;">
+                        <button class="btn btn-cancel" @click="${this._handleUpdateThisEvent}">${this._language.editThisEvent}</button>
+                        <button class="btn btn-submit" @click="${this._handleUpdateAllEvents}">${this._language.editAllEvents}</button>
+                    </div>
+                </div>
+            </ha-dialog>
+        `;
+    }
+
+    _renderDeleteRecurringDialog() {
+        if (!this._showDeleteRecurringDialog) return html``;
+        return html`
+            <ha-dialog open @closed="${() => { this._showDeleteRecurringDialog = null; }}">
+                <div class="create-event-form">
+                    <h3 style="margin: 0 0 16px 0; font-size: 1.1em;">${this._language.deleteRecurringTitle}</h3>
+                    <div class="form-actions" style="justify-content: center; gap: 8px;">
+                        <button class="btn btn-cancel" @click="${this._handleDeleteThisEvent}">${this._language.deleteThisEvent}</button>
+                        <button class="btn btn-delete" @click="${this._handleDeleteAllEvents}">
+                            <ha-icon icon="mdi:delete"></ha-icon> ${this._language.deleteAllEvents}
+                        </button>
+                    </div>
+                </div>
+            </ha-dialog>
         `;
     }
 
@@ -1795,6 +1901,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const startInput = this.shadowRoot.querySelector('#event-start')?.value;
         const endInput = this.shadowRoot.querySelector('#event-end')?.value;
         const location = this.shadowRoot.querySelector('#event-location')?.value?.trim();
+        const recurrence = this.shadowRoot.querySelector('#event-recurrence')?.value;
 
         if (!title) {
             return;
@@ -1814,6 +1921,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
         };
         if (location) serviceData.location = location;
+        if (recurrence) serviceData.rrule = recurrence;
 
         try {
             await this.hass.callService('calendar', 'create_event', serviceData);
@@ -1831,16 +1939,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return;
         }
 
+        // If recurring event, show delete confirmation dialog
+        if (event.recurrence_id) {
+            this._showDeleteRecurringDialog = { event, source: 'details' };
+            return;
+        }
+
         try {
             const wsData = {
                 type: 'calendar/event/delete',
                 entity_id: event.calendars[0],
                 uid: event.uid,
             };
-            if (event.recurrence_id) {
-                wsData.recurrence_id = event.recurrence_id;
-                wsData.recurrence_range = 'THISANDFUTURE';
-            }
 
             await this.hass.callWS(wsData);
             this._currentEventDetails = null;
@@ -1853,12 +1963,25 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _handleEditEventClick() {
         const event = this._currentEventDetails;
         this._currentEventDetails = null;
+        // Extract recurrence rule from event if available
+        let recurrence = '';
+        if (event.rrule) {
+            recurrence = event.rrule;
+        } else if (event.recurrence_rule) {
+            recurrence = event.recurrence_rule;
+        }
+        // Normalize: extract FREQ= part
+        if (recurrence) {
+            const freqMatch = recurrence.match(/FREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)/);
+            recurrence = freqMatch ? 'FREQ=' + freqMatch[1] : '';
+        }
         this._editFormData = {
             title: event.summary || '',
             calendar: event.calendars[0] || '',
             start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
             end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
             location: event.location || '',
+            recurrence: recurrence,
         };
         this._showEditEventDialog = event;
     }
@@ -1874,16 +1997,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return;
         }
 
+        // If recurring event, show delete confirmation dialog
+        if (event.recurrence_id) {
+            this._showDeleteRecurringDialog = { event, source: 'edit' };
+            return;
+        }
+
         try {
             const wsData = {
                 type: 'calendar/event/delete',
                 entity_id: event.calendars[0],
                 uid: event.uid,
             };
-            if (event.recurrence_id) {
-                wsData.recurrence_id = event.recurrence_id;
-                wsData.recurrence_range = 'THISANDFUTURE';
-            }
 
             await this.hass.callWS(wsData);
             this._showEditEventDialog = null;
@@ -1891,6 +2016,60 @@ export class SkylightFamilyCalendarCard extends LitElement {
             this._updateEvents();
         } catch (e) {
             console.error('Skylight Family Calendar: Failed to delete event:', e);
+        }
+    }
+
+    async _handleDeleteThisEvent() {
+        const ctx = this._showDeleteRecurringDialog;
+        if (!ctx) return;
+        const event = ctx.event;
+        this._showDeleteRecurringDialog = null;
+
+        try {
+            const wsData = {
+                type: 'calendar/event/delete',
+                entity_id: event.calendars[0],
+                uid: event.uid,
+                recurrence_id: event.recurrence_id,
+            };
+
+            await this.hass.callWS(wsData);
+            if (ctx.source === 'edit') {
+                this._showEditEventDialog = null;
+                this._editFormData = null;
+            } else {
+                this._currentEventDetails = null;
+            }
+            this._updateEvents();
+        } catch (e) {
+            console.error('Skylight Family Calendar: Failed to delete single event:', e);
+        }
+    }
+
+    async _handleDeleteAllEvents() {
+        const ctx = this._showDeleteRecurringDialog;
+        if (!ctx) return;
+        const event = ctx.event;
+        this._showDeleteRecurringDialog = null;
+
+        try {
+            const wsData = {
+                type: 'calendar/event/delete',
+                entity_id: event.calendars[0],
+                uid: event.uid,
+            };
+            // No recurrence_id → deletes the entire series
+
+            await this.hass.callWS(wsData);
+            if (ctx.source === 'edit') {
+                this._showEditEventDialog = null;
+                this._editFormData = null;
+            } else {
+                this._currentEventDetails = null;
+            }
+            this._updateEvents();
+        } catch (e) {
+            console.error('Skylight Family Calendar: Failed to delete all events:', e);
         }
     }
 
@@ -1903,11 +2082,39 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return;
         }
 
+        // If recurring event, show confirmation dialog
+        if (event.recurrence_id) {
+            this._showRecurringConfirmDialog = { event, form: { ...form } };
+            return;
+        }
+
+        // Non-recurring: save directly
+        await this._performUpdateEvent(event, form, null);
+    }
+
+    async _handleUpdateThisEvent() {
+        const ctx = this._showRecurringConfirmDialog;
+        if (!ctx) return;
+        this._showRecurringConfirmDialog = null;
+        // Update this event only: send recurrence_id without recurrence_range
+        await this._performUpdateEvent(ctx.event, ctx.form, 'this');
+    }
+
+    async _handleUpdateAllEvents() {
+        const ctx = this._showRecurringConfirmDialog;
+        if (!ctx) return;
+        this._showRecurringConfirmDialog = null;
+        // Update all events: send without recurrence_id
+        await this._performUpdateEvent(ctx.event, ctx.form, 'all');
+    }
+
+    async _performUpdateEvent(event, form, recurringMode) {
         const title = form.title?.trim();
         const calendar = form.calendar;
         const startInput = form.start;
         const endInput = form.end;
         const location = form.location?.trim() ?? '';
+        const recurrence = form.recurrence || '';
 
         if (!title || !startInput) {
             console.error('Skylight Family Calendar: Missing required fields', { title, startInput });
@@ -1928,13 +2135,20 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
                 };
                 if (location) eventData.location = location;
+                if (recurrence) eventData.rrule = recurrence;
                 const wsData = {
                     type: 'calendar/event/update',
                     entity_id: entityId,
                     uid: event.uid,
                     event: eventData,
                 };
-                if (event.recurrence_id) {
+                if (recurringMode === 'this') {
+                    // This event only: send recurrence_id without recurrence_range
+                    wsData.recurrence_id = event.recurrence_id;
+                } else if (recurringMode === 'all') {
+                    // All events: don't send recurrence_id at all
+                } else if (event.recurrence_id) {
+                    // Default fallback (shouldn't happen with new flow)
                     wsData.recurrence_id = event.recurrence_id;
                     wsData.recurrence_range = 'THISANDFUTURE';
                 }
@@ -1953,7 +2167,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         entity_id: entityId,
                         uid: event.uid,
                     };
-                    if (event.recurrence_id) {
+                    if (recurringMode === 'this') {
+                        deleteData.recurrence_id = event.recurrence_id;
+                    } else if (recurringMode === 'all') {
+                        // No recurrence_id
+                    } else if (event.recurrence_id) {
                         deleteData.recurrence_id = event.recurrence_id;
                         deleteData.recurrence_range = 'THISANDFUTURE';
                     }
@@ -1966,6 +2184,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         end_date_time: end.toFormat('yyyy-MM-dd HH:mm:ss'),
                     };
                     if (location) fallbackData.location = location;
+                    if (recurrence) fallbackData.rrule = recurrence;
                     await this.hass.callService('calendar', 'create_event', fallbackData);
 
                     this._showEditEventDialog = null;
