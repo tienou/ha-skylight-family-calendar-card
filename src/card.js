@@ -274,7 +274,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._views = typeof config.views === 'string'
             ? config.views.split(',').map(v => v.trim()).filter(Boolean)
             : (config.views ?? defaultViews);
-        this._currentView = config.defaultView ?? 'Week';
+        const isMobile = window.innerWidth <= 768;
+        const configDefault = config.defaultView ?? 'Week';
+        this._currentView = (isMobile && configDefault === 'Month') ? 'Week' : configDefault;
 
         // Initialize calendar visibility
         const newVisibility = {};
