@@ -934,32 +934,65 @@ export default css`
         }
     }
 
-    /* ── Dark mode ──────────────────── */
+    /* ── HA theme-adaptive overrides ──────────────── */
+    /* Uses HA CSS variables so card adapts to any theme (light or dark) */
 
-    @media (prefers-color-scheme: dark) {
-        :host {
-            --skylight-bg: rgba(40, 40, 40, 0.85);
-        }
+    :host {
+        --skylight-bg: var(--card-background-color, rgba(255, 255, 255, 0.6));
+    }
 
-        .view-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.12);
-        }
+    .view-btn {
+        border-color: var(--divider-color, rgba(0, 0, 0, 0.15));
+        color: var(--primary-text-color, #333);
+    }
 
-        .view-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
+    .filter-btn {
+        color: var(--primary-text-color, #333);
+    }
 
-        .filter-btn {
-            color: var(--primary-text-color, #e0e0e0);
-        }
+    .container .day .events .none,
+    .container .day .events .more {
+        color: var(--secondary-text-color, rgba(0, 0, 0, 0.5));
+    }
 
-        .container .day.today {
-            background-color: rgba(3, 169, 244, 0.12);
-        }
+    .container .day .events .event .time {
+        color: var(--secondary-text-color, rgba(0, 0, 0, 0.5));
+    }
 
-        .container .day .events .event {
-            border-left-color: var(--border-color, var(--divider-color, #555));
-        }
+    .container .day .events .event .title {
+        color: var(--primary-text-color, #333);
+    }
+
+    .container .day .add-event {
+        color: var(--secondary-text-color, rgba(0, 0, 0, 0.3));
+    }
+
+    .create-event-form .form-input {
+        background-color: var(--primary-background-color, #fff);
+        border-color: var(--divider-color, rgba(0, 0, 0, 0.12));
+        color: var(--primary-text-color, #333);
+    }
+    .create-event-form .form-input:focus {
+        border-color: var(--skylight-accent);
+    }
+
+    .create-event-form .location-suggestions {
+        background: var(--card-background-color, #fff);
+        border-color: var(--divider-color, rgba(0, 0, 0, 0.12));
+    }
+    .create-event-form .location-suggestions li {
+        border-bottom-color: var(--divider-color, rgba(0, 0, 0, 0.06));
+        color: var(--primary-text-color, #333);
+    }
+    .create-event-form .location-suggestions li:hover {
+        background-color: var(--skylight-accent);
+        color: #fff;
+    }
+
+    ha-dialog .description {
+        border-top-color: var(--divider-color, rgba(0, 0, 0, 0.12));
+    }
+    ha-dialog .event-actions {
+        border-top-color: var(--divider-color, rgba(0, 0, 0, 0.12));
     }
 `;
