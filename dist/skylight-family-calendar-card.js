@@ -448,7 +448,7 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
     .container .day .events .event {
         margin-bottom: var(--event-spacing);
         background-color: var(--event-background-color);
-        border-radius: 0 var(--event-border-radius) var(--event-border-radius) 0;
+        border-radius: var(--event-border-radius);
         font-size: var(--event-font-size);
         line-height: var(--event-line-height);
     }
@@ -934,7 +934,6 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
     }
 
     /* ── HA theme-adaptive overrides ──────────────── */
-    /* Uses HA CSS variables so card adapts to any theme (light or dark) */
 
     :host {
         --skylight-bg: var(--card-background-color, rgba(255, 255, 255, 0.6));

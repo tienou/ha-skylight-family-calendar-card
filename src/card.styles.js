@@ -449,7 +449,7 @@ export default css`
     .container .day .events .event {
         margin-bottom: var(--event-spacing);
         background-color: var(--event-background-color);
-        border-radius: 0 var(--event-border-radius) var(--event-border-radius) 0;
+        border-radius: var(--event-border-radius);
         font-size: var(--event-font-size);
         line-height: var(--event-line-height);
     }
