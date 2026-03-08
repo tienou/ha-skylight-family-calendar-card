@@ -1757,7 +1757,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _showLocationSuggestions(results, input) {
-        const list = input.parentElement.querySelector('.location-suggestions');
+        const list = input.closest('.location-row').querySelector('.location-suggestions');
         if (!list) return;
         list.innerHTML = '';
         if (results.length === 0) {
@@ -1782,7 +1782,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _clearLocationSuggestions(input) {
-        const list = input.parentElement.querySelector('.location-suggestions');
+        const list = input.closest('.location-row').querySelector('.location-suggestions');
         if (list) {
             list.innerHTML = '';
             list.style.display = 'none';
