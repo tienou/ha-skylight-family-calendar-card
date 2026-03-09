@@ -486,7 +486,7 @@ export default css`
     }
 
     .container .day .events .event .time {
-        color: var(--secondary-text-color, #aaaaaa);
+        color: var(--primary-text-color, #333);
         margin: 0 0 3px 0;
         font-weight: bold;
     }
@@ -963,12 +963,13 @@ export default css`
     }
 
     .container .day .events .event .time {
-        color: var(--secondary-text-color, rgba(0, 0, 0, 0.5));
+        color: var(--primary-text-color, #333);
         font-weight: bold;
     }
 
     .container .day .events .event .title {
         color: var(--primary-text-color, #333);
+        font-size: 1.08em;
     }
 
     .container .day .add-event {
