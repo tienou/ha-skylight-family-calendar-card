@@ -167,6 +167,12 @@ patch('P10b',
     '_handleEventClick(e){this._actions||(e.uid?(this._currentEventDetails=e,this._handleEditEventClick()):this._currentEventDetails=e)}'
 );
 
+// ─── P10c: Store rrule from API response in _addEvent ───
+patch('P10c',
+    'uid:e.uid??null,recurrence_id:e.recurrence_id??null',
+    'uid:e.uid??null,recurrence_id:e.recurrence_id??null,rrule:e.rrule??null'
+);
+
 // ─── P11: _handleDeleteEvent shows dialog for recurring ───
 patch('P11',
     'async _handleDeleteEvent(){let e=this._currentEventDetails;if(e&&e.uid)try{let t={type:"calendar/event/delete",entity_id:e.calendars[0],uid:e.uid};e.recurrence_id&&(t.recurrence_id=e.recurrence_id,t.recurrence_range="THISANDFUTURE"),await this.hass.callWS(t),this._currentEventDetails=null,this._updateEvents()}catch(e){console.error("Failed to delete event:",e)}}',
