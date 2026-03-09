@@ -742,7 +742,8 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
     }
     .container .day .events .event .title {
         color: var(--primary-text-color, #333);
-        font-size: 1.08em;
+        font-size: 1.15em;
+        font-weight: 600;
     }
     .container .day .add-event {
         color: var(--secondary-text-color, rgba(0, 0, 0, 0.3));

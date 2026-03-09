@@ -969,7 +969,8 @@ export default css`
 
     .container .day .events .event .title {
         color: var(--primary-text-color, #333);
-        font-size: 1.08em;
+        font-size: 1.15em;
+        font-weight: 600;
     }
 
     .container .day .add-event {
