@@ -355,14 +355,16 @@ export default css`
         border-bottom: 1px solid var(--divider-color, rgba(0,0,0,0.08));
     }
 
-    .container .day.today {
-        background-color: #03a9f410;
-        border-radius: 12px;
-    }
-
     .container .day.today .date .number {
-        color: var(--skylight-accent, #03a9f4);
+        background-color: #f0a030;
+        color: #fff;
         font-weight: bold;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.4em;
+        padding: 2px 6px;
     }
 
     .container .day .date {
@@ -486,11 +488,13 @@ export default css`
     .container .day .events .event .time {
         color: var(--secondary-text-color, #aaaaaa);
         margin: 0 0 3px 0;
+        font-weight: bold;
     }
 
     .container .day .events .event .location {
         margin: 3px 0 0 0;
         --mdc-icon-size: var(--event-icon-size);
+        color: var(--primary-text-color, #333);
     }
 
     .loader {
@@ -960,6 +964,7 @@ export default css`
 
     .container .day .events .event .time {
         color: var(--secondary-text-color, rgba(0, 0, 0, 0.5));
+        font-weight: bold;
     }
 
     .container .day .events .event .title {
@@ -997,6 +1002,15 @@ export default css`
     }
     ha-dialog .event-actions {
         border-top-color: var(--divider-color, rgba(0, 0, 0, 0.12));
+    }
+
+    .datetime-row {
+        display: flex;
+        gap: 8px;
+    }
+    .datetime-row .form-input {
+        flex: 1;
+        min-width: 0;
     }
 
     .recurrence-inline {

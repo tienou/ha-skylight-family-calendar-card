@@ -1199,8 +1199,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
             millisecond: 0,
         });
         const defaultEnd = defaultStart.plus({ hours: 1 });
-        const startValue = defaultStart.toFormat("yyyy-MM-dd'T'HH:mm");
-        const endValue = defaultEnd.toFormat("yyyy-MM-dd'T'HH:mm");
+        const startDateValue = defaultStart.toFormat("yyyy-MM-dd");
+        const startTimeValue = defaultStart.toFormat("HH:mm");
+        const endDateValue = defaultEnd.toFormat("yyyy-MM-dd");
+        const endTimeValue = defaultEnd.toFormat("HH:mm");
 
         return html`
             <ha-dialog
@@ -1222,12 +1224,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </select>
                     </div>
                     <div class="form-row">
-                        <label for="event-start">${this._language.eventStart} *</label>
-                        <input type="datetime-local" id="event-start" class="form-input" .value="${startValue}" required />
+                        <label for="event-start-date">${this._language.eventStart} *</label>
+                        <div class="datetime-row">
+                            <input type="date" id="event-start-date" class="form-input" .value="${startDateValue}" required />
+                            <input type="time" id="event-start-time" class="form-input" .value="${startTimeValue}" required />
+                        </div>
                     </div>
                     <div class="form-row">
-                        <label for="event-end">${this._language.eventEnd}</label>
-                        <input type="datetime-local" id="event-end" class="form-input" .value="${endValue}" />
+                        <label for="event-end-date">${this._language.eventEnd}</label>
+                        <div class="datetime-row">
+                            <input type="date" id="event-end-date" class="form-input" .value="${endDateValue}" />
+                            <input type="time" id="event-end-time" class="form-input" .value="${endTimeValue}" />
+                        </div>
                     </div>
                     <div class="form-row">
                         <label for="event-recurrence">${this._language.eventRecurrence}</label>
@@ -1352,16 +1360,26 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </select>
                     </div>
                     <div class="form-row">
-                        <label for="edit-event-start">${this._language.eventStart} *</label>
-                        <input type="datetime-local" id="edit-event-start" class="form-input" required
-                            .value="${form.start}"
-                            @input="${(e) => { this._editFormData = { ...this._editFormData, start: e.target.value }; }}" />
+                        <label for="edit-event-start-date">${this._language.eventStart} *</label>
+                        <div class="datetime-row">
+                            <input type="date" id="edit-event-start-date" class="form-input" required
+                                .value="${form.startDate}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, startDate: e.target.value }; }}" />
+                            <input type="time" id="edit-event-start-time" class="form-input" required
+                                .value="${form.startTime}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, startTime: e.target.value }; }}" />
+                        </div>
                     </div>
                     <div class="form-row">
-                        <label for="edit-event-end">${this._language.eventEnd}</label>
-                        <input type="datetime-local" id="edit-event-end" class="form-input"
-                            .value="${form.end}"
-                            @input="${(e) => { this._editFormData = { ...this._editFormData, end: e.target.value }; }}" />
+                        <label for="edit-event-end-date">${this._language.eventEnd}</label>
+                        <div class="datetime-row">
+                            <input type="date" id="edit-event-end-date" class="form-input"
+                                .value="${form.endDate}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, endDate: e.target.value }; }}" />
+                            <input type="time" id="edit-event-end-time" class="form-input"
+                                .value="${form.endTime}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, endTime: e.target.value }; }}" />
+                        </div>
                     </div>
                     <div class="form-row">
                         <label for="edit-event-recurrence">${this._language.eventRecurrence}</label>
@@ -2081,8 +2099,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
     async _handleCreateEvent() {
         const title = this.shadowRoot.querySelector('#event-title')?.value?.trim();
         const calendar = this.shadowRoot.querySelector('#event-calendar')?.value;
-        const startInput = this.shadowRoot.querySelector('#event-start')?.value;
-        const endInput = this.shadowRoot.querySelector('#event-end')?.value;
+        const startDate = this.shadowRoot.querySelector('#event-start-date')?.value;
+        const startTime = this.shadowRoot.querySelector('#event-start-time')?.value;
+        const endDate = this.shadowRoot.querySelector('#event-end-date')?.value;
+        const endTime = this.shadowRoot.querySelector('#event-end-time')?.value;
+        const startInput = (startDate && startTime) ? `${startDate}T${startTime}` : '';
+        const endInput = (endDate && endTime) ? `${endDate}T${endTime}` : '';
         const location = this.shadowRoot.querySelector('#event-location')?.value?.trim();
         const freq = this.shadowRoot.querySelector('#event-recurrence')?.value;
 
@@ -2177,8 +2199,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._editFormData = {
             title: event.summary || '',
             calendar: event.calendars[0] || '',
-            start: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd'T'HH:mm") : '',
-            end: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd'T'HH:mm") : '',
+            startDate: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd") : '',
+            startTime: event.originalStart ? event.originalStart.toFormat("HH:mm") : '',
+            endDate: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd") : '',
+            endTime: event.originalEnd ? event.originalEnd.toFormat("HH:mm") : '',
             location: event.location || '',
             recurrence: parsed.freq,
             recurrenceInterval: parsed.interval,
@@ -2316,8 +2340,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
     async _performUpdateEvent(event, form, recurringMode) {
         const title = form.title?.trim();
         const calendar = form.calendar;
-        const startInput = form.start;
-        const endInput = form.end;
+        const startInput = (form.startDate && form.startTime) ? `${form.startDate}T${form.startTime}` : '';
+        const endInput = (form.endDate && form.endTime) ? `${form.endDate}T${form.endTime}` : '';
         const location = form.location?.trim() ?? '';
         const recurrence = this._buildRrule(
             form.recurrence, form.recurrenceInterval, form.recurrenceByDay,
@@ -2433,7 +2457,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _getDefaultMonthDay() {
-        const startInput = this.shadowRoot?.querySelector('#event-start')?.value;
+        const startInput = this.shadowRoot?.querySelector('#event-start-date')?.value;
         if (startInput) return DateTime.fromISO(startInput).day;
         return DateTime.now().day;
     }
