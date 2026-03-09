@@ -348,11 +348,9 @@ export default css`
         position: relative;
         display: flex;
         flex-direction: column;
+        box-sizing: border-box;
         width: calc((100% - (var(--days-columns) - 1) * var(--days-spacing)) / var(--days-columns));
         margin: 0 0 var(--days-spacing) 0;
-    }
-
-    .container .day {
         border-right: 1px solid var(--divider-color, rgba(0,0,0,0.08));
         border-bottom: 1px solid var(--divider-color, rgba(0,0,0,0.08));
     }

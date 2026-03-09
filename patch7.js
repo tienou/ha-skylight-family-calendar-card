@@ -229,6 +229,12 @@ patch('P17',
     utilityMethods + '_getViewLabel(e){'
 );
 
+// ─── P18a: Add box-sizing to .container .day (needed for border separators) ───
+patch('P18a',
+    '.container .day {\r\n        position: relative;\r\n        display: flex;\r\n        flex-direction: column;\r\n        width: calc((100%',
+    '.container .day {\r\n        position: relative;\r\n        display: flex;\r\n        flex-direction: column;\r\n        box-sizing: border-box;\r\n        width: calc((100%'
+);
+
 // ─── P18: CSS for recurrence detail fields ───
 const recurrenceCss = `\r\n\r\n    .recurrence-inline {\r\n        display: flex;\r\n        align-items: center;\r\n        gap: 8px;\r\n    }\r\n    .recurrence-number {\r\n        width: 70px !important;\r\n        text-align: center;\r\n    }\r\n    .recurrence-unit {\r\n        font-size: 0.9em;\r\n        color: var(--secondary-text-color, #666);\r\n        white-space: nowrap;\r\n    }\r\n    .day-picker {\r\n        display: flex;\r\n        gap: 4px;\r\n        flex-wrap: wrap;\r\n    }\r\n    .day-btn {\r\n        padding: 6px 10px;\r\n        border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.15));\r\n        border-radius: 4px;\r\n        background: transparent;\r\n        color: var(--primary-text-color, #333);\r\n        cursor: pointer;\r\n        font-size: 0.85em;\r\n    }\r\n    .day-btn.active {\r\n        background-color: var(--primary-color, #03a9f4);\r\n        color: var(--text-primary-color, #fff);\r\n        border-color: var(--primary-color, #03a9f4);\r\n    }\r\n    .container .day {\r\n        border-right: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));\r\n        border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));\r\n    }`;
 
