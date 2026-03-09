@@ -88,43 +88,43 @@ patch('P5',
 // EN defaults
 patch('P6-EN',
     'week:"Week",biweek:"Biweek",month:"Month"',
-    'week:"Week",biweek:"Biweek",month:"Month",eventRecurrence:"Repeat",recurrenceNone:"No repeat",recurrenceDaily:"Daily",recurrenceWeekly:"Weekly",recurrenceMonthly:"Monthly",recurrenceYearly:"Yearly",editThisEvent:"This event only",editAllEvents:"All events",editRecurringTitle:"Edit recurring event",deleteThisEvent:"This event only",deleteAllEvents:"All events",deleteRecurringTitle:"Delete recurring event",recurrenceInterval:"Repeat interval",recurrenceEnds:"Ends",recurrenceEndsNever:"Never",recurrenceEndsOnDate:"On date",recurrenceEndsAfter:"After",recurrenceOccurrences:"occurrences",recurrenceDays:"days",recurrenceWeeks:"weeks",recurrenceMonths:"months",recurrenceMonthlyOn:"Monthly on day"'
+    'week:"Week",biweek:"Biweek",month:"Month",eventRecurrence:"Repeat",recurrenceNone:"No repeat",recurrenceDaily:"Daily",recurrenceWeekly:"Weekly",recurrenceMonthly:"Monthly",recurrenceYearly:"Yearly",editThisEvent:"This event only",editAllEvents:"All events",editRecurringTitle:"Edit recurring event",deleteThisEvent:"This event only",deleteAllEvents:"All events",deleteRecurringTitle:"Delete recurring event",recurrenceInterval:"Repeat interval",recurrenceEnds:"Ends",recurrenceEndsNever:"Never",recurrenceEndsOnDate:"On date",recurrenceEndsAfter:"After",recurrenceOccurrences:"occurrences",recurrenceDays:"days",recurrenceWeeks:"weeks",recurrenceMonths:"months",recurrenceMonthlyOn:"Monthly on day",eventNotify:"Notification"'
 );
 
 // FR
 patch('P6-FR',
     'week:"Semaine",biweek:"2 Semaines",month:"Mois"',
-    'week:"Semaine",biweek:"2 Semaines",month:"Mois",eventRecurrence:"R\u00e9p\u00e9tition",recurrenceNone:"Pas de r\u00e9p\u00e9tition",recurrenceDaily:"Journalier",recurrenceWeekly:"Hebdomadaire",recurrenceMonthly:"Mensuelle",recurrenceYearly:"Annuelle",editThisEvent:"Cet \u00e9v\u00e9nement uniquement",editAllEvents:"Tous les \u00e9v\u00e9nements",editRecurringTitle:"Modifier l\'\u00e9v\u00e9nement r\u00e9current",deleteThisEvent:"Cet \u00e9v\u00e9nement uniquement",deleteAllEvents:"Tous les \u00e9v\u00e9nements",deleteRecurringTitle:"Supprimer l\'\u00e9v\u00e9nement r\u00e9current",recurrenceInterval:"Intervalle de r\u00e9p\u00e9tition",recurrenceEnds:"Se termine",recurrenceEndsNever:"Jamais",recurrenceEndsOnDate:"\u00c0 une date",recurrenceEndsAfter:"Apr\u00e8s",recurrenceOccurrences:"occurrences",recurrenceDays:"jours",recurrenceWeeks:"semaines",recurrenceMonths:"mois",recurrenceMonthlyOn:"Chaque mois le"'
+    'week:"Semaine",biweek:"2 Semaines",month:"Mois",eventRecurrence:"R\u00e9p\u00e9tition",recurrenceNone:"Pas de r\u00e9p\u00e9tition",recurrenceDaily:"Journalier",recurrenceWeekly:"Hebdomadaire",recurrenceMonthly:"Mensuelle",recurrenceYearly:"Annuelle",editThisEvent:"Cet \u00e9v\u00e9nement uniquement",editAllEvents:"Tous les \u00e9v\u00e9nements",editRecurringTitle:"Modifier l\'\u00e9v\u00e9nement r\u00e9current",deleteThisEvent:"Cet \u00e9v\u00e9nement uniquement",deleteAllEvents:"Tous les \u00e9v\u00e9nements",deleteRecurringTitle:"Supprimer l\'\u00e9v\u00e9nement r\u00e9current",recurrenceInterval:"Intervalle de r\u00e9p\u00e9tition",recurrenceEnds:"Se termine",recurrenceEndsNever:"Jamais",recurrenceEndsOnDate:"\u00c0 une date",recurrenceEndsAfter:"Apr\u00e8s",recurrenceOccurrences:"occurrences",recurrenceDays:"jours",recurrenceWeeks:"semaines",recurrenceMonths:"mois",recurrenceMonthlyOn:"Chaque mois le",eventNotify:"Notification"'
 );
 
 // DE
 patch('P6-DE',
     'week:"Woche",biweek:"2 Wochen",month:"Monat"',
-    'week:"Woche",biweek:"2 Wochen",month:"Monat",eventRecurrence:"Wiederholung",recurrenceNone:"Keine Wiederholung",recurrenceDaily:"T\u00e4glich",recurrenceWeekly:"W\u00f6chentlich",recurrenceMonthly:"Monatlich",recurrenceYearly:"J\u00e4hrlich",editThisEvent:"Nur dieses Ereignis",editAllEvents:"Alle Ereignisse",editRecurringTitle:"Wiederkehrendes Ereignis bearbeiten",deleteThisEvent:"Nur dieses Ereignis",deleteAllEvents:"Alle Ereignisse",deleteRecurringTitle:"Wiederkehrendes Ereignis l\u00f6schen",recurrenceInterval:"Wiederholungsintervall",recurrenceEnds:"Endet",recurrenceEndsNever:"Nie",recurrenceEndsOnDate:"Am Datum",recurrenceEndsAfter:"Nach",recurrenceOccurrences:"Wiederholungen",recurrenceDays:"Tagen",recurrenceWeeks:"Wochen",recurrenceMonths:"Monaten",recurrenceMonthlyOn:"Monatlich am"'
+    'week:"Woche",biweek:"2 Wochen",month:"Monat",eventRecurrence:"Wiederholung",recurrenceNone:"Keine Wiederholung",recurrenceDaily:"T\u00e4glich",recurrenceWeekly:"W\u00f6chentlich",recurrenceMonthly:"Monatlich",recurrenceYearly:"J\u00e4hrlich",editThisEvent:"Nur dieses Ereignis",editAllEvents:"Alle Ereignisse",editRecurringTitle:"Wiederkehrendes Ereignis bearbeiten",deleteThisEvent:"Nur dieses Ereignis",deleteAllEvents:"Alle Ereignisse",deleteRecurringTitle:"Wiederkehrendes Ereignis l\u00f6schen",recurrenceInterval:"Wiederholungsintervall",recurrenceEnds:"Endet",recurrenceEndsNever:"Nie",recurrenceEndsOnDate:"Am Datum",recurrenceEndsAfter:"Nach",recurrenceOccurrences:"Wiederholungen",recurrenceDays:"Tagen",recurrenceWeeks:"Wochen",recurrenceMonths:"Monaten",recurrenceMonthlyOn:"Monatlich am",eventNotify:"Benachrichtigung"'
 );
 
 // ES
 patch('P6-ES',
     'week:"Semana",biweek:"2 Semanas",month:"Mes"',
-    'week:"Semana",biweek:"2 Semanas",month:"Mes",eventRecurrence:"Repetici\u00f3n",recurrenceNone:"Sin repetici\u00f3n",recurrenceDaily:"Diario",recurrenceWeekly:"Semanal",recurrenceMonthly:"Mensual",recurrenceYearly:"Anual",editThisEvent:"Solo este evento",editAllEvents:"Todos los eventos",editRecurringTitle:"Editar evento recurrente",deleteThisEvent:"Solo este evento",deleteAllEvents:"Todos los eventos",deleteRecurringTitle:"Eliminar evento recurrente",recurrenceInterval:"Intervalo de repetici\u00f3n",recurrenceEnds:"Termina",recurrenceEndsNever:"Nunca",recurrenceEndsOnDate:"En una fecha",recurrenceEndsAfter:"Despu\u00e9s de",recurrenceOccurrences:"ocurrencias",recurrenceDays:"d\u00edas",recurrenceWeeks:"semanas",recurrenceMonths:"meses",recurrenceMonthlyOn:"Cada mes el"'
+    'week:"Semana",biweek:"2 Semanas",month:"Mes",eventRecurrence:"Repetici\u00f3n",recurrenceNone:"Sin repetici\u00f3n",recurrenceDaily:"Diario",recurrenceWeekly:"Semanal",recurrenceMonthly:"Mensual",recurrenceYearly:"Anual",editThisEvent:"Solo este evento",editAllEvents:"Todos los eventos",editRecurringTitle:"Editar evento recurrente",deleteThisEvent:"Solo este evento",deleteAllEvents:"Todos los eventos",deleteRecurringTitle:"Eliminar evento recurrente",recurrenceInterval:"Intervalo de repetici\u00f3n",recurrenceEnds:"Termina",recurrenceEndsNever:"Nunca",recurrenceEndsOnDate:"En una fecha",recurrenceEndsAfter:"Despu\u00e9s de",recurrenceOccurrences:"ocurrencias",recurrenceDays:"d\u00edas",recurrenceWeeks:"semanas",recurrenceMonths:"meses",recurrenceMonthlyOn:"Cada mes el",eventNotify:"Notificaci\u00f3n"'
 );
 
 // IT
 patch('P6-IT',
     'week:"Settimana",biweek:"2 Settimane",month:"Mese"',
-    'week:"Settimana",biweek:"2 Settimane",month:"Mese",eventRecurrence:"Ripetizione",recurrenceNone:"Nessuna ripetizione",recurrenceDaily:"Giornaliero",recurrenceWeekly:"Settimanale",recurrenceMonthly:"Mensile",recurrenceYearly:"Annuale",editThisEvent:"Solo questo evento",editAllEvents:"Tutti gli eventi",editRecurringTitle:"Modifica evento ricorrente",deleteThisEvent:"Solo questo evento",deleteAllEvents:"Tutti gli eventi",deleteRecurringTitle:"Elimina evento ricorrente",recurrenceInterval:"Intervallo di ripetizione",recurrenceEnds:"Termina",recurrenceEndsNever:"Mai",recurrenceEndsOnDate:"In una data",recurrenceEndsAfter:"Dopo",recurrenceOccurrences:"occorrenze",recurrenceDays:"giorni",recurrenceWeeks:"settimane",recurrenceMonths:"mesi",recurrenceMonthlyOn:"Ogni mese il"'
+    'week:"Settimana",biweek:"2 Settimane",month:"Mese",eventRecurrence:"Ripetizione",recurrenceNone:"Nessuna ripetizione",recurrenceDaily:"Giornaliero",recurrenceWeekly:"Settimanale",recurrenceMonthly:"Mensile",recurrenceYearly:"Annuale",editThisEvent:"Solo questo evento",editAllEvents:"Tutti gli eventi",editRecurringTitle:"Modifica evento ricorrente",deleteThisEvent:"Solo questo evento",deleteAllEvents:"Tutti gli eventi",deleteRecurringTitle:"Elimina evento ricorrente",recurrenceInterval:"Intervallo di ripetizione",recurrenceEnds:"Termina",recurrenceEndsNever:"Mai",recurrenceEndsOnDate:"In una data",recurrenceEndsAfter:"Dopo",recurrenceOccurrences:"occorrenze",recurrenceDays:"giorni",recurrenceWeeks:"settimane",recurrenceMonths:"mesi",recurrenceMonthlyOn:"Ogni mese il",eventNotify:"Notifica"'
 );
 
 // NL
 patch('P6-NL',
     'week:"Week",biweek:"2 Weken",month:"Maand"',
-    'week:"Week",biweek:"2 Weken",month:"Maand",eventRecurrence:"Herhaling",recurrenceNone:"Geen herhaling",recurrenceDaily:"Dagelijks",recurrenceWeekly:"Wekelijks",recurrenceMonthly:"Maandelijks",recurrenceYearly:"Jaarlijks",editThisEvent:"Alleen dit evenement",editAllEvents:"Alle evenementen",editRecurringTitle:"Terugkerend evenement bewerken",deleteThisEvent:"Alleen dit evenement",deleteAllEvents:"Alle evenementen",deleteRecurringTitle:"Terugkerend evenement verwijderen",recurrenceInterval:"Herhalingsinterval",recurrenceEnds:"Eindigt",recurrenceEndsNever:"Nooit",recurrenceEndsOnDate:"Op datum",recurrenceEndsAfter:"Na",recurrenceOccurrences:"herhalingen",recurrenceDays:"dagen",recurrenceWeeks:"weken",recurrenceMonths:"maanden",recurrenceMonthlyOn:"Maandelijks op"'
+    'week:"Week",biweek:"2 Weken",month:"Maand",eventRecurrence:"Herhaling",recurrenceNone:"Geen herhaling",recurrenceDaily:"Dagelijks",recurrenceWeekly:"Wekelijks",recurrenceMonthly:"Maandelijks",recurrenceYearly:"Jaarlijks",editThisEvent:"Alleen dit evenement",editAllEvents:"Alle evenementen",editRecurringTitle:"Terugkerend evenement bewerken",deleteThisEvent:"Alleen dit evenement",deleteAllEvents:"Alle evenementen",deleteRecurringTitle:"Terugkerend evenement verwijderen",recurrenceInterval:"Herhalingsinterval",recurrenceEnds:"Eindigt",recurrenceEndsNever:"Nooit",recurrenceEndsOnDate:"Op datum",recurrenceEndsAfter:"Na",recurrenceOccurrences:"herhalingen",recurrenceDays:"dagen",recurrenceWeeks:"weken",recurrenceMonths:"maanden",recurrenceMonthlyOn:"Maandelijks op",eventNotify:"Melding"'
 );
 
 // PT
 patch('P6-PT',
     'week:"Semana",biweek:"2 Semanas",month:"M\u00eas"',
-    'week:"Semana",biweek:"2 Semanas",month:"M\u00eas",eventRecurrence:"Repeti\u00e7\u00e3o",recurrenceNone:"Sem repeti\u00e7\u00e3o",recurrenceDaily:"Di\u00e1rio",recurrenceWeekly:"Semanal",recurrenceMonthly:"Mensal",recurrenceYearly:"Anual",editThisEvent:"Apenas este evento",editAllEvents:"Todos os eventos",editRecurringTitle:"Editar evento recorrente",deleteThisEvent:"Apenas este evento",deleteAllEvents:"Todos os eventos",deleteRecurringTitle:"Excluir evento recorrente",recurrenceInterval:"Intervalo de repeti\u00e7\u00e3o",recurrenceEnds:"Termina",recurrenceEndsNever:"Nunca",recurrenceEndsOnDate:"Em uma data",recurrenceEndsAfter:"Ap\u00f3s",recurrenceOccurrences:"ocorr\u00eancias",recurrenceDays:"dias",recurrenceWeeks:"semanas",recurrenceMonths:"meses",recurrenceMonthlyOn:"Todo m\u00eas no dia"'
+    'week:"Semana",biweek:"2 Semanas",month:"M\u00eas",eventRecurrence:"Repeti\u00e7\u00e3o",recurrenceNone:"Sem repeti\u00e7\u00e3o",recurrenceDaily:"Di\u00e1rio",recurrenceWeekly:"Semanal",recurrenceMonthly:"Mensal",recurrenceYearly:"Anual",editThisEvent:"Apenas este evento",editAllEvents:"Todos os eventos",editRecurringTitle:"Editar evento recorrente",deleteThisEvent:"Apenas este evento",deleteAllEvents:"Todos os eventos",deleteRecurringTitle:"Excluir evento recorrente",recurrenceInterval:"Intervalo de repeti\u00e7\u00e3o",recurrenceEnds:"Termina",recurrenceEndsNever:"Nunca",recurrenceEndsOnDate:"Em uma data",recurrenceEndsAfter:"Ap\u00f3s",recurrenceOccurrences:"ocorr\u00eancias",recurrenceDays:"dias",recurrenceWeeks:"semanas",recurrenceMonths:"meses",recurrenceMonthlyOn:"Todo m\u00eas no dia",eventNotify:"Notifica\u00e7\u00e3o"'
 );
 
 // ─── P6b: Split create form datetime variables into date + time ───
@@ -158,7 +158,7 @@ patch('P9',
 // ─── P10: _handleEditEventClick parses full RRULE ───
 patch('P10',
     '_handleEditEventClick(){let e=this._currentEventDetails;this._currentEventDetails=null,this._editFormData={title:e.summary||"",calendar:e.calendars[0]||"",start:e.originalStart?e.originalStart.toFormat("yyyy-MM-dd\'T\'HH:mm"):"",end:e.originalEnd?e.originalEnd.toFormat("yyyy-MM-dd\'T\'HH:mm"):"",location:e.location||""},this._showEditEventDialog=e}',
-    '_handleEditEventClick(){let e=this._currentEventDetails;this._currentEventDetails=null;let rs="";e.rrule?rs=e.rrule:e.recurrence_rule&&(rs=e.recurrence_rule);let p=this._parseRrule(rs);this._editFormData={title:e.summary||"",calendar:e.calendars[0]||"",startDate:e.originalStart?e.originalStart.toFormat("yyyy-MM-dd"):"",startTime:e.originalStart?e.originalStart.toFormat("HH:mm"):"",endDate:e.originalEnd?e.originalEnd.toFormat("yyyy-MM-dd"):"",endTime:e.originalEnd?e.originalEnd.toFormat("HH:mm"):"",location:e.location||"",recurrence:p.freq,recurrenceInterval:p.interval,recurrenceByDay:p.byDay,recurrenceByMonthDay:p.byMonthDay??(e.originalStart?e.originalStart.day:eh.DateTime.now().day),recurrenceEndType:p.endType,recurrenceEndDate:p.endDate,recurrenceEndCount:p.endCount},this._showEditEventDialog=e}'
+    '_handleEditEventClick(){let e=this._currentEventDetails;this._currentEventDetails=null;let rs="";e.rrule?rs=e.rrule:e.recurrence_rule&&(rs=e.recurrence_rule);let p=this._parseRrule(rs);this._editFormData={notify:e.summary?.startsWith("\\ud83d\\udd14")||!1,title:(e.summary||"").replace(/^\\ud83d\\udd14\\s?/,""),calendar:e.calendars[0]||"",startDate:e.originalStart?e.originalStart.toFormat("yyyy-MM-dd"):"",startTime:e.originalStart?e.originalStart.toFormat("HH:mm"):"",endDate:e.originalEnd?e.originalEnd.toFormat("yyyy-MM-dd"):"",endTime:e.originalEnd?e.originalEnd.toFormat("HH:mm"):"",location:e.location||"",recurrence:p.freq,recurrenceInterval:p.interval,recurrenceByDay:p.byDay,recurrenceByMonthDay:p.byMonthDay??(e.originalStart?e.originalStart.day:eh.DateTime.now().day),recurrenceEndType:p.endType,recurrenceEndDate:p.endDate,recurrenceEndCount:p.endCount},this._showEditEventDialog=e}'
 );
 
 // ─── P10b: _handleEventClick — delegate uid events to _handleEditEventClick ───
@@ -283,6 +283,36 @@ patch('P21',
 patch('P22',
     '.container .day .events .event .location {\r\n        margin: 3px 0 0 0;\r\n        --mdc-icon-size: var(--event-icon-size);\r\n    }',
     '.container .day .events .event .location {\r\n        margin: 3px 0 0 0;\r\n        --mdc-icon-size: var(--event-icon-size);\r\n        color: var(--primary-text-color, #333);\r\n    }'
+);
+
+// ─── P23: Create form — notification checkbox after title ───
+patch('P23',
+    'placeholder="${this._language.eventTitle}" />\r\n                    </div>\r\n                    <div class="form-row">\r\n                        <label for="event-calendar">',
+    'placeholder="${this._language.eventTitle}" />\r\n                        <label class="notify-row"><input type="checkbox" id="event-notify" /> \ud83d\udd14 ${this._language.eventNotify}</label>\r\n                    </div>\r\n                    <div class="form-row">\r\n                        <label for="event-calendar">'
+);
+
+// ─── P24: Edit form — notification checkbox after title ───
+patch('P24',
+    '@input="${e=>{this._editFormData={...this._editFormData,title:e.target.value}}}" />\r\n                    </div>\r\n                    <div class="form-row">\r\n                        <label for="edit-event-calendar">',
+    '@input="${e=>{this._editFormData={...this._editFormData,title:e.target.value}}}" />\r\n                        <label class="notify-row"><input type="checkbox" id="edit-event-notify" .checked="${e.notify}" @change="${e=>{this._editFormData={...this._editFormData,notify:e.target.checked}}}" /> \ud83d\udd14 ${this._language.eventNotify}</label>\r\n                    </div>\r\n                    <div class="form-row">\r\n                        <label for="edit-event-calendar">'
+);
+
+// ─── P9b: Create event — read notify checkbox, prefix 🔔 ───
+patch('P9b',
+    'let o={summary:e,dtstart:r.toFormat',
+    'let nfy=this.shadowRoot.querySelector("#event-notify")?.checked;let o={summary:nfy?"\ud83d\udd14 "+e:e,dtstart:r.toFormat'
+);
+
+// ─── P13b: Update event — prefix 🔔 if notify is true ───
+patch('P13b',
+    'let n=t.title?.trim(),i=t.calendar,a=t.startDate',
+    'let ny=t.notify,n=ny&&t.title?.trim()?"\ud83d\udd14 "+t.title.trim():t.title?.trim(),i=t.calendar,a=t.startDate'
+);
+
+// ─── P25: CSS for notify-row checkbox ───
+patch('P25',
+    '.container .day {\r\n        border-right: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));\r\n        border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));\r\n    }',
+    '.container .day {\r\n        border-right: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));\r\n        border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));\r\n    }\r\n    .notify-row {\r\n        display: flex;\r\n        align-items: center;\r\n        gap: 8px;\r\n        margin-top: 8px;\r\n        cursor: pointer;\r\n        font-size: 0.95em;\r\n    }\r\n    .notify-row input[type="checkbox"] {\r\n        width: 18px;\r\n        height: 18px;\r\n        cursor: pointer;\r\n        accent-color: var(--primary-color, #03a9f4);\r\n    }'
 );
 
 // Write output
