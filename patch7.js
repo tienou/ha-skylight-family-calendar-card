@@ -161,6 +161,12 @@ patch('P10',
     '_handleEditEventClick(){let e=this._currentEventDetails;this._currentEventDetails=null;let rs="";e.rrule?rs=e.rrule:e.recurrence_rule&&(rs=e.recurrence_rule);let p=this._parseRrule(rs);this._editFormData={title:e.summary||"",calendar:e.calendars[0]||"",startDate:e.originalStart?e.originalStart.toFormat("yyyy-MM-dd"):"",startTime:e.originalStart?e.originalStart.toFormat("HH:mm"):"",endDate:e.originalEnd?e.originalEnd.toFormat("yyyy-MM-dd"):"",endTime:e.originalEnd?e.originalEnd.toFormat("HH:mm"):"",location:e.location||"",recurrence:p.freq,recurrenceInterval:p.interval,recurrenceByDay:p.byDay,recurrenceByMonthDay:p.byMonthDay??(e.originalStart?e.originalStart.day:eh.DateTime.now().day),recurrenceEndType:p.endType,recurrenceEndDate:p.endDate,recurrenceEndCount:p.endCount},this._showEditEventDialog=e}'
 );
 
+// ─── P10b: _handleEventClick — delegate uid events to _handleEditEventClick ───
+patch('P10b',
+    '_handleEventClick(e){this._actions||(e.uid?(this._editFormData={title:e.summary||"",calendar:e.calendars[0]||"",start:e.originalStart?e.originalStart.toFormat("yyyy-MM-dd\'T\'HH:mm"):"",end:e.originalEnd?e.originalEnd.toFormat("yyyy-MM-dd\'T\'HH:mm"):"",location:e.location||""},this._showEditEventDialog=e):this._currentEventDetails=e)}',
+    '_handleEventClick(e){this._actions||(e.uid?(this._currentEventDetails=e,this._handleEditEventClick()):this._currentEventDetails=e)}'
+);
+
 // ─── P11: _handleDeleteEvent shows dialog for recurring ───
 patch('P11',
     'async _handleDeleteEvent(){let e=this._currentEventDetails;if(e&&e.uid)try{let t={type:"calendar/event/delete",entity_id:e.calendars[0],uid:e.uid};e.recurrence_id&&(t.recurrence_id=e.recurrence_id,t.recurrence_range="THISANDFUTURE"),await this.hass.callWS(t),this._currentEventDetails=null,this._updateEvents()}catch(e){console.error("Failed to delete event:",e)}}',
