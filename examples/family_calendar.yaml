@@ -1,219 +1,65 @@
 # ==============================================================================
-#  FAMILY CALENDAR BACKEND PACKAGE
+#  SKYLIGHT FAMILY CALENDAR - OPTIONAL HA PACKAGE
 # ==============================================================================
+#  NOTE: This package is OPTIONAL. The card handles event creation, editing,
+#  and deletion natively — no scripts or helpers are needed for basic usage.
+#
+#  This file is only useful if you want:
+#    - 🔔 Voice/phone notification automation triggered by the bell marker
+#    - Custom automations based on calendar events
+#
 #  INSTRUCTIONS:
 #  1. Place this file in your /config/packages/ folder.
-#  2. Ensure your configuration.yaml has: 
+#  2. Ensure your configuration.yaml has:
 #     homeassistant:
 #       packages: !include_dir_named packages
 #  3. RESTART Home Assistant.
 # ==============================================================================
 
-# 1. HELPERS (The Variables)
-input_text:
-  # Filter Toggles (RegEx: .* = Show, ^$ = Hide)
-  calendar1_calendar_filter:
-    name: calendar1 Filter
-    initial: ".*"
-  calendar2_calendar_filter:
-    name: calendar2 Filter
-    initial: ".*"
-  calendar3_calendar_filter:
-    name: calendar3 Filter
-    initial: ".*"
-  calendar4_calendar_filter:
-    name: calendar4 Filter
-    initial: ".*"
-  family_calendar_filter:
-    name: Family Filter
-    initial: ".*"
-  birthdays_calendar_filter:
-    name: Birthdays Filter
-    initial: ".*"
-  holidays_calendar_filter:
-    name: Holidays Filter
-    initial: ".*"
+# ==============================================================================
+#  🔔 NOTIFICATION AUTOMATION
+# ==============================================================================
+#  When an event has the 🔔 marker (checkbox in the card), this automation
+#  sends a voice notification and/or phone notification.
+#
+#  The card stores the marker as a "🔔 " prefix in the event title (summary).
+#  Your automation can detect it with:
+#    trigger.event.data.summary starts with "🔔"
+#
+#  Example automation (customize to your needs):
+# ==============================================================================
 
-  # Event Form Data
-  calendar_event_title:
-    name: Event Title
-    icon: mdi:format-title
-  calendar_event_description:
-    name: Event Description
-    icon: mdi:text
-
-input_select:
-  # The dropdown list for "Who is this event for?"
-  calendar_select:
-    name: Select Calendar
-    options:
-      - calendar1
-      - calendar2
-      - calendar3
-      - calendar4
-      - Family
-    icon: mdi:calendar-check
-  
-  # The View selector (Week, Month, etc)
-  calendar_view:
-    name: Calendar View
-    options:
-      - Today
-      - Tomorrow
-      - Week
-      - Biweek
-      - Month
-    initial: Week
-
-input_datetime:
-  # Event start/end times
-  calendar_event_start:
-    has_date: true
-    has_time: true
-  calendar_event_end:
-    has_date: true
-    has_time: true
-  calendar_day_event_start:
-    has_date: true
-    has_time: false
-  calendar_day_event_end:
-    has_date: true
-    has_time: false
-
-input_boolean:
-  # UI Toggles
-  calendar_all_day_event:
-    name: All Day Event
-    icon: mdi:calendar-clock
-  family_calendar_show:
-    name: Show Family Calendar
-
-# 2. SCRIPTS (The Logic)
-script:
-  # --- Filter Toggles ---
-  calendar1_calendar_visible_filter:
-    alias: Toggle calendar1 Calendar
-    sequence:
-      - action: input_text.set_value
+automation:
+  - alias: "Calendar - Voice & Phone Notification"
+    description: "Send voice/phone notification for events marked with 🔔"
+    trigger:
+      - platform: calendar
+        event: start
+        offset: "-00:15:00"    # 15 minutes before event starts
+        entity_id:
+          - calendar.family    # <--- UPDATE THESE ENTITIES
+          # - calendar.member1
+          # - calendar.member2
+    condition:
+      - condition: template
+        value_template: "{{ trigger.calendar_event.summary.startswith('🔔') }}"
+    action:
+      # --- Option 1: TTS Voice Notification (e.g., Google Home, Alexa) ---
+      - action: tts.speak
         target:
-          entity_id: input_text.calendar1_calendar_filter
+          entity_id: media_player.living_room_speaker  # <--- UPDATE THIS ENTITY
         data:
-          value: "{% if is_state('input_text.calendar1_calendar_filter', '.*') %}^${% else %}.*{% endif %}"
+          message: >
+            Rappel : {{ trigger.calendar_event.summary.replace('🔔 ', '') }}
+            dans 15 minutes.
 
-  calendar2_calendar_visible_filter:
-    alias: Toggle calendar2 Calendar
-    sequence:
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.calendar2_calendar_filter
+      # --- Option 2: Mobile Phone Notification ---
+      - action: notify.mobile_app_your_phone              # <--- UPDATE THIS ENTITY
         data:
-          value: "{% if is_state('input_text.calendar2_calendar_filter', '.*') %}^${% else %}.*{% endif %}"
-
-  calendar3_calendar_visible_filter:
-    alias: Toggle calendar3 Calendar
-    sequence:
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.calendar3_calendar_filter
-        data:
-          value: "{% if is_state('input_text.calendar3_calendar_filter', '.*') %}^${% else %}.*{% endif %}"
-
-  calendar4_calendar_visible_filter:
-    alias: Toggle calendar4 Calendar
-    sequence:
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.calendar4_calendar_filter
-        data:
-          value: "{% if is_state('input_text.calendar4_calendar_filter', '.*') %}^${% else %}.*{% endif %}"
-
-  family_calendar_visible_filter:
-    alias: Toggle Family Calendar
-    sequence:
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.family_calendar_filter
-        data:
-          value: "{% if is_state('input_text.family_calendar_filter', '.*') %}^${% else %}.*{% endif %}"
-
-  birthdays_calendar_visible_filter:
-    alias: Toggle Birthdays Calendar
-    sequence:
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.birthdays_calendar_filter
-        data:
-          value: "{% if is_state('input_text.birthdays_calendar_filter', '.*') %}^${% else %}.*{% endif %}"
-
-  holidays_calendar_visible_filter:
-    alias: Toggle Holidays Calendar
-    sequence:
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.holidays_calendar_filter
-        data:
-          value: "{% if is_state('input_text.holidays_calendar_filter', '.*') %}^${% else %}.*{% endif %}"
-
-  # --- Add Event Logic ---
-  add_google_calendar_event:
-    alias: Process Add Calendar Event
-    sequence:
-      - variables:
-          # ====================================================================
-          # CONFIGURATION: ENTITY MAPPING
-          # Map the Dropdown Name (Left) to your Entity ID (Right).
-          # ====================================================================
-          calendar_map:
-            "calendar1": "calendar.calendar1" #<--- UPDATE THIS ENTITY
-            "calendar2": "calendar.calendar2" #<--- UPDATE THIS ENTITY
-            "calendar3": "calendar.calendar3" #<--- UPDATE THIS ENTITY
-            "calendar4": "calendar.calendar4" #<--- UPDATE THIS ENTITY
-            "Family": "calendar.family" #<--- UPDATE THIS ENTITY
-          
-          # Selects the entity based on the map above
-          target_calendar: "{{ calendar_map.get(states('input_select.calendar_select'), 'calendar.family') }}" #<--- UPDATE THIS ENTITY
-
-      - choose:
-          # Scenario A: All Day Event
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.calendar_all_day_event
-                state: "on"
-            sequence:
-              - action: calendar.create_event
-                target:
-                  entity_id: "{{ target_calendar }}"
-                data:
-                  summary: "{{ states('input_text.calendar_event_title') }}"
-                  description: "{{ states('input_text.calendar_event_description') }}"
-                  start_date: "{{ states('input_datetime.calendar_day_event_start') }}"
-                  end_date: "{{ states('input_datetime.calendar_day_event_end') }}"
-          
-          # Scenario B: Timed Event
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.calendar_all_day_event
-                state: "off"
-            sequence:
-              - action: calendar.create_event
-                target:
-                  entity_id: "{{ target_calendar }}"
-                data:
-                  summary: "{{ states('input_text.calendar_event_title') }}"
-                  description: "{{ states('input_text.calendar_event_description') }}"
-                  start_date_time: "{{ states('input_datetime.calendar_event_start') }}"
-                  end_date_time: "{{ states('input_datetime.calendar_event_end') }}"
-
-      # Cleanup and Close
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.calendar_event_title
-        data:
-          value: ""
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.calendar_event_description
-        data:
-          value: ""
-      - action: browser_mod.close_popup
-        data: {}
+          title: "🔔 Rappel calendrier"
+          message: >
+            {{ trigger.calendar_event.summary.replace('🔔 ', '') }}
+            commence à {{ trigger.calendar_event.start.strftime('%H:%M') }}
+          data:
+            tag: "calendar-reminder"
+            importance: high

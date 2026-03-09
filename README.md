@@ -6,20 +6,30 @@ A Skylight-inspired family calendar card for Home Assistant. Displays events fro
 
 ## Features
 
-- Skylight-style header with date, time, and current weather
-- Calendar filter buttons to show/hide individual calendars
-- View selector: Today, Tomorrow, Week, 2 Weeks, Month
-- Event creation, editing, and deletion (with recurrence support)
+### Event Management
+- **Full CRUD**: Create, edit, and delete events directly from the card (no external helpers needed)
+- **Recurrence support**: Daily, weekly, monthly, yearly — with interval, day selection, and end options
+- **🔔 Notification markers**: Checkbox in event forms to flag events for voice/phone notifications (detectable by HA automations via `summary.startswith('🔔')`)
+- **Split date/time inputs**: Separate date and time fields for precise event scheduling
 - **Google Places Autocomplete** for location field (optional, requires API key)
+
+### Calendar Display
+- Skylight-style header with date, time, and current weather
+- Calendar filter buttons (legend) to show/hide individual calendars
+- View selector: Today, Tomorrow, Week, 2 Weeks, Month
 - Weather forecast per day + current weather in header
 - Auto-detect weather entity
 - Month/week navigation with arrows
 - Day headers (Monday, Tuesday...) above columns
 - Full-color event backgrounds with calendar colors
-- Today highlighting
-- Multi-language support (fr, de, es, it, nl, pt) with auto-translation
+- Today highlighting (orange badge)
+- Bold event times, location with pin icon
 - Multi-day event display modes
+
+### Internationalization & UX
+- Multi-language support (en, fr, de, es, it, nl, pt) with auto-translation
 - Responsive layout with configurable columns
+- Touchscreen-friendly interface (designed for wall-mounted tablets)
 - Compact mode
 - Full GUI configuration editor with descriptions
 - HACS compatible
@@ -129,6 +139,33 @@ Requirements:
 4. Add the key to your card config
 
 Without an API key, the location field works as a simple text input.
+
+### 🔔 Notification Markers
+
+The card includes a notification checkbox in event create/edit forms. When checked, a `🔔` prefix is added to the event title (summary). This allows Home Assistant automations to detect marked events and trigger voice or phone notifications.
+
+Example automation trigger:
+
+```yaml
+automation:
+  - alias: "Calendar Voice Notification"
+    trigger:
+      - platform: calendar
+        event: start
+        offset: "-00:15:00"
+        entity_id: calendar.family
+    condition:
+      - condition: template
+        value_template: "{{ trigger.calendar_event.summary.startswith('🔔') }}"
+    action:
+      - action: tts.speak
+        target:
+          entity_id: media_player.living_room_speaker
+        data:
+          message: "Reminder: {{ trigger.calendar_event.summary.replace('🔔 ', '') }} in 15 minutes"
+```
+
+See [`examples/family_calendar.yaml`](examples/family_calendar.yaml) for a complete example with both voice and phone notifications.
 
 ## Localization
 
