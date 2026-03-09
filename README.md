@@ -1,6 +1,6 @@
 # Skylight Family Calendar Card
 
-![Skylight Family Calendar](examples/screenshots/main_view.jpeg)
+![Skylight Family Calendar](examples/screenshots/main_view.png)
 
 A Skylight-inspired family calendar card for Home Assistant. Displays events from multiple calendars with a beautiful touchscreen-friendly interface, weather integration, and full event management (create, edit, delete).
 
