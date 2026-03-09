@@ -352,6 +352,13 @@ export default css`
         margin: 0 0 var(--days-spacing) 0;
     }
 
+    .container .day + .day.header {
+        border-left: 1px solid var(--divider-color, rgba(255,255,255,0.06));
+    }
+    .container .day:not(.header) + .day:not(.header) {
+        border-left: 1px solid var(--divider-color, rgba(255,255,255,0.06));
+    }
+
     .container .day.today {
         background-color: #03a9f410;
         border-radius: 12px;

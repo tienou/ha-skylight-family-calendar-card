@@ -800,6 +800,12 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
         color: var(--text-primary-color, #fff);
         border-color: var(--primary-color, #03a9f4);
     }
+    .container .day + .day.header {
+        border-left: 1px solid var(--divider-color, rgba(255, 255, 255, 0.06));
+    }
+    .container .day:not(.header) + .day:not(.header) {
+        border-left: 1px solid var(--divider-color, rgba(255, 255, 255, 0.06));
+    }
 
     @keyframes loader {
         0% {
