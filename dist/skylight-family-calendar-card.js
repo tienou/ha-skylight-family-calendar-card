@@ -1466,12 +1466,13 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
                     <div class="form-row">
                         <label for="edit-event-recurrence">${this._language.eventRecurrence}</label>
                         <select id="edit-event-recurrence" class="form-input"
+                            .value="${e.recurrence||""}"
                             @change="${t=>{this._editFormData={...this._editFormData,recurrence:t.target.value,recurrenceByDay:[],recurrenceEndType:"never"}}}">
-                            <option value="" ${!e.recurrence?"selected":""}>${this._language.recurrenceNone}</option>
-                            <option value="FREQ=DAILY" ${e.recurrence==="FREQ=DAILY"?"selected":""}>${this._language.recurrenceDaily}</option>
-                            <option value="FREQ=WEEKLY" ${e.recurrence==="FREQ=WEEKLY"?"selected":""}>${this._language.recurrenceWeekly}</option>
-                            <option value="FREQ=MONTHLY" ${e.recurrence==="FREQ=MONTHLY"?"selected":""}>${this._language.recurrenceMonthly}</option>
-                            <option value="FREQ=YEARLY" ${e.recurrence==="FREQ=YEARLY"?"selected":""}>${this._language.recurrenceYearly}</option>
+                            <option value="">${this._language.recurrenceNone}</option>
+                            <option value="FREQ=DAILY">${this._language.recurrenceDaily}</option>
+                            <option value="FREQ=WEEKLY">${this._language.recurrenceWeekly}</option>
+                            <option value="FREQ=MONTHLY">${this._language.recurrenceMonthly}</option>
+                            <option value="FREQ=YEARLY">${this._language.recurrenceYearly}</option>
                         </select>
                     </div>
                     ${e.recurrence?j`
@@ -1505,10 +1506,11 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
                         <div class="form-row">
                             <label>${this._language.recurrenceEnds}</label>
                             <select id="edit-event-recurrence-end" class="form-input"
+                                .value="${e.recurrenceEndType||"never"}"
                                 @change="${t=>{this._editFormData={...this._editFormData,recurrenceEndType:t.target.value}}}">
-                                <option value="never" ${e.recurrenceEndType==="never"?"selected":""}>${this._language.recurrenceEndsNever}</option>
-                                <option value="date" ${e.recurrenceEndType==="date"?"selected":""}>${this._language.recurrenceEndsOnDate}</option>
-                                <option value="count" ${e.recurrenceEndType==="count"?"selected":""}>${this._language.recurrenceEndsAfter}</option>
+                                <option value="never">${this._language.recurrenceEndsNever}</option>
+                                <option value="date">${this._language.recurrenceEndsOnDate}</option>
+                                <option value="count">${this._language.recurrenceEndsAfter}</option>
                             </select>
                         </div>
                         ${e.recurrenceEndType==="date"?j`
