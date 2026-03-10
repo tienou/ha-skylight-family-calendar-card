@@ -378,13 +378,6 @@ export default css`
         justify-content: space-between;
     }
 
-    .container .day .day-actions {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        flex-shrink: 0;
-    }
-
     .container .day .date {
         position: relative;
         z-index: 1;
@@ -435,6 +428,7 @@ export default css`
     .container .day .weather {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 2px;
         font-size: var(--weather-temperature-font-size);
         cursor: pointer;
