@@ -1,8 +1,10 @@
 # Skylight Family Calendar Card
 
+[![en](https://img.shields.io/badge/lang-English-blue)](README.md) [![fr](https://img.shields.io/badge/lang-Fran%C3%A7ais-blue)](README.fr.md)
+
 ![Skylight Family Calendar](examples/screenshots/main_view.png)
 
-A Skylight-inspired family calendar card for Home Assistant. Displays events from multiple calendars with a beautiful touchscreen-friendly interface, weather integration, and full event management (create, edit, delete).
+A Skylight-inspired family calendar card for Home Assistant. Displays events from multiple calendars with a beautiful touchscreen-friendly interface, dual themes, weather integration, and full event management (create, edit, delete).
 
 ## Features
 
@@ -17,7 +19,7 @@ A Skylight-inspired family calendar card for Home Assistant. Displays events fro
 - Skylight-style header with date, time, and current weather
 - Calendar filter buttons (legend) to show/hide individual calendars
 - View selector: Today, Tomorrow, Week, 2 Weeks, Month
-- Weather forecast per day + current weather in header
+- Weather forecast per day + current weather in header (centered in day cells)
 - Auto-detect weather entity
 - Month/week navigation with arrows
 - Day headers (Monday, Tuesday...) above columns
@@ -25,11 +27,29 @@ A Skylight-inspired family calendar card for Home Assistant. Displays events fro
 - Today highlighting (orange badge)
 - Bold event times, location with pin icon
 - Multi-day event display modes
+- **View persistence**: selected view is saved to localStorage and restored on reload
+
+### Dual Themes
+- **Skylight theme**: Original Skylight-inspired look with signature colors and style
+- **Home Assistant theme**: Native HA look that follows your HA theme (dark mode supported)
+- Theme selector with icon-based buttons in the card header
+
+### Mobile Month View
+- **Google Agenda-style** mobile month view on small screens (smartphones)
+- Mini calendar grid with **colored event dots** indicating events per day
+- **Tap a day** to display its events in a panel below the calendar grid
+- Abbreviated weekday headers (LUN, MAR, MER...) on mobile
+- Auto-selects today when entering month view
+
+### Touch & Swipe Navigation
+- **Swipe left/right** to navigate between weeks or months on touch devices
+- Navigation arrows automatically hidden on touch devices (smartphones, tablets)
+- Works on smartphones, tablets, and Windows touch devices
 
 ### Internationalization & UX
 - Multi-language support (en, fr, de, es, it, nl, pt) with auto-translation
 - Responsive layout with configurable columns
-- Touchscreen-friendly interface (designed for wall-mounted tablets)
+- Touchscreen-friendly interface (designed for wall-mounted tablets and smartphones)
 - Compact mode
 - Full GUI configuration editor with descriptions
 - HACS compatible
@@ -113,6 +133,7 @@ calendars:
 | `hideWeekend` | boolean | `false` | Hide weekend days |
 | `combineSimilarEvents` | boolean | `false` | Combine duplicate events |
 | `updateInterval` | number | `60` | Auto-refresh interval in seconds |
+| `theme` | string | `skylight` | Theme: `skylight` or `homeassistant` |
 
 ### Calendar options
 
@@ -187,4 +208,4 @@ MIT License
 
 Copyright (c) 2024 Rudy Gnodde (week-planner-card)
 Copyright (c) 2024 mohesles (my-skylight-calendar)
-Copyright (c) 2025 Etienne Gaillard (ha-skylight-family-calendar-card)
+Copyright (c) 2025-2026 Etienne Gaillard (ha-skylight-family-calendar-card)

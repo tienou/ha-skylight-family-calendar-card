@@ -1,0 +1,211 @@
+# Skylight Family Calendar Card
+
+[![en](https://img.shields.io/badge/lang-English-blue)](README.md) [![fr](https://img.shields.io/badge/lang-Fran%C3%A7ais-blue)](README.fr.md)
+
+![Skylight Family Calendar](examples/screenshots/main_view.png)
+
+Une carte calendrier familial pour Home Assistant, inspiree de Skylight. Affiche les evenements de plusieurs calendriers avec une interface tactile, deux themes, integration meteo et gestion complete des evenements (creation, modification, suppression).
+
+## Fonctionnalites
+
+### Gestion des evenements
+- **CRUD complet** : Creer, modifier et supprimer des evenements directement depuis la carte (aucun helper externe necessaire)
+- **Recurrence** : Quotidienne, hebdomadaire, mensuelle, annuelle — avec intervalle, selection des jours et options de fin
+- **Marqueurs de notification** : Case a cocher dans les formulaires pour signaler un evenement pour les notifications vocales/telephone (detectable par les automations HA via `summary.startswith('🔔')`)
+- **Champs date/heure separes** : Saisie precise des evenements
+- **Google Places Autocomplete** pour le champ lieu (optionnel, necessite une cle API)
+
+### Affichage du calendrier
+- En-tete style Skylight avec date, heure et meteo actuelle
+- Boutons de filtre calendrier (legende) pour afficher/masquer chaque calendrier
+- Selecteur de vue : Aujourd'hui, Demain, Semaine, 2 Semaines, Mois
+- Previsions meteo par jour + meteo actuelle dans l'en-tete (centree dans les cases)
+- Detection automatique de l'entite meteo
+- Navigation mois/semaine avec fleches
+- En-tetes des jours (Lundi, Mardi...) au-dessus des colonnes
+- Fond colore complet des evenements avec les couleurs du calendrier
+- Mise en valeur du jour actuel (badge orange)
+- Horaires en gras, lieu avec icone epingle
+- Modes d'affichage des evenements multi-jours
+- **Persistance de la vue** : la vue selectionnee est sauvegardee dans le localStorage et restauree au rechargement
+
+### Double theme
+- **Theme Skylight** : Look original inspire de Skylight avec ses couleurs et son style signature
+- **Theme Home Assistant** : Look natif HA qui suit votre theme HA (mode sombre supporte)
+- Selecteur de theme avec boutons icones dans l'en-tete de la carte
+
+### Vue mois mobile
+- Vue mois **style Google Agenda** sur petits ecrans (smartphones)
+- Mini-grille calendrier avec **points colores** indiquant les evenements par jour
+- **Appuyez sur un jour** pour afficher ses evenements dans un panneau sous la grille
+- En-tetes des jours abreges (LUN, MAR, MER...) sur mobile
+- Selection automatique du jour actuel en entrant dans la vue mois
+
+### Navigation tactile et swipe
+- **Glissez gauche/droite** pour naviguer entre les semaines ou les mois sur les appareils tactiles
+- Fleches de navigation masquees automatiquement sur les appareils tactiles (smartphones, tablettes)
+- Fonctionne sur smartphones, tablettes et appareils Windows tactiles
+
+### Internationalisation et UX
+- Support multilingue (en, fr, de, es, it, nl, pt) avec traduction automatique
+- Mise en page responsive avec colonnes configurables
+- Interface tactile (concue pour tablettes murales et smartphones)
+- Mode compact
+- Editeur de configuration GUI complet avec descriptions
+- Compatible HACS
+
+## Installation
+
+### HACS (Recommande)
+
+1. Ouvrir HACS dans votre Home Assistant
+2. Aller dans Frontend
+3. Cliquer sur le menu trois points et selectionner "Depots personnalises"
+4. Ajouter `https://github.com/tienou/ha-skylight-family-calendar-card` avec la categorie "Lovelace"
+5. Installer "Skylight Family Calendar Card"
+6. Redemarrer Home Assistant
+
+### Manuel
+
+1. Telecharger `skylight-family-calendar-card.js` depuis la [derniere release](https://github.com/tienou/ha-skylight-family-calendar-card/releases)
+2. Le copier dans `config/www/skylight-family-calendar-card.js`
+3. Ajouter la ressource dans votre dashboard :
+
+```yaml
+resources:
+  - url: /local/skylight-family-calendar-card.js
+    type: module
+```
+
+## Configuration
+
+### Exemple basique
+
+```yaml
+type: custom:skylight-family-calendar-card
+title: Calendrier Familial
+locale: fr
+defaultView: Week
+startingDay: monday
+showHeader: true
+weather:
+  entity: weather.home
+  showCondition: true
+  showTemperature: true
+  showLowTemperature: true
+calendars:
+  - entity: calendar.famille
+    name: Famille
+    color: "#4A90E2"
+  - entity: calendar.travail
+    name: Travail
+    color: "#E27D4A"
+```
+
+### Options de configuration
+
+| Option | Type | Defaut | Description |
+|--------|------|--------|-------------|
+| `title` | string | - | Titre de la carte affiche au-dessus du calendrier |
+| `locale` | string | `en` | Langue (fr, de, es, it, nl, pt) |
+| `defaultView` | string | `Week` | Vue par defaut (Today/Tomorrow/Week/Biweek/Month) |
+| `startingDay` | string | `today` | Premier jour de la semaine (monday, today, etc.) |
+| `showHeader` | boolean | `true` | Afficher l'en-tete date/heure/meteo |
+| `showHeaderDate` | boolean | `true` | Afficher la date dans l'en-tete |
+| `showHeaderClock` | boolean | `true` | Afficher l'horloge dans l'en-tete |
+| `showTitle` | boolean | `true` | Afficher le titre de la carte |
+| `showNavigation` | boolean | `true` | Afficher les fleches de navigation |
+| `showWeekDayText` | boolean | `true` | Afficher les en-tetes des jours (Lun, Mar...) |
+| `showCurrentWeather` | boolean | `false` | Afficher la meteo actuelle dans l'en-tete |
+| `showWeather` | boolean | `true` | Afficher les previsions meteo par jour |
+| `showTime` | boolean | `false` | Afficher l'heure de debut/fin des evenements |
+| `showLocation` | boolean | `true` | Afficher le lieu dans la vue calendrier |
+| `showLocationInForm` | boolean | `true` | Afficher le champ lieu dans les formulaires |
+| `showDescription` | boolean | `false` | Afficher la description des evenements |
+| `colorFullEvent` | boolean | `true` | Colorer tout le fond de l'evenement |
+| `compact` | boolean | `true` | Mode d'affichage compact |
+| `views` | list | toutes | Vues a afficher (ex. `Week,Month`) |
+| `defaultCalendar` | string | - | Calendrier par defaut pour la creation d'evenements |
+| `googleApiKey` | string | - | Cle API Google Places pour l'autocompletion du lieu |
+| `weather` | object | - | Entite meteo et options d'affichage |
+| `calendars` | list | requis | Entites calendrier a afficher |
+| `hidePastEvents` | boolean | `false` | Masquer les evenements passes |
+| `hideWeekend` | boolean | `false` | Masquer les week-ends |
+| `combineSimilarEvents` | boolean | `false` | Combiner les evenements en double |
+| `updateInterval` | number | `60` | Intervalle de rafraichissement en secondes |
+| `theme` | string | `skylight` | Theme : `skylight` ou `homeassistant` |
+
+### Options des calendriers
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `entity` | string | ID de l'entite calendrier (requis) |
+| `name` | string | Nom d'affichage (utilise le friendly_name HA par defaut) |
+| `color` | string | Couleur hex (pastel auto-assigne si non defini) |
+| `icon` | string | Icone MDI |
+| `filter` | string | Regex pour filtrer les evenements |
+
+### Google Places Autocomplete
+
+Pour activer l'autocompletion du lieu dans les formulaires, ajoutez une cle API Google Places :
+
+```yaml
+googleApiKey: VOTRE_CLE_API_GOOGLE
+```
+
+Prerequis :
+1. Creer un projet dans la [Google Cloud Console](https://console.cloud.google.com/)
+2. Activer **Places API (New)**
+3. Creer une cle API dans Identifiants
+4. Ajouter la cle dans la configuration de la carte
+
+Sans cle API, le champ lieu fonctionne comme un simple champ texte.
+
+### Marqueurs de notification
+
+La carte inclut une case a cocher de notification dans les formulaires de creation/modification d'evenements. Lorsqu'elle est cochee, un prefixe `🔔` est ajoute au titre de l'evenement. Cela permet aux automations Home Assistant de detecter les evenements marques et de declencher des notifications vocales ou telephone.
+
+Exemple d'automation :
+
+```yaml
+automation:
+  - alias: "Notification vocale calendrier"
+    trigger:
+      - platform: calendar
+        event: start
+        offset: "-00:15:00"
+        entity_id: calendar.famille
+    condition:
+      - condition: template
+        value_template: "{{ trigger.calendar_event.summary.startswith('🔔') }}"
+    action:
+      - action: tts.speak
+        target:
+          entity_id: media_player.enceinte_salon
+        data:
+          message: "Rappel : {{ trigger.calendar_event.summary.replace('🔔 ', '') }} dans 15 minutes"
+```
+
+Voir [`examples/family_calendar.yaml`](examples/family_calendar.yaml) pour un exemple complet avec notifications vocales et telephone.
+
+## Localisation
+
+La carte traduit automatiquement les textes de l'interface selon le parametre `locale`. Langues supportees : anglais, francais, allemand, espagnol, italien, neerlandais, portugais.
+
+Vous pouvez surcharger n'importe quel texte dans la section `texts` de la configuration.
+
+## Inspirations et credits
+
+Ce projet s'appuie sur et est inspire de :
+
+- **[FamousWolf/week-planner-card](https://github.com/FamousWolf/week-planner-card)** par Rudy Gnodde — le moteur de rendu calendrier de base
+- **[mohesles/my-skylight-calendar](https://github.com/mohesles/my-skylight-calendar)** — le concept original de calendrier Skylight DIY
+- **[Skylight](https://www.skylightframe.com/)** — le calendrier connecte commercial qui a inspire l'esthetique
+
+## Licence
+
+MIT License
+
+Copyright (c) 2024 Rudy Gnodde (week-planner-card)
+Copyright (c) 2024 mohesles (my-skylight-calendar)
+Copyright (c) 2025-2026 Etienne Gaillard (ha-skylight-family-calendar-card)
