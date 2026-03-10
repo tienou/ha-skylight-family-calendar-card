@@ -404,6 +404,10 @@ export default css`
         text-transform: capitalize;
     }
 
+    .container .day.header .date .text-short {
+        display: none;
+    }
+
     .container .day .add-event {
         display: flex;
         align-items: center;
@@ -843,13 +847,14 @@ export default css`
             overflow: hidden;
         }
         ha-card .container.month-view .day.header .date .text {
+            display: none;
+        }
+        ha-card .container.month-view .day.header .date .text-short {
             display: block;
-            font-size: 0.6em;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 100%;
+            font-size: 0.7em;
+            font-weight: bold;
             text-align: center;
+            color: var(--day-header-color, var(--primary-text-color));
         }
 
         /* ── Event dots in month view ── */

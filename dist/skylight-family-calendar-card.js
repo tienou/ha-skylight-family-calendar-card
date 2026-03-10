@@ -403,6 +403,10 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
         text-transform: capitalize;
     }
 
+    .container .day.header .date .text-short {
+        display: none;
+    }
+
     .container .day .add-event {
         display: flex;
         align-items: center;
@@ -842,13 +846,14 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
             overflow: hidden;
         }
         ha-card .container.month-view .day.header .date .text {
+            display: none;
+        }
+        ha-card .container.month-view .day.header .date .text-short {
             display: block;
-            font-size: 0.6em;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 100%;
+            font-size: 0.7em;
+            font-weight: bold;
             text-align: center;
+            color: var(--day-header-color, var(--primary-text-color));
         }
 
         /* ── Event dots in month view ── */
@@ -1414,13 +1419,14 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
                 <div class="month">${this._startDate.toFormat("MMMM yyyy")}</div>
             </div>
         `:P``}_renderWeekDays(){if(!this._showWeekDayText||!this._days||!this._numberOfDaysIsMonth&&this._numberOfDays<7)return P``;let e=this._days.slice(0,7),t=[this._language.sunday,this._language.monday,this._language.tuesday,this._language.wednesday,this._language.thursday,this._language.friday,this._language.saturday,this._language.sunday];return P`
-            ${e.map(e=>P`
+            ${e.map(e=>{let n=t[e.date.weekday],i=n?.substring(0,3).toUpperCase()??"";return P`
                     <div class="day header">
                         <div class="date">
-                            <span class="text">${t[e.date.weekday]}</span>
+                            <span class="text">${n}</span>
+                            <span class="text-short">${i}</span>
                         </div>
                     </div>
-                `)}
+                `})}
         `}_renderDays(){return this._days?P`
             ${this._days.map(e=>{if(e.isOutsideMonth)return P`<div class="day ${e.class}"></div>`;if(this._hideDaysWithoutEvents&&0===e.events.length&&(this._hideTodayWithoutEvents||!this._isToday(e.date)))return P``;let t=this._selectedDay&&this._selectedDay.date.day===e.date.day&&this._selectedDay.date.month===e.date.month&&this._selectedDay.date.year===e.date.year;return P`
                     <div class="day ${e.class}${t?" selected":""}" data-date="${e.date.day}" data-weekday="${e.date.weekday}" data-month="${e.date.month}" data-year="${e.date.year}" data-week="${e.date.weekNumber}" @click="${t=>{this._numberOfDaysIsMonth&&(t.stopPropagation(),this._selectDay(e))}}">

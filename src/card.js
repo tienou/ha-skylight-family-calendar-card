@@ -856,10 +856,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
         return html`
             ${days.map((day) => {
+                const fullName = weekDays[day.date.weekday];
+                const shortName = fullName?.substring(0, 3).toUpperCase() ?? '';
                 return html`
                     <div class="day header">
                         <div class="date">
-                            <span class="text">${weekDays[day.date.weekday]}</span>
+                            <span class="text">${fullName}</span>
+                            <span class="text-short">${shortName}</span>
                         </div>
                     </div>
                 `
