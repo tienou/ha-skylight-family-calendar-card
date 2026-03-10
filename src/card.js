@@ -884,7 +884,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 }
                 const isSelected = this._selectedDay && this._selectedDay.date.day === day.date.day && this._selectedDay.date.month === day.date.month && this._selectedDay.date.year === day.date.year;
                 return html`
-                    <div class="day ${day.class}${isSelected ? ' selected' : ''}" data-date="${day.date.day}" data-weekday="${day.date.weekday}" data-month="${day.date.month}" data-year="${day.date.year}" data-week="${day.date.weekNumber}" @click="${() => { if (this._numberOfDaysIsMonth) this._selectDay(day); }}">
+                    <div class="day ${day.class}${isSelected ? ' selected' : ''}" data-date="${day.date.day}" data-weekday="${day.date.weekday}" data-month="${day.date.month}" data-year="${day.date.year}" data-week="${day.date.weekNumber}" @click="${(e) => { if (this._numberOfDaysIsMonth) { e.stopPropagation(); this._selectDay(day); } }}">
                         <div class="day-header">
                             <div class="date">
                                 ${this._dayFormat ?
@@ -2629,17 +2629,32 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._touchStartX = undefined;
         this._touchStartY = undefined;
 
-        // Only swipe if horizontal movement > 50px and more horizontal than vertical
-        if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) return;
-
-        if (deltaX < 0) {
-            // Swipe left → next
-            this._navigationOffset++;
-        } else {
-            // Swipe right → previous
-            this._navigationOffset--;
+        // Swipe: horizontal movement > 50px and more horizontal than vertical
+        if (Math.abs(deltaX) >= 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX < 0) {
+                this._navigationOffset++;
+            } else {
+                this._navigationOffset--;
+            }
+            this._updateEvents();
+            return;
         }
-        this._updateEvents();
+
+        // Tap in month view: select the tapped day
+        if (this._numberOfDaysIsMonth) {
+            const target = e.target.closest?.('.day');
+            if (target && !target.classList.contains('header') && !target.classList.contains('outside')) {
+                const dayNum = parseInt(target.dataset.date);
+                const month = parseInt(target.dataset.month);
+                const year = parseInt(target.dataset.year);
+                if (dayNum && this._days) {
+                    const tappedDay = this._days.find(d => !d.isOutsideMonth && d.date.day === dayNum && d.date.month === month && d.date.year === year);
+                    if (tappedDay) {
+                        this._selectDay(tappedDay);
+                    }
+                }
+            }
+        }
     }
 
     _handleWeatherClick(e) {
