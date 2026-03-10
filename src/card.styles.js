@@ -204,6 +204,11 @@ export default css`
         border-color: var(--skylight-accent);
     }
 
+    /* Hide icons in Skylight theme (text only) */
+    .view-btn .view-icon {
+        display: none;
+    }
+
     .calendar-container {
         padding: 0 8px 8px;
         min-height: 300px;
@@ -1048,5 +1053,145 @@ export default css`
         background-color: var(--primary-color, #03a9f4);
         color: var(--text-primary-color, #fff);
         border-color: var(--primary-color, #03a9f4);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       HOME ASSISTANT THEME
+       Applied when config.theme === 'homeassistant'.
+       Changes: card shell, font, grid layout, buttons, today.
+       Does NOT change: skylight header, event cards, dialogs.
+       ══════════════════════════════════════════════════════ */
+
+    /* ── Card Shell ── */
+    ha-card.theme-homeassistant {
+        font-family: var(--ha-card-header-font-family, inherit);
+        background: var(--ha-card-background, var(--card-background-color, #fff)) !important;
+        border-radius: var(--ha-card-border-radius, 12px) !important;
+        box-shadow: var(--ha-card-box-shadow, 0 2px 6px rgba(0, 0, 0, 0.1)) !important;
+        border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12)) !important;
+    }
+
+    ha-card.theme-homeassistant.nobackground {
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* ── Skylight Header keeps Ovo font ── */
+    ha-card.theme-homeassistant .skylight-header {
+        font-family: var(--skylight-font);
+    }
+    ha-card.theme-homeassistant .clock {
+        font-family: var(--skylight-font);
+    }
+
+    /* ── Calendar Title ── */
+    ha-card.theme-homeassistant .calendar-title {
+        font-family: var(--ha-card-header-font-family, inherit);
+    }
+
+    /* ── Filter Buttons ── */
+    ha-card.theme-homeassistant .filter-btn {
+        font-family: var(--ha-card-header-font-family, inherit);
+        border-radius: 8px;
+        padding: 6px 12px;
+        border-width: 1px;
+        font-size: 0.85em;
+    }
+
+    /* ── View Selector: Segmented Icon Buttons ── */
+    ha-card.theme-homeassistant .view-selector {
+        display: flex;
+        gap: 0;
+        background: var(--primary-background-color, #f0f0f0);
+        border-radius: 10px;
+        padding: 3px;
+    }
+    ha-card.theme-homeassistant .view-btn {
+        font-family: var(--ha-card-header-font-family, inherit);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--primary-text-color, #333);
+        padding: 6px 10px;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+    }
+    ha-card.theme-homeassistant .view-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    ha-card.theme-homeassistant .view-btn.active {
+        background: var(--primary-color, #03a9f4);
+        color: var(--text-primary-color, #fff);
+    }
+    /* Show icons, hide text labels */
+    ha-card.theme-homeassistant .view-btn .view-icon {
+        display: inline-flex;
+        --mdc-icon-size: 20px;
+    }
+    ha-card.theme-homeassistant .view-btn .view-label {
+        display: none;
+    }
+
+    /* ── Calendar Grid: Table Style ── */
+    ha-card.theme-homeassistant .container .day {
+        border-right: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+        border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+        padding: 4px 6px;
+        min-height: 80px;
+    }
+
+    /* ── Day Header Row (Mon, Tue...) ── */
+    ha-card.theme-homeassistant .container .day.header {
+        background: var(--primary-background-color, #f5f5f5);
+        border-bottom: 2px solid var(--divider-color, rgba(0, 0, 0, 0.15));
+        padding: 6px 4px;
+        min-height: auto;
+    }
+    ha-card.theme-homeassistant .container .day.header .date .text {
+        font-family: var(--ha-card-header-font-family, inherit);
+        font-size: var(--day-header-font-size, 0.85em);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    /* ── Day Number ── */
+    ha-card.theme-homeassistant .container .day .date .number {
+        font-family: var(--ha-card-header-font-family, inherit);
+    }
+
+    /* ── Today Highlight: use HA primary color ── */
+    ha-card.theme-homeassistant .container .day.today .date .number {
+        background-color: var(--primary-color, #03a9f4);
+        border-radius: 6px;
+    }
+
+    /* ── Navigation ── */
+    ha-card.theme-homeassistant .container .navigation .month {
+        font-family: var(--ha-card-header-font-family, inherit);
+    }
+
+    /* ── Day Picker Buttons (recurrence) ── */
+    ha-card.theme-homeassistant .day-btn {
+        font-family: var(--ha-card-header-font-family, inherit);
+        border-radius: 4px;
+    }
+
+    /* ── Responsive: hide day headers at small widths (HA theme) ── */
+    @container weekplanner (width <= 1024px) {
+        ha-card.theme-homeassistant .container .day.header {
+            display: none;
+        }
+    }
+    @container weekplanner (width <= 640px) {
+        ha-card.theme-homeassistant .container.month-view .day.header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     }
 `;

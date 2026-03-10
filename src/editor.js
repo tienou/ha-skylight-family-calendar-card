@@ -36,6 +36,11 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 ${this.addExpansionPanel(
                     'General',
                     html`
+                        ${this.addSelectField('theme', 'Theme', [
+                            { value: 'skylight', label: 'Skylight' },
+                            { value: 'homeassistant', label: 'Home Assistant' },
+                        ], true, 'skylight')}
+                        ${this.addHint('Visual style of the calendar card')}
                         ${this.addTextField('title', 'Title')}
                         ${this.addHint('Card title displayed above the calendar')}
                         ${this.addBooleanField('showTitle', 'Show title', true)}

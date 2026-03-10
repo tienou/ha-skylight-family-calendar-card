@@ -63,6 +63,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _noCardBackground;
     _eventBackground;
     _compact;
+    _theme;
     _language;
     _weather;
     _dateFormat;
@@ -188,6 +189,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._noCardBackground = config.noCardBackground ?? false;
         this._eventBackground = config.eventBackground ?? 'var(--card-background-color, inherit)';
         this._compact = config.compact ?? true;
+        this._theme = config.theme ?? 'skylight';
         this._dayFormat = config.dayFormat ?? null;
         this._dateFormat = config.dateFormat ?? 'cccc d LLLL yyyy';
         this._timeFormat = config.timeFormat ?? 'HH:mm';
@@ -653,6 +655,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (this._compact) {
             cardClasses.push('compact');
         }
+        cardClasses.push('theme-' + this._theme);
 
         const cardStyles = [
             '--event-background-color: ' + this._eventBackground + ';'
@@ -722,7 +725,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                         class="view-btn ${view === this._currentView ? 'active' : ''}"
                                         data-view="${view.toLowerCase()}"
                                         @click="${() => this._setView(view)}"
-                                    >${this._getViewLabel(view)}</button>
+                                        title="${this._getViewLabel(view)}"
+                                    >
+                                        <ha-icon class="view-icon" icon="${this._getViewIcon(view)}"></ha-icon>
+                                        <span class="view-label">${this._getViewLabel(view)}</span>
+                                    </button>
                                 `)}
                             </div>
                         </div>
@@ -2511,6 +2518,17 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _getViewLabel(view) {
         const key = view.toLowerCase();
         return this._language[key] ?? view;
+    }
+
+    _getViewIcon(view) {
+        const icons = {
+            'Today': 'mdi:calendar-today',
+            'Tomorrow': 'mdi:calendar-arrow-right',
+            'Week': 'mdi:view-week',
+            'Biweek': 'mdi:view-sequential',
+            'Month': 'mdi:view-grid',
+        };
+        return icons[view] ?? 'mdi:calendar';
     }
 
     _getCalendarDisplayName(calendar) {
