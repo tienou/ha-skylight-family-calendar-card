@@ -409,9 +409,11 @@ export default css`
         transition: opacity 0.2s;
         color: var(--primary-text-color);
         --mdc-icon-size: 18px;
-        margin-left: auto;
-        margin-top: auto;
-        padding-top: 4px;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        margin: 0;
+        padding: 0;
     }
 
     .container .day .add-event:hover {
