@@ -373,14 +373,14 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
 
     .container .day .day-header {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
     }
 
     .container .day .day-actions {
         display: flex;
         align-items: center;
-        gap: 2px;
+        gap: 4px;
         flex-shrink: 0;
     }
 
@@ -796,6 +796,11 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
         }
         ha-card.compact .container .day {
             --days-columns: var(--days-columns-xs, 2);
+        }
+
+        /* Hide weather on small screens */
+        ha-card .container .day .weather {
+            display: none;
         }
 
         /* ── Month view: mini-calendar with 7 columns ── */
