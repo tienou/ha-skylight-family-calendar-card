@@ -158,8 +158,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _showRecurringConfirmDialog: { type: Object },
             _showDeleteRecurringDialog: { type: Object },
             _createRecurrenceType: { type: String },
-            _createRecurrenceEndType: { type: String },
-            _selectedDay: { type: Object }
+            _createRecurrenceEndType: { type: String }
         }
     }
 
@@ -1984,11 +1983,15 @@ export class SkylightFamilyCalendarCard extends LitElement {
         // Auto-select today (or first day) in month view
         if (this._numberOfDaysIsMonth) {
             const now = DateTime.now();
-            const todayDay = days.find(d => !d.isOutsideMonth && d.date.day === now.day && d.date.month === now.month && d.date.year === now.year);
-            if (todayDay) {
-                this._selectedDay = todayDay;
-            } else if (!this._selectedDay || this._selectedDay.date.month !== days.find(d => !d.isOutsideMonth)?.date.month) {
-                this._selectedDay = days.find(d => !d.isOutsideMonth) ?? null;
+            const firstDay = days.find(d => !d.isOutsideMonth);
+            // Only auto-select if no day selected yet, or month changed
+            if (!this._selectedDay || this._selectedDay.date.month !== firstDay?.date.month || this._selectedDay.date.year !== firstDay?.date.year) {
+                const todayDay = days.find(d => !d.isOutsideMonth && d.date.day === now.day && d.date.month === now.month && d.date.year === now.year);
+                this._selectedDay = todayDay ?? firstDay ?? null;
+            } else {
+                // Update reference to match new days array (for fresh event data)
+                const updated = days.find(d => !d.isOutsideMonth && d.date.day === this._selectedDay.date.day && d.date.month === this._selectedDay.date.month);
+                if (updated) this._selectedDay = updated;
             }
         }
     }
@@ -2613,7 +2616,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _selectDay(day) {
+        if (this._selectedDay?.date?.day === day.date.day && this._selectedDay?.date?.month === day.date.month) return;
         this._selectedDay = day;
+        this.requestUpdate();
     }
 
     _handleTouchStart(e) {
