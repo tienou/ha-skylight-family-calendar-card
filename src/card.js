@@ -880,53 +880,57 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 }
                 return html`
                     <div class="day ${day.class}" data-date="${day.date.day}" data-weekday="${day.date.weekday}" data-month="${day.date.month}" data-year="${day.date.year}" data-week="${day.date.weekNumber}">
-                        <div class="date">
-                            ${this._dayFormat ?
-                                unsafeHTML(day.date.toFormat(this._dayFormat)) :
-                                html`
-                                    <span class="number">${day.date.day}</span>
-                                    ${this._showDayName || (this._showWeekDayText && !this._numberOfDaysIsMonth && this._numberOfDays < 7) ?
-                                        html`<span class="text">${this._getWeekDayText(day.date)}</span>` :
-                                        html`<span class="text mobile-only">${this._getWeekDayText(day.date)}</span>`
-                                    }
-                                `
-                            }
-                        </div>
-                        ${this._showWeather && day.weather ?
-                            html`
-                                <div class="weather" @click="${this._handleWeatherClick}">
-                                    ${this._weather?.showTemperature || this._weather?.showLowTemperature ?
-                                        html`
-                                            <div class="temperature">
-                                                ${this._weather?.showTemperature ?
-                                                    html`
-                                                        <span class="high">${day.weather.temperature}</span>
-                                                    ` :
-                                                    ''
-                                                }
-                                                ${this._weather?.showLowTemperature ?
-                                                    html`
-                                                            <span class="low">${day.weather.templow}</span>
-                                                    ` :
-                                                    ''
-                                                }
-                                            </div>
-                                        ` :
-                                        ''
-                                    }
-                                    ${this._weather?.showCondition ?
-                                        this._getWeatherIcon(day.weather.state, day.weather.condition) :
-                                        ''
-                                    }
+                        <div class="day-header">
+                            <div class="date">
+                                ${this._dayFormat ?
+                                    unsafeHTML(day.date.toFormat(this._dayFormat)) :
+                                    html`
+                                        <span class="number">${day.date.day}</span>
+                                        ${this._showDayName || (this._showWeekDayText && !this._numberOfDaysIsMonth && this._numberOfDays < 7) ?
+                                            html`<span class="text">${this._getWeekDayText(day.date)}</span>` :
+                                            html`<span class="text mobile-only">${this._getWeekDayText(day.date)}</span>`
+                                        }
+                                    `
+                                }
+                            </div>
+                            <div class="day-actions">
+                                ${this._showWeather && day.weather ?
+                                    html`
+                                        <div class="weather" @click="${this._handleWeatherClick}">
+                                            ${this._weather?.showTemperature || this._weather?.showLowTemperature ?
+                                                html`
+                                                    <div class="temperature">
+                                                        ${this._weather?.showTemperature ?
+                                                            html`
+                                                                <span class="high">${day.weather.temperature}</span>
+                                                            ` :
+                                                            ''
+                                                        }
+                                                        ${this._weather?.showLowTemperature ?
+                                                            html`
+                                                                    <span class="low">${day.weather.templow}</span>
+                                                            ` :
+                                                            ''
+                                                        }
+                                                    </div>
+                                                ` :
+                                                ''
+                                            }
+                                            ${this._weather?.showCondition ?
+                                                this._getWeatherIcon(day.weather.state, day.weather.condition) :
+                                                ''
+                                            }
+                                        </div>
+                                    ` :
+                                    ''
+                                }
+                                <div class="add-event" @click="${(e) => this._handleAddEventClick(e, day)}">
+                                    <ha-icon icon="mdi:plus"></ha-icon>
                                 </div>
-                            ` :
-                            ''
-                        }
+                            </div>
+                        </div>
                         <div class="events">
                             ${this._renderEvents(day)}
-                        </div>
-                        <div class="add-event" @click="${(e) => this._handleAddEventClick(e, day)}">
-                            <ha-icon icon="mdi:plus"></ha-icon>
                         </div>
                     </div>
                 `

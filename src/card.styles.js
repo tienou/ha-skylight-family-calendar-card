@@ -372,9 +372,23 @@ export default css`
         padding: 2px 6px;
     }
 
+    .container .day .day-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+
+    .container .day .day-actions {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex-shrink: 0;
+    }
+
     .container .day .date {
         position: relative;
         z-index: 1;
+        min-width: 0;
     }
 
     .container .day .date .number {
@@ -409,9 +423,7 @@ export default css`
         transition: opacity 0.2s;
         color: var(--primary-text-color);
         --mdc-icon-size: 18px;
-        position: absolute;
-        top: 2px;
-        right: 2px;
+        flex-shrink: 0;
         margin: 0;
         padding: 0;
     }
@@ -421,12 +433,12 @@ export default css`
     }
 
     .container .day .weather {
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 2px;
         font-size: var(--weather-temperature-font-size);
         cursor: pointer;
+        white-space: nowrap;
     }
 
     .container .day .weather .icon {
