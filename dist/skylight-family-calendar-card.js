@@ -429,6 +429,7 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
         align-items: center;
         justify-content: center;
         gap: 2px;
+        flex: 1;
         font-size: var(--weather-temperature-font-size);
         cursor: pointer;
         white-space: nowrap;
@@ -1340,25 +1341,25 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
                                         ${this._showDayName||this._showWeekDayText&&!this._numberOfDaysIsMonth&&this._numberOfDays<7?P`<span class="text">${this._getWeekDayText(e.date)}</span>`:P`<span class="text mobile-only">${this._getWeekDayText(e.date)}</span>`}
                                     `}
                             </div>
+                            ${this._showWeather&&e.weather?P`
+                                    <div class="weather" @click="${this._handleWeatherClick}">
+                                        ${this._weather?.showTemperature||this._weather?.showLowTemperature?P`
+                                                <div class="temperature">
+                                                    ${this._weather?.showTemperature?P`
+                                                            <span class="high">${e.weather.temperature}</span>
+                                                        `:""}
+                                                    ${this._weather?.showLowTemperature?P`
+                                                                <span class="low">${e.weather.templow}</span>
+                                                        `:""}
+                                                </div>
+                                            `:""}
+                                        ${this._weather?.showCondition?this._getWeatherIcon(e.weather.state,e.weather.condition):""}
+                                    </div>
+                                `:""}
                             <div class="add-event" @click="${t=>this._handleAddEventClick(t,e)}">
                                 <ha-icon icon="mdi:plus"></ha-icon>
                             </div>
                         </div>
-                        ${this._showWeather&&e.weather?P`
-                                <div class="weather" @click="${this._handleWeatherClick}">
-                                    ${this._weather?.showTemperature||this._weather?.showLowTemperature?P`
-                                            <div class="temperature">
-                                                ${this._weather?.showTemperature?P`
-                                                        <span class="high">${e.weather.temperature}</span>
-                                                    `:""}
-                                                ${this._weather?.showLowTemperature?P`
-                                                            <span class="low">${e.weather.templow}</span>
-                                                    `:""}
-                                            </div>
-                                        `:""}
-                                    ${this._weather?.showCondition?this._getWeatherIcon(e.weather.state,e.weather.condition):""}
-                                </div>
-                            `:""}
                         <div class="events">
                             ${this._renderEvents(e)}
                         </div>

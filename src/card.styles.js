@@ -430,6 +430,7 @@ export default css`
         align-items: center;
         justify-content: center;
         gap: 2px;
+        flex: 1;
         font-size: var(--weather-temperature-font-size);
         cursor: pointer;
         white-space: nowrap;
