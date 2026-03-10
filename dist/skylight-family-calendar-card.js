@@ -882,7 +882,9 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
         /* ── Selected day events panel ── */
         .selected-day-events {
             display: block;
+            width: 100%;
             padding: 12px 16px;
+            box-sizing: border-box;
             border-top: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
         }
         .selected-day-header {
@@ -1367,9 +1369,9 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
                             ${this._renderHeader()}
                             ${this._renderWeekDays()}
                             ${this._renderDays()}
+                            ${this._numberOfDaysIsMonth&&this._selectedDay?this._renderSelectedDayEvents():""}
                         </div>
                     </div>
-                    ${this._numberOfDaysIsMonth&&this._selectedDay?this._renderSelectedDayEvents():""}
                     ${this._renderEventDetailsDialog()}
                     ${this._renderCreateEventDialog()}
                     ${this._renderEditEventDialog()}

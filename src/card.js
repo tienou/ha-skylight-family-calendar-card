@@ -742,9 +742,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             ${this._renderHeader()}
                             ${this._renderWeekDays()}
                             ${this._renderDays()}
+                            ${this._numberOfDaysIsMonth && this._selectedDay ? this._renderSelectedDayEvents() : ''}
                         </div>
                     </div>
-                    ${this._numberOfDaysIsMonth && this._selectedDay ? this._renderSelectedDayEvents() : ''}
                     ${this._renderEventDetailsDialog()}
                     ${this._renderCreateEventDialog()}
                     ${this._renderEditEventDialog()}

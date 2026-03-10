@@ -883,7 +883,9 @@ export default css`
         /* ── Selected day events panel ── */
         .selected-day-events {
             display: block;
+            width: 100%;
             padding: 12px 16px;
+            box-sizing: border-box;
             border-top: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
         }
         .selected-day-header {
