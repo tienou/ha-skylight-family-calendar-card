@@ -1217,4 +1217,12 @@ export default css`
             justify-content: center;
         }
     }
+
+    /* ── Touch devices: hide navigation arrows, keep month + reset ── */
+    @media (any-pointer: coarse) {
+        .container .navigation ul li:first-child,
+        .container .navigation ul li:last-child {
+            display: none;
+        }
+    }
 `;

@@ -735,7 +735,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </div>
                     </div>
                     <div class="calendar-container">
-                        <div class="container${this._actions ? ' hasActions' : ''}${this._numberOfDaysIsMonth ? ' month-view' : ''}" style="${this._dayHeaderFontSize ? '--day-header-font-size: ' + this._dayHeaderFontSize + ';' : ''}${this._dayHeaderColor ? '--day-header-color: ' + this._dayHeaderColor + ';' : ''}" @click="${this._handleContainerClick}">
+                        <div class="container${this._actions ? ' hasActions' : ''}${this._numberOfDaysIsMonth ? ' month-view' : ''}" style="${this._dayHeaderFontSize ? '--day-header-font-size: ' + this._dayHeaderFontSize + ';' : ''}${this._dayHeaderColor ? '--day-header-color: ' + this._dayHeaderColor + ';' : ''}" @click="${this._handleContainerClick}" @touchstart="${this._handleTouchStart}" @touchend="${this._handleTouchEnd}">
                             ${this._renderHeader()}
                             ${this._renderWeekDays()}
                             ${this._renderDays()}
@@ -2569,6 +2569,32 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _handleNavigationPreviousClick(event) {
         this._navigationOffset--;
+        this._updateEvents();
+    }
+
+    _handleTouchStart(e) {
+        if (e.touches.length !== 1) return;
+        this._touchStartX = e.touches[0].clientX;
+        this._touchStartY = e.touches[0].clientY;
+    }
+
+    _handleTouchEnd(e) {
+        if (this._touchStartX === undefined) return;
+        const deltaX = e.changedTouches[0].clientX - this._touchStartX;
+        const deltaY = e.changedTouches[0].clientY - this._touchStartY;
+        this._touchStartX = undefined;
+        this._touchStartY = undefined;
+
+        // Only swipe if horizontal movement > 50px and more horizontal than vertical
+        if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+
+        if (deltaX < 0) {
+            // Swipe left → next
+            this._navigationOffset++;
+        } else {
+            // Swipe right → previous
+            this._navigationOffset--;
+        }
         this._updateEvents();
     }
 
