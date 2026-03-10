@@ -1136,11 +1136,20 @@ export default css`
         display: none;
     }
 
-    /* ── Calendar Grid: Table Style ── */
+    /* ── Calendar Grid: Table Style with full grid lines ── */
+    ha-card.theme-homeassistant .container {
+        --days-spacing: 0px;
+        gap: 0;
+        border-top: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+        border-left: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+    }
     ha-card.theme-homeassistant .container .day {
         border-right: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
         border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+        border-left: none;
+        border-top: none;
         padding: 4px 6px;
+        margin: 0;
         min-height: 80px;
     }
 
