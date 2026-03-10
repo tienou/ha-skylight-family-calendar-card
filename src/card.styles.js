@@ -1121,7 +1121,7 @@ export default css`
         transition: background 0.2s, color 0.2s;
     }
     ha-card.theme-homeassistant .view-btn:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--secondary-background-color, rgba(0, 0, 0, 0.05));
     }
     ha-card.theme-homeassistant .view-btn.active {
         background: var(--primary-color, #03a9f4);
