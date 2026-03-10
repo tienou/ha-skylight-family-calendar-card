@@ -98,6 +98,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     // Skylight-specific properties
     _calendarVisibility = {};
     _currentView = 'Week';
+    _selectedDay = null;
     _clockInterval = null;
     _views;
     _showHeader;
@@ -157,7 +158,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _showRecurringConfirmDialog: { type: Object },
             _showDeleteRecurringDialog: { type: Object },
             _createRecurrenceType: { type: String },
-            _createRecurrenceEndType: { type: String }
+            _createRecurrenceEndType: { type: String },
+            _selectedDay: { type: Object }
         }
     }
 
@@ -302,9 +304,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._views = typeof config.views === 'string'
             ? config.views.split(',').map(v => v.trim()).filter(Boolean)
             : (config.views ?? defaultViews);
-        const isMobile = window.innerWidth <= 768;
+        const savedView = (() => { try { return localStorage.getItem('skylight-calendar-view'); } catch(e) { return null; } })();
         const configDefault = config.defaultView ?? 'Week';
-        this._currentView = (isMobile && configDefault === 'Month') ? 'Week' : configDefault;
+        this._currentView = savedView && this._views.includes(savedView) ? savedView : configDefault;
 
         // Initialize calendar visibility
         const newVisibility = {};
@@ -586,6 +588,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _setView(viewName) {
         this._currentView = viewName;
         this._navigationOffset = 0;
+        try { localStorage.setItem('skylight-calendar-view', viewName); } catch(e) {}
         this._applyViewSettings();
         this._updateEvents();
     }
@@ -741,6 +744,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             ${this._renderDays()}
                         </div>
                     </div>
+                    ${this._numberOfDaysIsMonth && this._selectedDay ? this._renderSelectedDayEvents() : ''}
                     ${this._renderEventDetailsDialog()}
                     ${this._renderCreateEventDialog()}
                     ${this._renderEditEventDialog()}
@@ -878,8 +882,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 if (this._hideDaysWithoutEvents && day.events.length === 0 && (this._hideTodayWithoutEvents || !this._isToday(day.date))) {
                     return html``;
                 }
+                const isSelected = this._selectedDay && this._selectedDay.date.day === day.date.day && this._selectedDay.date.month === day.date.month && this._selectedDay.date.year === day.date.year;
                 return html`
-                    <div class="day ${day.class}" data-date="${day.date.day}" data-weekday="${day.date.weekday}" data-month="${day.date.month}" data-year="${day.date.year}" data-week="${day.date.weekNumber}">
+                    <div class="day ${day.class}${isSelected ? ' selected' : ''}" data-date="${day.date.day}" data-weekday="${day.date.weekday}" data-month="${day.date.month}" data-year="${day.date.year}" data-week="${day.date.weekNumber}" @click="${() => { if (this._numberOfDaysIsMonth) this._selectDay(day); }}">
                         <div class="day-header">
                             <div class="date">
                                 ${this._dayFormat ?
@@ -923,9 +928,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                 ` :
                                 ''
                             }
-                            <div class="add-event" @click="${(e) => this._handleAddEventClick(e, day)}">
+                            <div class="add-event" @click="${(e) => { e.stopPropagation(); this._handleAddEventClick(e, day); }}">
                                 <ha-icon icon="mdi:plus"></ha-icon>
                             </div>
+                        </div>
+                        <div class="event-dots">
+                            ${day.events.slice(0, 4).map(eventKey => {
+                                const ev = this._calendarEvents?.[eventKey];
+                                if (!ev || ev.calendars?.some(c => this._hideCalendars.indexOf(c) > -1 && ev.calendars.length === 1)) return '';
+                                return html`<span class="dot" style="background:${ev.colors[0]}"></span>`;
+                            })}
                         </div>
                         <div class="events">
                             ${this._renderEvents(day)}
@@ -933,6 +945,23 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     </div>
                 `
             })}
+        `;
+    }
+
+    _renderSelectedDayEvents() {
+        if (!this._selectedDay) return html``;
+        return html`
+            <div class="selected-day-events">
+                <div class="selected-day-header">
+                    <span class="selected-day-date">${this._selectedDay.date.toFormat('d MMMM')}</span>
+                    <div class="add-event" @click="${(e) => this._handleAddEventClick(e, this._selectedDay)}">
+                        <ha-icon icon="mdi:plus"></ha-icon>
+                    </div>
+                </div>
+                <div class="selected-day-list">
+                    ${this._renderEvents(this._selectedDay)}
+                </div>
+            </div>
         `;
     }
 
@@ -1951,6 +1980,17 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
 
         this._days = days;
+
+        // Auto-select today (or first day) in month view
+        if (this._numberOfDaysIsMonth) {
+            const now = DateTime.now();
+            const todayDay = days.find(d => !d.isOutsideMonth && d.date.day === now.day && d.date.month === now.month && d.date.year === now.year);
+            if (todayDay) {
+                this._selectedDay = todayDay;
+            } else if (!this._selectedDay || this._selectedDay.date.month !== days.find(d => !d.isOutsideMonth)?.date.month) {
+                this._selectedDay = days.find(d => !d.isOutsideMonth) ?? null;
+            }
+        }
     }
 
     _getWeekDayText(date) {
@@ -2570,6 +2610,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _handleNavigationPreviousClick(event) {
         this._navigationOffset--;
         this._updateEvents();
+    }
+
+    _selectDay(day) {
+        this._selectedDay = day;
     }
 
     _handleTouchStart(e) {

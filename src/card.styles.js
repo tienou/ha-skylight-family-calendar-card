@@ -425,6 +425,16 @@ export default css`
         opacity: 0.8;
     }
 
+    /* Event dots (visible only in mobile month view) */
+    .container .day .event-dots {
+        display: none;
+    }
+
+    /* Selected day events panel (visible only in mobile month view) */
+    .selected-day-events {
+        display: none;
+    }
+
     .container .day .weather {
         display: flex;
         align-items: center;
@@ -810,8 +820,12 @@ export default css`
         }
         ha-card .container.month-view .day .events,
         ha-card .container.month-view .day .weather,
-        ha-card .container.month-view .day .add-event {
+        ha-card .container.month-view .day .add-event,
+        ha-card .container.month-view .day .day-header .add-event {
             display: none;
+        }
+        ha-card .container.month-view .day .day-header {
+            justify-content: center;
         }
         ha-card .container.month-view .day .date .number {
             font-size: 0.9em;
@@ -833,6 +847,68 @@ export default css`
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        /* ── Event dots in month view ── */
+        ha-card .container.month-view .day .event-dots {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            margin-top: 2px;
+        }
+        ha-card .container.month-view .day .event-dots .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ── Day clickable in month view ── */
+        ha-card .container.month-view .day:not(.header):not(.outside) {
+            cursor: pointer;
+        }
+
+        /* ── Selected day highlight ── */
+        ha-card .container.month-view .day.selected .date .number {
+            background-color: var(--primary-color, #03a9f4);
+            color: var(--text-primary-color, #fff);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.6em;
+            height: 1.6em;
+        }
+
+        /* ── Selected day events panel ── */
+        .selected-day-events {
+            display: block;
+            padding: 12px 16px;
+            border-top: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+        }
+        .selected-day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .selected-day-date {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--primary-text-color);
+            text-transform: capitalize;
+        }
+        .selected-day-events .add-event {
+            opacity: 0.5;
+        }
+        .selected-day-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .selected-day-list .none {
+            color: var(--secondary-text-color, rgba(0, 0, 0, 0.5));
+            font-style: italic;
         }
     }
 
