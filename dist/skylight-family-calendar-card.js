@@ -839,13 +839,16 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,n=t.ShadowRoot
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
         ha-card .container.month-view .day.header .date .text {
             display: block;
-            font-size: 0.7em;
+            font-size: 0.6em;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            max-width: 100%;
+            text-align: center;
         }
 
         /* ── Event dots in month view ── */
