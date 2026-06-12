@@ -1220,12 +1220,14 @@ export default css`
         color: var(--secondary-text-color, #666);
         white-space: nowrap;
     }
-    .day-picker {
+    .day-picker,
+    .duration-picker {
         display: flex;
         gap: 4px;
         flex-wrap: wrap;
     }
-    .day-btn {
+    .day-btn,
+    .duration-btn {
         padding: 6px 10px;
         border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.15));
         border-radius: 4px;
@@ -1235,10 +1237,16 @@ export default css`
         font-size: 0.85em;
         font-family: var(--skylight-font);
     }
-    .day-btn.active {
+    .day-btn.active,
+    .duration-btn.active {
         background-color: var(--primary-color, #03a9f4);
         color: var(--text-primary-color, #fff);
         border-color: var(--primary-color, #03a9f4);
+    }
+    .duration-btn {
+        flex: 1;
+        min-height: 36px;
+        white-space: nowrap;
     }
 
     /* ══════════════════════════════════════════════════════
@@ -1370,8 +1378,9 @@ export default css`
         font-family: var(--ha-card-header-font-family, inherit);
     }
 
-    /* ── Day Picker Buttons (recurrence) ── */
-    ha-card.theme-homeassistant .day-btn {
+    /* ── Day Picker / Duration Buttons ── */
+    ha-card.theme-homeassistant .day-btn,
+    ha-card.theme-homeassistant .duration-btn {
         font-family: var(--ha-card-header-font-family, inherit);
         border-radius: 4px;
     }

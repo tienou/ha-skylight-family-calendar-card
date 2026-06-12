@@ -300,6 +300,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 recurrenceMonthlyOn: 'Monthly on day',
                 eventNotify: 'Notification',
                 eventDuration: 'Duration',
+                eventDate: 'Date',
                 advancedOptions: 'Advanced options',
             },
             localeTexts,
@@ -361,6 +362,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonthlyOn: 'Chaque mois le',
             eventNotify: 'Notification',
             eventDuration: 'Durée',
+            eventDate: 'Date',
             advancedOptions: 'Options avancées',
         },
         de: {
@@ -390,6 +392,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonthlyOn: 'Monatlich am',
             eventNotify: 'Benachrichtigung',
             eventDuration: 'Dauer',
+            eventDate: 'Datum',
             advancedOptions: 'Erweiterte Optionen',
         },
         es: {
@@ -419,6 +422,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonthlyOn: 'Cada mes el',
             eventNotify: 'Notificación',
             eventDuration: 'Duración',
+            eventDate: 'Fecha',
             advancedOptions: 'Opciones avanzadas',
         },
         it: {
@@ -448,6 +452,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonthlyOn: 'Ogni mese il',
             eventNotify: 'Notifica',
             eventDuration: 'Durata',
+            eventDate: 'Data',
             advancedOptions: 'Opzioni avanzate',
         },
         nl: {
@@ -477,6 +482,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonthlyOn: 'Maandelijks op',
             eventNotify: 'Melding',
             eventDuration: 'Duur',
+            eventDate: 'Datum',
             advancedOptions: 'Geavanceerde opties',
         },
         pt: {
@@ -506,11 +512,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonthlyOn: 'Todo m\u00eas no dia',
             eventNotify: 'Notifica\u00e7\u00e3o',
             eventDuration: 'Dura\u00e7\u00e3o',
+            eventDate: 'Data',
             advancedOptions: 'Op\u00e7\u00f5es avan\u00e7adas',
         },
     };
 
-    static DURATION_PRESETS = [15, 30, 60, 90, 120, 180, 240];
+    static DURATION_PRESETS = [30, 60, 90, 120];
 
     static PASTEL_COLORS = [
         '#7FC8F8', // soft blue
@@ -1320,22 +1327,20 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <label for="event-title">${this._language.eventTitle} *</label>
                         <input type="text" id="event-title" class="form-input" required placeholder="${this._language.eventTitle}" />
                     </div>
-                    <div class="form-row">
-                        <label for="event-start-date">${this._language.eventStart} *</label>
-                        <div class="datetime-row">
-                            <input type="date" id="event-start-date" class="form-input" .value="${startDateValue}" required />
-                            <input type="time" id="event-start-time" class="form-input" style="${isAllDay ? 'display: none' : ''}" .value="${startTimeValue}" required />
-                        </div>
+                    <div class="form-row" style="${isAllDay ? 'display: none' : ''}">
+                        <label for="event-start-time">${this._language.eventStart} *</label>
+                        <input type="time" id="event-start-time" class="form-input" .value="${startTimeValue}" required />
                     </div>
                     <div class="form-row">
-                        <label for="event-duration">${this._language.eventDuration}</label>
-                        <select id="event-duration" class="form-input"
-                            @change="${(e) => { this._createDuration = e.target.value; this._createEndTouched = false; }}">
+                        <label>${this._language.eventDuration}</label>
+                        <div class="duration-picker">
                             ${this.constructor.DURATION_PRESETS.map((minutes) => html`
-                                <option value="${minutes}" ?selected="${String(minutes) === this._createDuration}">${this._formatDuration(minutes)}</option>
+                                <button type="button" class="duration-btn ${String(minutes) === this._createDuration ? 'active' : ''}"
+                                    @click="${() => { this._createDuration = String(minutes); this._createEndTouched = false; }}">${this._formatDuration(minutes)}</button>
                             `)}
-                            <option value="allday" ?selected="${isAllDay}">${this._language.fullDay}</option>
-                        </select>
+                            <button type="button" class="duration-btn ${isAllDay ? 'active' : ''}"
+                                @click="${() => { this._createDuration = 'allday'; this._createEndTouched = false; }}">${this._language.fullDay}</button>
+                        </div>
                     </div>
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
@@ -1350,6 +1355,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <span>${this._language.advancedOptions}</span>
                     </button>
                     <div class="advanced-section" style="${this._createShowAdvanced ? '' : 'display: none'}">
+                    <div class="form-row">
+                        <label for="event-start-date">${this._language.eventDate}</label>
+                        <input type="date" id="event-start-date" class="form-input" .value="${startDateValue}" required />
+                    </div>
                     <div class="form-row">
                         <label for="event-calendar">${this._language.eventCalendar}</label>
                         <select id="event-calendar" class="form-input">
@@ -1446,9 +1455,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _renderCreateEventDialogHeading() {
+        const date = this._showCreateEventDialog?.date;
         return html`
             <div class="header_title">
-                <span>${this._language.newEvent}</span>
+                <span>${this._language.newEvent}${date ? ' — ' + date.toFormat('cccc d LLLL') : ''}</span>
                 <ha-icon-button
                     .label="${this.hass?.localize('ui.dialogs.generic.close') ?? 'Close'}"
                     dialogAction="close"
@@ -1466,12 +1476,6 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const event = this._showEditEventDialog;
         const form = this._editFormData;
         const duration = this._getFormDuration(form);
-        const durationOptions = [...this.constructor.DURATION_PRESETS];
-        const durationNum = parseInt(duration);
-        if (duration !== 'allday' && !durationOptions.includes(durationNum)) {
-            durationOptions.push(durationNum);
-            durationOptions.sort((a, b) => a - b);
-        }
 
         return html`
             <ha-dialog
@@ -1486,25 +1490,22 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             .value="${form.title}"
                             @input="${(e) => { this._editFormData = { ...this._editFormData, title: e.target.value }; }}" />
                     </div>
-                    <div class="form-row">
-                        <label for="edit-event-start-date">${this._language.eventStart} *</label>
-                        <div class="datetime-row">
-                            <input type="date" id="edit-event-start-date" class="form-input" required
-                                .value="${form.startDate}"
-                                @input="${(e) => this._updateEditStart({ startDate: e.target.value })}" />
-                            <input type="time" id="edit-event-start-time" class="form-input" required style="${form.allDay ? 'display: none' : ''}"
-                                .value="${form.startTime}"
-                                @input="${(e) => this._updateEditStart({ startTime: e.target.value })}" />
-                        </div>
+                    <div class="form-row" style="${form.allDay ? 'display: none' : ''}">
+                        <label for="edit-event-start-time">${this._language.eventStart} *</label>
+                        <input type="time" id="edit-event-start-time" class="form-input" required
+                            .value="${form.startTime}"
+                            @input="${(e) => this._updateEditStart({ startTime: e.target.value })}" />
                     </div>
                     <div class="form-row">
-                        <label for="edit-event-duration">${this._language.eventDuration}</label>
-                        <select id="edit-event-duration" class="form-input" @change="${this._handleEditDurationChange}">
-                            ${durationOptions.map((minutes) => html`
-                                <option value="${minutes}" ?selected="${String(minutes) === duration}">${this._formatDuration(minutes)}</option>
+                        <label>${this._language.eventDuration}</label>
+                        <div class="duration-picker">
+                            ${this.constructor.DURATION_PRESETS.map((minutes) => html`
+                                <button type="button" class="duration-btn ${String(minutes) === duration ? 'active' : ''}"
+                                    @click="${() => this._setEditDuration(String(minutes))}">${this._formatDuration(minutes)}</button>
                             `)}
-                            <option value="allday" ?selected="${duration === 'allday'}">${this._language.fullDay}</option>
-                        </select>
+                            <button type="button" class="duration-btn ${duration === 'allday' ? 'active' : ''}"
+                                @click="${() => this._setEditDuration('allday')}">${this._language.fullDay}</button>
+                        </div>
                     </div>
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
@@ -1528,6 +1529,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <span>${this._language.advancedOptions}</span>
                     </button>
                     <div class="advanced-section" style="${form.showAdvanced ? '' : 'display: none'}">
+                    <div class="form-row">
+                        <label for="edit-event-start-date">${this._language.eventDate}</label>
+                        <input type="date" id="edit-event-start-date" class="form-input" required
+                            .value="${form.startDate}"
+                            @input="${(e) => this._updateEditStart({ startDate: e.target.value })}" />
+                    </div>
                     <div class="form-row">
                         <label for="edit-event-calendar">${this._language.eventCalendar}</label>
                         <select id="edit-event-calendar" class="form-input"
@@ -1638,9 +1645,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _renderEditEventDialogHeading() {
+        const date = this._editFormData?.startDate ? DateTime.fromISO(this._editFormData.startDate) : null;
         return html`
             <div class="header_title">
-                <span>${this._language.editEventTitle}</span>
+                <span>${this._language.editEventTitle}${date?.isValid ? ' — ' + date.toFormat('cccc d LLLL') : ''}</span>
                 <ha-icon-button
                     .label="${this.hass?.localize('ui.dialogs.generic.close') ?? 'Close'}"
                     dialogAction="close"
@@ -2329,7 +2337,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const location = this.shadowRoot.querySelector('#event-location')?.value?.trim();
         const freq = this.shadowRoot.querySelector('#event-recurrence')?.value;
         const notify = this.shadowRoot.querySelector('#event-notify')?.checked ?? false;
-        const durationValue = this.shadowRoot.querySelector('#event-duration')?.value || '60';
+        const durationValue = this._createDuration || '60';
         const allDay = durationValue === 'allday';
 
         if (!title) {
@@ -2792,9 +2800,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._editFormData = next;
     }
 
-    _handleEditDurationChange(e) {
+    _setEditDuration(value) {
         const form = this._editFormData;
-        const value = e.target.value;
         if (value === 'allday') {
             this._editFormData = {
                 ...form,
