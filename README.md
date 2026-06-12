@@ -10,9 +10,10 @@ A Skylight-inspired family calendar card for Home Assistant. Displays events fro
 
 ### Event Management
 - **Full CRUD**: Create, edit, and delete events directly from the card (no external helpers needed)
-- **Recurrence support**: Daily, weekly, monthly, yearly — with interval, day selection, and end options
+- **Simple forms**: only title, start, duration (presets from 15 min to 4 h + all day) and location are shown — everything else is in a collapsible "Advanced options" drawer
+- **All-day events**: create and edit date-only events, including multi-day ones
+- **Recurrence support**: Daily, weekly, monthly, yearly — with interval, day selection, and end options (in the advanced drawer)
 - **🔔 Notification markers**: Checkbox in event forms to flag events for voice/phone notifications (detectable by HA automations via `summary.startswith('🔔')`)
-- **Split date/time inputs**: Separate date and time fields for precise event scheduling
 - **Google Places Autocomplete** for location field (optional, requires API key)
 
 ### Calendar Display
