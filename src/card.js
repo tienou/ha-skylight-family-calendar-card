@@ -99,6 +99,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
     // Skylight-specific properties
     _calendarVisibility = {};
     _currentView = 'Week';
+    _createDuration = '60';
+    _createShowAdvanced = false;
+    _createEndTouched = false;
     _selectedDay = null;
     _clockInterval = null;
     _views;
@@ -159,7 +162,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _showRecurringConfirmDialog: { type: Object },
             _showDeleteRecurringDialog: { type: Object },
             _createRecurrenceType: { type: String },
-            _createRecurrenceEndType: { type: String }
+            _createRecurrenceEndType: { type: String },
+            _createDuration: { type: String },
+            _createShowAdvanced: { type: Boolean }
         }
     }
 
@@ -294,6 +299,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 recurrenceMonths: 'months',
                 recurrenceMonthlyOn: 'Monthly on day',
                 eventNotify: 'Notification',
+                eventDuration: 'Duration',
+                advancedOptions: 'Advanced options',
             },
             localeTexts,
             config.texts ?? {}
@@ -353,6 +360,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonths: 'mois',
             recurrenceMonthlyOn: 'Chaque mois le',
             eventNotify: 'Notification',
+            eventDuration: 'Durée',
+            advancedOptions: 'Options avancées',
         },
         de: {
             fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
@@ -380,6 +389,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonths: 'Monaten',
             recurrenceMonthlyOn: 'Monatlich am',
             eventNotify: 'Benachrichtigung',
+            eventDuration: 'Dauer',
+            advancedOptions: 'Erweiterte Optionen',
         },
         es: {
             fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
@@ -407,6 +418,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonths: 'meses',
             recurrenceMonthlyOn: 'Cada mes el',
             eventNotify: 'Notificación',
+            eventDuration: 'Duración',
+            advancedOptions: 'Opciones avanzadas',
         },
         it: {
             fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
@@ -434,6 +447,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonths: 'mesi',
             recurrenceMonthlyOn: 'Ogni mese il',
             eventNotify: 'Notifica',
+            eventDuration: 'Durata',
+            advancedOptions: 'Opzioni avanzate',
         },
         nl: {
             fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
@@ -461,6 +476,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonths: 'maanden',
             recurrenceMonthlyOn: 'Maandelijks op',
             eventNotify: 'Melding',
+            eventDuration: 'Duur',
+            advancedOptions: 'Geavanceerde opties',
         },
         pt: {
             fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
@@ -488,8 +505,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             recurrenceMonths: 'meses',
             recurrenceMonthlyOn: 'Todo m\u00eas no dia',
             eventNotify: 'Notifica\u00e7\u00e3o',
+            eventDuration: 'Dura\u00e7\u00e3o',
+            advancedOptions: 'Op\u00e7\u00f5es avan\u00e7adas',
         },
     };
+
+    static DURATION_PRESETS = [15, 30, 60, 90, 120, 180, 240];
 
     static PASTEL_COLORS = [
         '#7FC8F8', // soft blue
@@ -1261,7 +1282,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
             second: 0,
             millisecond: 0,
         });
-        const defaultEnd = defaultStart.plus({ hours: 1 });
+        const isAllDay = this._createDuration === 'allday';
+        const durationMinutes = isAllDay ? 0 : (parseInt(this._createDuration) || 60);
+        const defaultEnd = defaultStart.plus({ minutes: durationMinutes });
         const startDateValue = defaultStart.toFormat("yyyy-MM-dd");
         const startTimeValue = defaultStart.toFormat("HH:mm");
         const endDateValue = defaultEnd.toFormat("yyyy-MM-dd");
@@ -1279,6 +1302,36 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <input type="text" id="event-title" class="form-input" required placeholder="${this._language.eventTitle}" />
                     </div>
                     <div class="form-row">
+                        <label for="event-start-date">${this._language.eventStart} *</label>
+                        <div class="datetime-row">
+                            <input type="date" id="event-start-date" class="form-input" .value="${startDateValue}" required />
+                            <input type="time" id="event-start-time" class="form-input" style="${isAllDay ? 'display: none' : ''}" .value="${startTimeValue}" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="event-duration">${this._language.eventDuration}</label>
+                        <select id="event-duration" class="form-input"
+                            @change="${(e) => { this._createDuration = e.target.value; this._createEndTouched = false; }}">
+                            ${this.constructor.DURATION_PRESETS.map((minutes) => html`
+                                <option value="${minutes}" ?selected="${String(minutes) === this._createDuration}">${this._formatDuration(minutes)}</option>
+                            `)}
+                            <option value="allday" ?selected="${isAllDay}">${this._language.fullDay}</option>
+                        </select>
+                    </div>
+                    ${this._showLocationInForm ? html`
+                    <div class="form-row location-row">
+                        <label for="event-location">${this._language.eventLocation ?? 'Location'}</label>
+                        <input type="text" id="event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
+                            @input="${this._handleLocationInput}" autocomplete="off" />
+                        <ul class="location-suggestions" id="event-location-suggestions"></ul>
+                    </div>
+                    ` : ''}
+                    <button type="button" class="advanced-toggle" @click="${() => { this._createShowAdvanced = !this._createShowAdvanced; }}">
+                        <ha-icon icon="${this._createShowAdvanced ? 'mdi:chevron-up' : 'mdi:chevron-down'}"></ha-icon>
+                        <span>${this._language.advancedOptions}</span>
+                    </button>
+                    <div class="advanced-section" style="${this._createShowAdvanced ? '' : 'display: none'}">
+                    <div class="form-row">
                         <label for="event-calendar">${this._language.eventCalendar}</label>
                         <select id="event-calendar" class="form-input">
                             ${this._calendars.map((calendar) => html`
@@ -1287,17 +1340,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </select>
                     </div>
                     <div class="form-row">
-                        <label for="event-start-date">${this._language.eventStart} *</label>
-                        <div class="datetime-row">
-                            <input type="date" id="event-start-date" class="form-input" .value="${startDateValue}" required />
-                            <input type="time" id="event-start-time" class="form-input" .value="${startTimeValue}" required />
-                        </div>
-                    </div>
-                    <div class="form-row">
                         <label for="event-end-date">${this._language.eventEnd}</label>
                         <div class="datetime-row">
-                            <input type="date" id="event-end-date" class="form-input" .value="${endDateValue}" />
-                            <input type="time" id="event-end-time" class="form-input" .value="${endTimeValue}" />
+                            <input type="date" id="event-end-date" class="form-input" .value="${endDateValue}"
+                                @input="${() => { this._createEndTouched = true; }}" />
+                            <input type="time" id="event-end-time" class="form-input" style="${isAllDay ? 'display: none' : ''}" .value="${endTimeValue}"
+                                @input="${() => { this._createEndTouched = true; }}" />
                         </div>
                     </div>
                     <div class="form-row">
@@ -1362,19 +1410,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </div>
                         ` : ''}
                     ` : ''}
-                    ${this._showLocationInForm ? html`
-                    <div class="form-row location-row">
-                        <label for="event-location">${this._language.eventLocation ?? 'Location'}</label>
-                        <input type="text" id="event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
-                            @input="${this._handleLocationInput}" autocomplete="off" />
-                        <ul class="location-suggestions" id="event-location-suggestions"></ul>
-                    </div>
-                    ` : ''}
                     <div class="form-row notify-row">
                         <label class="notify-label" for="event-notify">
                             <input type="checkbox" id="event-notify" />
                             <span>\u{1F514} ${this._language.eventNotify}</span>
                         </label>
+                    </div>
                     </div>
                     <div class="form-actions">
                         <button class="btn btn-cancel" @click="${this._closeCreateEventDialog}">${this._language.cancel}</button>
@@ -1405,6 +1446,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
         const event = this._showEditEventDialog;
         const form = this._editFormData;
+        const duration = this._getFormDuration(form);
+        const durationOptions = [...this.constructor.DURATION_PRESETS];
+        const durationNum = parseInt(duration);
+        if (duration !== 'allday' && !durationOptions.includes(durationNum)) {
+            durationOptions.push(durationNum);
+            durationOptions.sort((a, b) => a - b);
+        }
 
         return html`
             <ha-dialog
@@ -1420,6 +1468,48 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             @input="${(e) => { this._editFormData = { ...this._editFormData, title: e.target.value }; }}" />
                     </div>
                     <div class="form-row">
+                        <label for="edit-event-start-date">${this._language.eventStart} *</label>
+                        <div class="datetime-row">
+                            <input type="date" id="edit-event-start-date" class="form-input" required
+                                .value="${form.startDate}"
+                                @input="${(e) => this._updateEditStart({ startDate: e.target.value })}" />
+                            <input type="time" id="edit-event-start-time" class="form-input" required style="${form.allDay ? 'display: none' : ''}"
+                                .value="${form.startTime}"
+                                @input="${(e) => this._updateEditStart({ startTime: e.target.value })}" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="edit-event-duration">${this._language.eventDuration}</label>
+                        <select id="edit-event-duration" class="form-input" @change="${this._handleEditDurationChange}">
+                            ${durationOptions.map((minutes) => html`
+                                <option value="${minutes}" ?selected="${String(minutes) === duration}">${this._formatDuration(minutes)}</option>
+                            `)}
+                            <option value="allday" ?selected="${duration === 'allday'}">${this._language.fullDay}</option>
+                        </select>
+                    </div>
+                    ${this._showLocationInForm ? html`
+                    <div class="form-row location-row">
+                        <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
+                        <div class="location-input-wrapper">
+                            <input type="text" id="edit-event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
+                                .value="${form.location ?? ''}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
+                                autocomplete="off" />
+                            ${form.location ? html`
+                            <a class="location-maps-icon" href="${this._locationLink}${encodeURIComponent(form.location)}" target="_blank" title="${this._language.openInMaps ?? 'Google Maps'}">
+                                <ha-icon icon="mdi:map-marker"></ha-icon>
+                            </a>
+                            ` : ''}
+                        </div>
+                        <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
+                    </div>
+                    ` : ''}
+                    <button type="button" class="advanced-toggle" @click="${() => { this._editFormData = { ...this._editFormData, showAdvanced: !form.showAdvanced }; }}">
+                        <ha-icon icon="${form.showAdvanced ? 'mdi:chevron-up' : 'mdi:chevron-down'}"></ha-icon>
+                        <span>${this._language.advancedOptions}</span>
+                    </button>
+                    <div class="advanced-section" style="${form.showAdvanced ? '' : 'display: none'}">
+                    <div class="form-row">
                         <label for="edit-event-calendar">${this._language.eventCalendar}</label>
                         <select id="edit-event-calendar" class="form-input"
                             @change="${(e) => { this._editFormData = { ...this._editFormData, calendar: e.target.value }; }}">
@@ -1429,23 +1519,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </select>
                     </div>
                     <div class="form-row">
-                        <label for="edit-event-start-date">${this._language.eventStart} *</label>
-                        <div class="datetime-row">
-                            <input type="date" id="edit-event-start-date" class="form-input" required
-                                .value="${form.startDate}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, startDate: e.target.value }; }}" />
-                            <input type="time" id="edit-event-start-time" class="form-input" required
-                                .value="${form.startTime}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, startTime: e.target.value }; }}" />
-                        </div>
-                    </div>
-                    <div class="form-row">
                         <label for="edit-event-end-date">${this._language.eventEnd}</label>
                         <div class="datetime-row">
                             <input type="date" id="edit-event-end-date" class="form-input"
                                 .value="${form.endDate}"
                                 @input="${(e) => { this._editFormData = { ...this._editFormData, endDate: e.target.value }; }}" />
-                            <input type="time" id="edit-event-end-time" class="form-input"
+                            <input type="time" id="edit-event-end-time" class="form-input" style="${form.allDay ? 'display: none' : ''}"
                                 .value="${form.endTime}"
                                 @input="${(e) => { this._editFormData = { ...this._editFormData, endTime: e.target.value }; }}" />
                         </div>
@@ -1519,29 +1598,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </div>
                         ` : ''}
                     ` : ''}
-                    ${this._showLocationInForm ? html`
-                    <div class="form-row location-row">
-                        <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
-                        <div class="location-input-wrapper">
-                            <input type="text" id="edit-event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
-                                .value="${form.location ?? ''}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
-                                autocomplete="off" />
-                            ${form.location ? html`
-                            <a class="location-maps-icon" href="${this._locationLink}${encodeURIComponent(form.location)}" target="_blank" title="${this._language.openInMaps ?? 'Google Maps'}">
-                                <ha-icon icon="mdi:map-marker"></ha-icon>
-                            </a>
-                            ` : ''}
-                        </div>
-                        <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
-                    </div>
-                    ` : ''}
                     <div class="form-row notify-row">
                         <label class="notify-label" for="edit-event-notify">
                             <input type="checkbox" id="edit-event-notify" .checked="${form.notify ?? false}"
                                 @change="${(e) => { this._editFormData = { ...this._editFormData, notify: e.target.checked }; }}" />
                             <span>\u{1F514} ${this._language.eventNotify}</span>
                         </label>
+                    </div>
                     </div>
                     <div class="form-actions">
                         <button class="btn btn-delete" @click="${this._handleDeleteEventFromEdit}">
@@ -2111,6 +2174,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _handleAddEventClick(e, day) {
         e.stopImmediatePropagation();
+        this._createDuration = '60';
+        this._createShowAdvanced = false;
+        this._createEndTouched = false;
         this._showCreateEventDialog = { date: day.date };
     }
 
@@ -2118,6 +2184,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._showCreateEventDialog = null;
         this._createRecurrenceType = null;
         this._createRecurrenceEndType = 'never';
+        this._createDuration = '60';
+        this._createShowAdvanced = false;
+        this._createEndTouched = false;
     }
 
     _handleLocationInput(e) {
@@ -2215,22 +2284,43 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const location = this.shadowRoot.querySelector('#event-location')?.value?.trim();
         const freq = this.shadowRoot.querySelector('#event-recurrence')?.value;
         const notify = this.shadowRoot.querySelector('#event-notify')?.checked ?? false;
+        const durationValue = this.shadowRoot.querySelector('#event-duration')?.value || '60';
+        const allDay = durationValue === 'allday';
 
         if (!title) {
             return;
         }
 
-        if (!startInput) {
+        if (!startDate || (!allDay && !startInput)) {
             return;
         }
 
-        const start = DateTime.fromISO(startInput);
-        if (!start.isValid) {
-            return;
-        }
-        let end = endInput ? DateTime.fromISO(endInput) : start.plus({ hours: 1 });
-        if (!end.isValid || end <= start) {
-            end = start.plus({ hours: 1 });
+        let dtstart, dtend;
+        if (allDay) {
+            const startDay = DateTime.fromISO(startDate);
+            if (!startDay.isValid) {
+                return;
+            }
+            // End date input is inclusive; the calendar API expects an exclusive end
+            let endDay = this._createEndTouched && endDate ? DateTime.fromISO(endDate) : startDay;
+            if (!endDay.isValid || endDay < startDay) {
+                endDay = startDay;
+            }
+            dtstart = startDay.toISODate();
+            dtend = endDay.plus({ days: 1 }).toISODate();
+        } else {
+            const start = DateTime.fromISO(startInput);
+            if (!start.isValid) {
+                return;
+            }
+            let end = this._createEndTouched && endInput
+                ? DateTime.fromISO(endInput)
+                : start.plus({ minutes: parseInt(durationValue) || 60 });
+            if (!end.isValid || end <= start) {
+                end = start.plus({ hours: 1 });
+            }
+            dtstart = start.toFormat("yyyy-MM-dd'T'HH:mm:ss");
+            dtend = end.toFormat("yyyy-MM-dd'T'HH:mm:ss");
         }
 
         let rrule = '';
@@ -2252,8 +2342,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
         const eventData = {
             summary: notify ? '\u{1F514} ' + title : title,
-            dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
-            dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+            dtstart: dtstart,
+            dtend: dtend,
         };
         if (location) eventData.location = location;
         if (rrule) eventData.rrule = rrule;
@@ -2316,14 +2406,23 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const parsed = this._parseRrule(rruleStr);
         const rawTitle = event.summary || '';
         const notify = rawTitle.startsWith('\u{1F514}');
+        // Detect on the original dates: the per-day slice fullDay flag is also
+        // set on middle slices of timed multi-day events
+        const allDay = this._isFullDay(event.originalStart, event.originalEnd, true);
+        // All-day end dates are exclusive in the API; show them inclusive
+        const displayEnd = event.originalEnd
+            ? (allDay ? event.originalEnd.minus({ days: 1 }) : event.originalEnd)
+            : null;
         this._editFormData = {
             title: notify ? rawTitle.replace(/^\u{1F514}\s*/u, '') : rawTitle,
             notify: notify,
+            allDay: allDay,
+            showAdvanced: !!parsed.freq,
             calendar: event.calendars[0] || '',
             startDate: event.originalStart ? event.originalStart.toFormat("yyyy-MM-dd") : '',
             startTime: event.originalStart ? event.originalStart.toFormat("HH:mm") : '',
-            endDate: event.originalEnd ? event.originalEnd.toFormat("yyyy-MM-dd") : '',
-            endTime: event.originalEnd ? event.originalEnd.toFormat("HH:mm") : '',
+            endDate: displayEnd ? displayEnd.toFormat("yyyy-MM-dd") : '',
+            endTime: displayEnd ? displayEnd.toFormat("HH:mm") : '',
             location: event.location || '',
             recurrence: parsed.freq,
             recurrenceInterval: parsed.interval,
@@ -2476,14 +2575,32 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
 
         const summary = form.notify ? '\u{1F514} ' + title : title;
-        const start = DateTime.fromISO(startInput);
-        if (!start.isValid) {
-            console.error('Skylight Family Calendar: Invalid start date', { startInput });
-            return;
-        }
-        let end = endInput ? DateTime.fromISO(endInput) : start.plus({ hours: 1 });
-        if (!end.isValid || end <= start) {
-            end = start.plus({ hours: 1 });
+        let dtstart, dtend;
+        if (form.allDay) {
+            const startDay = DateTime.fromISO(form.startDate);
+            if (!startDay.isValid) {
+                console.error('Skylight Family Calendar: Invalid start date', { startDate: form.startDate });
+                return;
+            }
+            // Form end date is inclusive; the calendar API expects an exclusive end
+            let endDay = form.endDate ? DateTime.fromISO(form.endDate) : startDay;
+            if (!endDay.isValid || endDay < startDay) {
+                endDay = startDay;
+            }
+            dtstart = startDay.toISODate();
+            dtend = endDay.plus({ days: 1 }).toISODate();
+        } else {
+            const start = DateTime.fromISO(startInput);
+            if (!start.isValid) {
+                console.error('Skylight Family Calendar: Invalid start date', { startInput });
+                return;
+            }
+            let end = endInput ? DateTime.fromISO(endInput) : start.plus({ hours: 1 });
+            if (!end.isValid || end <= start) {
+                end = start.plus({ hours: 1 });
+            }
+            dtstart = start.toFormat("yyyy-MM-dd'T'HH:mm:ss");
+            dtend = end.toFormat("yyyy-MM-dd'T'HH:mm:ss");
         }
 
         const entityId = calendar || event.calendars[0];
@@ -2493,8 +2610,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             if (event.uid) {
                 const eventData = {
                     summary: summary,
-                    dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
-                    dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                    dtstart: dtstart,
+                    dtend: dtend,
                 };
                 if (location) eventData.location = location;
                 if (recurrence) eventData.rrule = recurrence;
@@ -2541,8 +2658,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
                     const fallbackEventData = {
                         summary: summary,
-                        dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
-                        dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                        dtstart: dtstart,
+                        dtend: dtend,
                     };
                     if (location) fallbackEventData.location = location;
                     if (recurrence) fallbackEventData.rrule = recurrence;
@@ -2589,6 +2706,74 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const startInput = this.shadowRoot?.querySelector('#event-start-date')?.value;
         if (startInput) return DateTime.fromISO(startInput).day;
         return DateTime.now().day;
+    }
+
+    _formatDuration(minutes) {
+        minutes = parseInt(minutes);
+        if (minutes < 60) {
+            return minutes + ' min';
+        }
+        const hours = Math.floor(minutes / 60);
+        const rest = minutes % 60;
+        return rest === 0 ? hours + ' h' : hours + ' h ' + String(rest).padStart(2, '0');
+    }
+
+    _getFormDuration(form) {
+        if (form.allDay) {
+            return 'allday';
+        }
+        const start = DateTime.fromISO(`${form.startDate}T${form.startTime || '00:00'}`);
+        const end = DateTime.fromISO(`${form.endDate}T${form.endTime || '00:00'}`);
+        if (!start.isValid || !end.isValid) {
+            return '60';
+        }
+        const minutes = Math.round(end.diff(start, 'minutes').minutes);
+        return minutes > 0 ? String(minutes) : '60';
+    }
+
+    // Shift the end along with the start so the duration is preserved
+    _updateEditStart(patch) {
+        const form = this._editFormData;
+        const next = { ...form, ...patch };
+        const oldStart = DateTime.fromISO(`${form.startDate}T${form.startTime || '00:00'}`);
+        const oldEnd = DateTime.fromISO(`${form.endDate}T${form.endTime || '00:00'}`);
+        const newStart = DateTime.fromISO(`${next.startDate}T${next.startTime || '00:00'}`);
+        if (oldStart.isValid && oldEnd.isValid && newStart.isValid && oldEnd >= oldStart) {
+            const minutes = Math.round(oldEnd.diff(oldStart, 'minutes').minutes);
+            const newEnd = newStart.plus({ minutes });
+            next.endDate = newEnd.toFormat('yyyy-MM-dd');
+            next.endTime = newEnd.toFormat('HH:mm');
+        }
+        this._editFormData = next;
+    }
+
+    _handleEditDurationChange(e) {
+        const form = this._editFormData;
+        const value = e.target.value;
+        if (value === 'allday') {
+            this._editFormData = {
+                ...form,
+                allDay: true,
+                startTime: '00:00',
+                endTime: '00:00',
+                endDate: form.startDate,
+            };
+            return;
+        }
+        const startTime = form.allDay ? '09:00' : (form.startTime || '09:00');
+        const start = DateTime.fromISO(`${form.startDate}T${startTime}`);
+        if (!start.isValid) {
+            this._editFormData = { ...form, allDay: false, startTime: startTime };
+            return;
+        }
+        const end = start.plus({ minutes: parseInt(value) || 60 });
+        this._editFormData = {
+            ...form,
+            allDay: false,
+            startTime: startTime,
+            endDate: end.toFormat('yyyy-MM-dd'),
+            endTime: end.toFormat('HH:mm'),
+        };
     }
 
     _buildRrule(freq, interval, byDay, byMonthDay, endType, endDate, endCount) {

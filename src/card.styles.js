@@ -645,6 +645,30 @@ export default css`
         position: relative;
     }
 
+    .create-event-form .advanced-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        width: 100%;
+        margin: 4px 0 12px;
+        padding: 8px 0;
+        background: none;
+        border: none;
+        border-top: 1px solid var(--divider-color, #e0e0e0);
+        color: var(--secondary-text-color, #aaaaaa);
+        font-size: 0.9em;
+        cursor: pointer;
+    }
+
+    .create-event-form .advanced-toggle ha-icon {
+        --mdc-icon-size: 18px;
+    }
+
+    .create-event-form .advanced-toggle:hover {
+        color: var(--primary-color, #03a9f4);
+    }
+
     .create-event-form .notify-row .notify-label {
         display: flex;
         align-items: center;
