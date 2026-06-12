@@ -639,6 +639,24 @@ export default css`
         position: relative;
     }
 
+    .create-event-form .notify-row .notify-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 0;
+        cursor: pointer;
+        font-size: 1em;
+        color: var(--primary-text-color);
+    }
+
+    .create-event-form .notify-row input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: var(--primary-color, #03a9f4);
+        cursor: pointer;
+    }
+
     .create-event-form .location-suggestions {
         display: none;
         position: absolute;
