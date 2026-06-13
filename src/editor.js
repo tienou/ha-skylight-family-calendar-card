@@ -287,22 +287,24 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 ${this.addExpansionPanel(
                     'AI & Handwriting',
                     html`
-                        ${this.addBooleanField('aiQuickAdd', 'Enable AI quick add')}
-                        ${this.addHint('Adds an "Analyze with AI" button that turns a free sentence into title + time via a Home Assistant ai_task entity (auto-enabled when one exists)')}
-                        ${this.addEntityPickerField('aiTaskEntity', 'AI Task entity', ['ai_task'])}
-                        ${this.addHint('ai_task entity to use (auto-detected if empty)')}
+                        <p style="margin: 0 0 8px 0; font-weight: 500;">✍️ Handwriting recognition</p>
+                        ${this.addTextField('geminiApiKey', 'Google Gemini API key')}
+                        ${this.addHint('Paste your key here to enable stylus handwriting in the quick-add area. Free key at aistudio.google.com/apikey')}
+                        ${this.addTextField('geminiModel', 'Gemini model', 'text', 'gemini-2.0-flash')}
+                        ${this.addTextField('claudeApiKey', 'Anthropic Claude API key (alternative)')}
+                        ${this.addHint('Use Claude instead of Gemini. Key from console.anthropic.com')}
+                        ${this.addTextField('claudeModel', 'Claude model', 'text', 'claude-opus-4-8')}
+                        ${this.addHint('e.g. claude-haiku-4-5 for lower cost/latency')}
                         ${this.addSelectField('aiProvider', 'Handwriting provider', [
                             { value: 'gemini', label: 'Google Gemini' },
                             { value: 'claude', label: 'Anthropic Claude' },
                         ], true)}
-                        ${this.addHint('Which model reads the handwriting canvas (auto when only one key is set; Claude preferred if both)')}
-                        ${this.addTextField('geminiApiKey', 'Google Gemini API key')}
-                        ${this.addHint('Enables the stylus handwriting canvas in quick add (Gemini Vision). Get a free key at aistudio.google.com/apikey')}
-                        ${this.addTextField('geminiModel', 'Gemini model', 'text', 'gemini-2.0-flash')}
-                        ${this.addTextField('claudeApiKey', 'Anthropic Claude API key')}
-                        ${this.addHint('Alternative handwriting provider (Claude Vision). Get a key at console.anthropic.com')}
-                        ${this.addTextField('claudeModel', 'Claude model', 'text', 'claude-opus-4-8')}
-                        ${this.addHint('e.g. claude-haiku-4-5 for lower cost/latency')}
+                        ${this.addHint('Which model reads the handwriting (auto when only one key is set; Claude preferred if both)')}
+                        <p style="margin: 16px 0 8px 0; font-weight: 500;">⚡ Text quick add (optional)</p>
+                        ${this.addBooleanField('aiQuickAdd', 'Enable AI quick add')}
+                        ${this.addHint('Adds an "Analyze with AI" button that turns a typed sentence into title + time via a Home Assistant ai_task entity. Not needed for handwriting — leave off and the entity below empty if you only want the pen.')}
+                        ${this.addEntityPickerField('aiTaskEntity', 'AI Task entity', ['ai_task'])}
+                        ${this.addHint('ai_task entity for the text quick add (auto-detected if empty)')}
                     `
                 )}
                 ${this.addExpansionPanel(
