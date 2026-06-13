@@ -106,6 +106,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _createStartTime = null;
     _aiLoading = false;
     _aiError = null;
+    _aiResult = null;
     _drawing = false;
     _hasDrawing = false;
     _canvasReady = false;
@@ -175,7 +176,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _createTitle: { type: String },
             _createStartTime: { type: String },
             _aiLoading: { type: Boolean },
-            _aiError: { type: String }
+            _aiError: { type: String },
+            _aiResult: { type: String }
         }
     }
 
@@ -2320,6 +2322,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createTitle = null;
         this._aiLoading = false;
         this._aiError = null;
+        this._aiResult = null;
         this._drawing = false;
         this._hasDrawing = false;
         this._canvasReady = false;
@@ -2339,6 +2342,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createStartTime = null;
         this._aiLoading = false;
         this._aiError = null;
+        this._aiResult = null;
         this._drawing = false;
         this._hasDrawing = false;
         this._canvasReady = false;
@@ -2367,6 +2371,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             </button>
                         </div>
                         ${this._aiError ? html`<div class="hw-error">${this._aiError}</div>` : ''}
+                        ${this._aiResult ? html`<div class="hw-result">${this._aiResult}</div>` : ''}
                     </div>
                 </div>
             `;
@@ -2409,6 +2414,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _clearCanvas() {
         this._initCanvas();
+        this._aiError = null;
+        this._aiResult = null;
         const hint = this.shadowRoot?.querySelector('.hw-hint');
         if (hint) hint.style.display = '';
     }
@@ -2476,6 +2483,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             + '0 like "o", 7 like "/", 4 like "y". A token that is a number (optionally followed by '
             + '"h" or ":" and minutes) is the START TIME, not part of the title. '
             + 'Extract a JSON object with: '
+            + 'raw (the verbatim text you read, exactly as written, including the time token), '
             + 'title (the subject only, without the time or date), '
             + 'time (start time as HH:MM in 24-hour format if a time is present, otherwise an empty string), '
             + 'duration_minutes (integer; default 60 if unspecified, 0 for an all-day event). '
@@ -2510,13 +2518,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
         const base64 = canvas.toDataURL('image/png').split(',')[1];
         this._aiError = null;
+        this._aiResult = null;
         this._aiLoading = true;
         try {
             const data = provider === 'claude'
                 ? await this._analyzeWithClaude(base64)
                 : await this._analyzeWithGemini(base64);
-            if (data && (data.title || data.time)) {
-                this._applyAiQuickAdd(data.title, data.time, data.duration_minutes);
+            if (data && (data.title || data.time || data.raw)) {
+                const applied = this._applyAiQuickAdd(data.title, data.time, data.duration_minutes, data.raw);
+                // Visual feedback of what the AI read (also helps diagnose)
+                const t = applied.time || (this._language.fullDay ?? 'all day');
+                this._aiResult = `${applied.title || '—'} · ${t}`
+                    + (data.raw && data.raw !== applied.title ? ` (lu : "${data.raw}")` : '');
             } else {
                 this._aiError = 'No result returned by the AI';
             }
@@ -2546,6 +2559,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     responseSchema: {
                         type: 'OBJECT',
                         properties: {
+                            raw: { type: 'STRING' },
                             title: { type: 'STRING' },
                             time: { type: 'STRING' },
                             duration_minutes: { type: 'INTEGER' },
@@ -2587,11 +2601,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         schema: {
                             type: 'object',
                             properties: {
+                                raw: { type: 'string' },
                                 title: { type: 'string' },
                                 time: { type: 'string' },
                                 duration_minutes: { type: 'integer' },
                             },
-                            required: ['title', 'time', 'duration_minutes'],
+                            required: ['raw', 'title', 'time', 'duration_minutes'],
                             additionalProperties: false,
                         },
                     },
@@ -2654,11 +2669,28 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
     }
 
-    _applyAiQuickAdd(title, time, duration) {
-        if (title && String(title).trim()) {
-            this._createTitle = String(title).trim();
+    _applyAiQuickAdd(title, time, duration, raw) {
+        let parsed = time ? this._parseTime(String(time)) : null;
+        let finalTitle = (title && String(title).trim()) ? String(title).trim() : null;
+
+        // Recovery: if the model didn't route a usable time, re-extract it from
+        // its verbatim transcription (handles "time was read but not separated")
+        if (!parsed && raw) {
+            const m = String(raw).match(/(\d{1,2})\s*[hH:]\s*(\d{2})?/);
+            if (m) {
+                parsed = this._parseTime(m[0]);
+                if (!finalTitle) {
+                    finalTitle = (String(raw).slice(0, m.index) + String(raw).slice(m.index + m[0].length))
+                        .replace(/\s{2,}/g, ' ').replace(/^[-–,:\s]+|[-–,:\s]+$/g, '').trim();
+                }
+            } else if (!finalTitle) {
+                finalTitle = String(raw).trim();
+            }
         }
-        const parsed = time ? this._parseTime(String(time)) : null;
+
+        if (finalTitle) {
+            this._createTitle = finalTitle;
+        }
         const dur = parseInt(duration);
         if (parsed) {
             this._createStartTime = parsed;
@@ -2671,6 +2703,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             // No clock time → all-day event (matches the manual quick-add rule)
             this._createDuration = 'allday';
         }
+        return { title: this._createTitle, time: parsed };
     }
 
     // Quick add: from one handwritten string, extract the start time (token

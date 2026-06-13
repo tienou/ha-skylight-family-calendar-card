@@ -1515,6 +1515,15 @@ export default css`
         font-size: 0.85em;
         word-break: break-word;
     }
+    .create-event-form .hw-result {
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-radius: 4px;
+        background: var(--success-color, #43a047);
+        color: #fff;
+        font-size: 0.9em;
+        word-break: break-word;
+    }
     .create-event-form .hw-actions .ai-analyze-btn {
         flex: 1;
         margin-top: 0;
