@@ -105,6 +105,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _createTitle = null;
     _createStartTime = null;
     _aiLoading = false;
+    _drawing = false;
+    _hasDrawing = false;
+    _canvasReady = false;
     _selectedDay = null;
     _clockInterval = null;
     _views;
@@ -203,6 +206,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._slotEndHour = config.slotEndHour ?? 22;
         this._aiTaskEntity = config.aiTaskEntity ?? null;
         this._aiQuickAdd = config.aiQuickAdd ?? null; // null = auto-detect an ai_task entity
+        this._geminiApiKey = config.geminiApiKey ?? '';
+        this._geminiModel = config.geminiModel ?? 'gemini-2.0-flash';
         this._noCardBackground = config.noCardBackground ?? false;
         this._eventBackground = config.eventBackground ?? 'var(--card-background-color, inherit)';
         this._compact = config.compact ?? true;
@@ -314,6 +319,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 advancedOptions: 'Advanced options',
                 quickAdd: 'e.g. 9am dentist',
                 aiAnalyze: 'Analyze with AI',
+                handwriteHint: 'Write the event here (e.g. 9am dentist)',
+                clearDrawing: 'Clear',
             },
             localeTexts,
             config.texts ?? {}
@@ -378,6 +385,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             advancedOptions: 'Options avancées',
             quickAdd: 'ex : 9h dentiste',
             aiAnalyze: 'Analyser avec l’IA',
+            handwriteHint: 'Écrivez l’événement ici (ex : 9h dentiste)',
+            clearDrawing: 'Effacer',
         },
         de: {
             fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
@@ -410,6 +419,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             advancedOptions: 'Erweiterte Optionen',
             quickAdd: 'z. B. 9 Uhr Zahnarzt',
             aiAnalyze: 'Mit KI analysieren',
+            handwriteHint: 'Termin hier schreiben (z. B. 9 Uhr Zahnarzt)',
+            clearDrawing: 'Löschen',
         },
         es: {
             fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
@@ -442,6 +453,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             advancedOptions: 'Opciones avanzadas',
             quickAdd: 'ej.: 9h dentista',
             aiAnalyze: 'Analizar con IA',
+            handwriteHint: 'Escribe el evento aquí (ej.: 9h dentista)',
+            clearDrawing: 'Borrar',
         },
         it: {
             fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
@@ -474,6 +487,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             advancedOptions: 'Opzioni avanzate',
             quickAdd: 'es.: 9 dentista',
             aiAnalyze: 'Analizza con IA',
+            handwriteHint: 'Scrivi qui l’evento (es.: 9 dentista)',
+            clearDrawing: 'Cancella',
         },
         nl: {
             fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
@@ -506,6 +521,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             advancedOptions: 'Geavanceerde opties',
             quickAdd: 'bijv.: 9u tandarts',
             aiAnalyze: 'Analyseren met AI',
+            handwriteHint: 'Schrijf hier het evenement (bijv.: 9u tandarts)',
+            clearDrawing: 'Wissen',
         },
         pt: {
             fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
@@ -538,6 +555,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             advancedOptions: 'Op\u00e7\u00f5es avan\u00e7adas',
             quickAdd: 'ex.: 9h dentista',
             aiAnalyze: 'Analisar com IA',
+            handwriteHint: 'Escreva o evento aqui (ex.: 9h dentista)',
+            clearDrawing: 'Limpar',
         },
     };
 
@@ -686,6 +705,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
             this._weatherUnsub.then((unsub) => unsub()).catch(() => {});
             this._weatherUnsub = null;
             this._weatherForecast = null;
+        }
+    }
+
+    updated() {
+        // Initialise the handwriting canvas once the create dialog is open
+        if (this._showCreateEventDialog && this._geminiApiKey && !this._canvasReady) {
+            if (this.shadowRoot?.querySelector('#quick-canvas')) {
+                this._initCanvas();
+                this._canvasReady = true;
+            }
+        } else if (!this._showCreateEventDialog && this._canvasReady) {
+            this._canvasReady = false;
         }
     }
 
@@ -1347,22 +1378,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 .heading="${this._renderCreateEventDialogHeading()}"
             >
                 <div class="create-event-form">
-                    <div class="form-row">
-                        <div class="input-clear-wrapper with-icon quick-add-row">
-                            <ha-icon class="field-icon" icon="mdi:flash-outline"></ha-icon>
-                            <input type="text" id="event-quick" class="form-input" placeholder="${this._language.quickAdd}"
-                                @change="${(e) => this._handleQuickAdd(e.target.value)}" />
-                            <button type="button" class="input-clear" @click="${() => this._clearInput('event-quick')}" title="${this._language.cancel}">
-                                <ha-icon icon="mdi:close-circle"></ha-icon>
-                            </button>
-                        </div>
-                        ${this._isAiQuickAddAvailable() ? html`
-                        <button type="button" class="ai-analyze-btn" ?disabled="${this._aiLoading}" @click="${this._runAiQuickAdd}">
-                            <ha-icon class="${this._aiLoading ? 'spin' : ''}" icon="${this._aiLoading ? 'mdi:loading' : 'mdi:auto-fix'}"></ha-icon>
-                            <span>${this._language.aiAnalyze}</span>
-                        </button>
-                        ` : ''}
-                    </div>
+                    ${this._renderQuickAdd()}
                     <div class="form-row">
                         <div class="input-clear-wrapper with-icon">
                             <ha-icon class="field-icon" icon="mdi:format-title"></ha-icon>
@@ -2298,6 +2314,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createEndTouched = false;
         this._createTitle = null;
         this._aiLoading = false;
+        this._drawing = false;
+        this._hasDrawing = false;
+        this._canvasReady = false;
         const now = DateTime.now();
         this._createStartTime = String(Math.min(now.hour + 1, 23)).padStart(2, '0') + ':00';
         this._showCreateEventDialog = { date: day.date };
@@ -2313,6 +2332,163 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createTitle = null;
         this._createStartTime = null;
         this._aiLoading = false;
+        this._drawing = false;
+        this._hasDrawing = false;
+        this._canvasReady = false;
+    }
+
+    _renderQuickAdd() {
+        // With a Gemini API key: a handwriting canvas read by Gemini Vision —
+        // bypasses Windows handwriting recognition entirely.
+        if (this._geminiApiKey) {
+            return html`
+                <div class="form-row">
+                    <div class="hw-zone">
+                        <canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
+                            @pointerdown="${this._canvasPointerDown}"
+                            @pointermove="${this._canvasPointerMove}"
+                            @pointerup="${this._canvasPointerUp}"
+                            @pointerleave="${this._canvasPointerUp}"></canvas>
+                        <div class="hw-hint">${this._language.handwriteHint}</div>
+                        <div class="hw-actions">
+                            <button type="button" class="hw-clear" @click="${this._clearCanvas}">
+                                <ha-icon icon="mdi:eraser"></ha-icon> ${this._language.clearDrawing}
+                            </button>
+                            <button type="button" class="ai-analyze-btn" ?disabled="${this._aiLoading}" @click="${this._analyzeHandwriting}">
+                                <ha-icon class="${this._aiLoading ? 'spin' : ''}" icon="${this._aiLoading ? 'mdi:loading' : 'mdi:auto-fix'}"></ha-icon>
+                                <span>${this._language.aiAnalyze}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        // Fallback: plain text quick-add (+ ai_task button if available)
+        return html`
+            <div class="form-row">
+                <div class="input-clear-wrapper with-icon quick-add-row">
+                    <ha-icon class="field-icon" icon="mdi:flash-outline"></ha-icon>
+                    <input type="text" id="event-quick" class="form-input" placeholder="${this._language.quickAdd}"
+                        @change="${(e) => this._handleQuickAdd(e.target.value)}" />
+                    <button type="button" class="input-clear" @click="${() => this._clearInput('event-quick')}" title="${this._language.cancel}">
+                        <ha-icon icon="mdi:close-circle"></ha-icon>
+                    </button>
+                </div>
+                ${this._isAiQuickAddAvailable() ? html`
+                <button type="button" class="ai-analyze-btn" ?disabled="${this._aiLoading}" @click="${this._runAiQuickAdd}">
+                    <ha-icon class="${this._aiLoading ? 'spin' : ''}" icon="${this._aiLoading ? 'mdi:loading' : 'mdi:auto-fix'}"></ha-icon>
+                    <span>${this._language.aiAnalyze}</span>
+                </button>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    _initCanvas() {
+        const canvas = this.shadowRoot?.querySelector('#quick-canvas');
+        if (!canvas) return;
+        canvas.width = canvas.clientWidth || 640;
+        canvas.height = canvas.clientHeight || 200;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        this._hasDrawing = false;
+    }
+
+    _clearCanvas() {
+        this._initCanvas();
+        const hint = this.shadowRoot?.querySelector('.hw-hint');
+        if (hint) hint.style.display = '';
+    }
+
+    _canvasCoords(e, canvas) {
+        const r = canvas.getBoundingClientRect();
+        return {
+            x: (e.clientX - r.left) * (canvas.width / r.width),
+            y: (e.clientY - r.top) * (canvas.height / r.height),
+        };
+    }
+
+    _canvasPointerDown(e) {
+        if (!e.isPrimary) return;
+        e.preventDefault();
+        const canvas = e.currentTarget;
+        const p = this._canvasCoords(e, canvas);
+        this._drawing = true;
+        this._hasDrawing = true;
+        this._lastX = p.x;
+        this._lastY = p.y;
+        const hint = this.shadowRoot?.querySelector('.hw-hint');
+        if (hint) hint.style.display = 'none';
+        try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+
+    _canvasPointerMove(e) {
+        if (!this._drawing || !e.isPrimary) return;
+        e.preventDefault();
+        const canvas = e.currentTarget;
+        const p = this._canvasCoords(e, canvas);
+        const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#111111';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(this._lastX, this._lastY);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        this._lastX = p.x;
+        this._lastY = p.y;
+    }
+
+    _canvasPointerUp(e) {
+        this._drawing = false;
+    }
+
+    // Send the drawn handwriting image to Gemini Vision and fill the form
+    async _analyzeHandwriting() {
+        if (this._aiLoading) return;
+        const canvas = this.shadowRoot?.querySelector('#quick-canvas');
+        if (!canvas || !this._hasDrawing || !this._geminiApiKey) return;
+        const base64 = canvas.toDataURL('image/png').split(',')[1];
+        this._aiLoading = true;
+        try {
+            const model = this._geminiModel || 'gemini-2.0-flash';
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(this._geminiApiKey)}`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: 'This image shows a handwritten calendar event. Read the handwriting and extract a JSON object with: title (the subject only, without time or date words), time (start time as HH:MM in 24-hour format if a clock time is written, otherwise an empty string), duration_minutes (integer; default 60 if unspecified, 0 for an all-day event). Keep the title in its original language.' },
+                            { inlineData: { mimeType: 'image/png', data: base64 } },
+                        ],
+                    }],
+                    generationConfig: {
+                        responseMimeType: 'application/json',
+                        responseSchema: {
+                            type: 'OBJECT',
+                            properties: {
+                                title: { type: 'STRING' },
+                                time: { type: 'STRING' },
+                                duration_minutes: { type: 'INTEGER' },
+                            },
+                            required: ['title'],
+                        },
+                    },
+                }),
+            });
+            const json = await resp.json();
+            if (!resp.ok) throw new Error(json?.error?.message || ('HTTP ' + resp.status));
+            const txt = json.candidates?.[0]?.content?.parts?.[0]?.text;
+            const data = JSON.parse(txt);
+            this._applyAiQuickAdd(data.title, data.time, data.duration_minutes);
+        } catch (e) {
+            console.error('Skylight Family Calendar: handwriting analysis failed', e);
+        } finally {
+            this._aiLoading = false;
+        }
     }
 
     _getAiTaskEntity() {

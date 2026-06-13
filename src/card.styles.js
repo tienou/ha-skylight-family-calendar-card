@@ -1477,6 +1477,53 @@ export default css`
     .create-event-form .quick-add-row > .field-icon {
         color: var(--primary-color, #03a9f4);
     }
+    /* ── Handwriting canvas (Gemini Vision quick add) ── */
+    .create-event-form .hw-zone {
+        position: relative;
+        width: 100%;
+    }
+    .create-event-form .hw-canvas {
+        display: block;
+        width: 100%;
+        height: 200px;
+        box-sizing: border-box;
+        background: #ffffff;
+        border: 2px solid var(--primary-color, #03a9f4);
+        border-radius: 6px;
+        touch-action: none;
+        cursor: crosshair;
+    }
+    .create-event-form .hw-hint {
+        position: absolute;
+        top: 12px;
+        left: 14px;
+        color: #9e9e9e;
+        font-size: 0.95em;
+        pointer-events: none;
+    }
+    .create-event-form .hw-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    .create-event-form .hw-actions .ai-analyze-btn {
+        flex: 1;
+        margin-top: 0;
+    }
+    .create-event-form .hw-clear {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 14px;
+        border: 1px solid var(--divider-color, rgba(0,0,0,0.15));
+        border-radius: 4px;
+        background: transparent;
+        color: var(--primary-text-color);
+        cursor: pointer;
+        font-family: var(--skylight-font);
+        font-size: 0.95em;
+    }
+
     .create-event-form .ai-analyze-btn {
         display: flex;
         align-items: center;
@@ -1576,6 +1623,12 @@ export default css`
             min-height: 48px;
             min-width: 56px;
             font-size: 1em;
+        }
+        .create-event-form .hw-canvas {
+            height: 240px;
+        }
+        .create-event-form .hw-clear {
+            min-height: 48px;
         }
     }
 

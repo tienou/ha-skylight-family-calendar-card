@@ -12,6 +12,7 @@ Une carte calendrier familial pour Home Assistant, inspiree de Skylight. Affiche
 - **CRUD complet** : Creer, modifier et supprimer des evenements directement depuis la carte (aucun helper externe necessaire)
 - **Saisie rapide** : ecrivez l'heure et l'objet d'un seul coup (ex. « 9h dentiste » ou « dentiste 9h ») — la carte les separe automatiquement. Sans heure ecrite, l'evenement est sur toute la journee. Ideal au stylet.
 - **Saisie rapide IA** (optionnel) : si une entite `ai_task` est configuree dans Home Assistant, un bouton « Analyser avec l'IA » interprete une phrase libre (ex. « jeudi 20h cine avec les enfants ») en titre + heure + duree via votre LLM. Active automatiquement si une entite `ai_task` existe ; desactivable avec `aiQuickAdd: false` ou forcer l'entite avec `aiTaskEntity`.
+- **✍️ Reconnaissance d'ecriture manuscrite** (optionnel) : avec une `geminiApiKey`, la zone de saisie rapide devient une **zone de dessin** — ecrivez l'evenement au stylet et Gemini Vision lit votre ecriture (bien mieux que la reconnaissance du systeme) et remplit titre + heure + duree. Ideal pour les tablettes a stylet ou la reconnaissance de l'OS est mediocre.
 - **Formulaires simples** : seuls titre, debut, duree (presets) et lieu sont affiches — le reste est dans un tiroir « Options avancees »
 - **Evenements journee entiere** : creation et modification d'evenements sans horaire, y compris multi-jours
 - **Recurrence** : Quotidienne, hebdomadaire, mensuelle, annuelle — avec intervalle, selection des jours et options de fin (dans le tiroir avance)
@@ -141,6 +142,8 @@ calendars:
 | `slotEndHour` | number | `22` | Derniere heure du selecteur de creneaux |
 | `aiQuickAdd` | boolean | auto | Bouton « Analyser avec l'IA » sur la saisie rapide (auto si une entite `ai_task` existe ; `false` pour desactiver) |
 | `aiTaskEntity` | string | auto | Entite `ai_task.*` a utiliser (auto-detectee si non definie) |
+| `geminiApiKey` | string | - | Cle API Google Gemini → active la zone de dessin manuscrite dans la saisie rapide |
+| `geminiModel` | string | `gemini-2.0-flash` | Modele Gemini pour la reconnaissance d'ecriture |
 | `theme` | string | `skylight` | Theme : `skylight` ou `homeassistant` |
 
 ### Options des calendriers
