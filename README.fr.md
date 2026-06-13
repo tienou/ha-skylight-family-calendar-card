@@ -10,7 +10,8 @@ Une carte calendrier familial pour Home Assistant, inspiree de Skylight. Affiche
 
 ### Gestion des evenements
 - **CRUD complet** : Creer, modifier et supprimer des evenements directement depuis la carte (aucun helper externe necessaire)
-- **Formulaires simples** : seuls titre, debut, duree (presets de 15 min a 4 h + journee entiere) et lieu sont affiches — le reste est dans un tiroir « Options avancees »
+- **Saisie rapide** : ecrivez l'heure et l'objet d'un seul coup (ex. « 9h dentiste » ou « dentiste 9h ») — la carte les separe automatiquement. Sans heure ecrite, l'evenement est sur toute la journee. Ideal au stylet.
+- **Formulaires simples** : seuls titre, debut, duree (presets) et lieu sont affiches — le reste est dans un tiroir « Options avancees »
 - **Evenements journee entiere** : creation et modification d'evenements sans horaire, y compris multi-jours
 - **Recurrence** : Quotidienne, hebdomadaire, mensuelle, annuelle — avec intervalle, selection des jours et options de fin (dans le tiroir avance)
 - **Marqueurs de notification** : Case a cocher dans les formulaires pour signaler un evenement pour les notifications vocales/telephone (detectable par les automations HA via `summary.startswith('🔔')`)

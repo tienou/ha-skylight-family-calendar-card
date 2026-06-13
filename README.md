@@ -10,7 +10,8 @@ A Skylight-inspired family calendar card for Home Assistant. Displays events fro
 
 ### Event Management
 - **Full CRUD**: Create, edit, and delete events directly from the card (no external helpers needed)
-- **Simple forms**: only title, start, duration (presets from 15 min to 4 h + all day) and location are shown — everything else is in a collapsible "Advanced options" drawer
+- **Quick add**: write the time and the title in one go (e.g. "9h dentist" or "dentist 9h") — the card splits them automatically. No time written → all-day event. Ideal for pen/stylus entry.
+- **Simple forms**: only title, start, duration (presets) and location are shown — everything else is in a collapsible "Advanced options" drawer
 - **All-day events**: create and edit date-only events, including multi-day ones
 - **Recurrence support**: Daily, weekly, monthly, yearly — with interval, day selection, and end options (in the advanced drawer)
 - **🔔 Notification markers**: Checkbox in event forms to flag events for voice/phone notifications (detectable by HA automations via `summary.startswith('🔔')`)

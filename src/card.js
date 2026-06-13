@@ -102,6 +102,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _createDuration = '60';
     _createShowAdvanced = false;
     _createEndTouched = false;
+    _createTitle = null;
+    _createStartTime = null;
     _selectedDay = null;
     _clockInterval = null;
     _views;
@@ -164,7 +166,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _createRecurrenceType: { type: String },
             _createRecurrenceEndType: { type: String },
             _createDuration: { type: String },
-            _createShowAdvanced: { type: Boolean }
+            _createShowAdvanced: { type: Boolean },
+            _createTitle: { type: String },
+            _createStartTime: { type: String }
         }
     }
 
@@ -302,6 +306,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 eventDuration: 'Duration',
                 eventDate: 'Date',
                 advancedOptions: 'Advanced options',
+                quickAdd: 'e.g. 9am dentist',
             },
             localeTexts,
             config.texts ?? {}
@@ -364,6 +369,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             eventDuration: 'Durée',
             eventDate: 'Date',
             advancedOptions: 'Options avancées',
+            quickAdd: 'ex : 9h dentiste',
         },
         de: {
             fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
@@ -394,6 +400,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             eventDuration: 'Dauer',
             eventDate: 'Datum',
             advancedOptions: 'Erweiterte Optionen',
+            quickAdd: 'z. B. 9 Uhr Zahnarzt',
         },
         es: {
             fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
@@ -424,6 +431,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             eventDuration: 'Duración',
             eventDate: 'Fecha',
             advancedOptions: 'Opciones avanzadas',
+            quickAdd: 'ej.: 9h dentista',
         },
         it: {
             fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
@@ -454,6 +462,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             eventDuration: 'Durata',
             eventDate: 'Data',
             advancedOptions: 'Opzioni avanzate',
+            quickAdd: 'es.: 9 dentista',
         },
         nl: {
             fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
@@ -484,6 +493,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             eventDuration: 'Duur',
             eventDate: 'Datum',
             advancedOptions: 'Geavanceerde opties',
+            quickAdd: 'bijv.: 9u tandarts',
         },
         pt: {
             fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
@@ -514,6 +524,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             eventDuration: 'Dura\u00e7\u00e3o',
             eventDate: 'Data',
             advancedOptions: 'Op\u00e7\u00f5es avan\u00e7adas',
+            quickAdd: 'ex.: 9h dentista',
         },
     };
 
@@ -1324,18 +1335,31 @@ export class SkylightFamilyCalendarCard extends LitElement {
             >
                 <div class="create-event-form">
                     <div class="form-row">
+                        <div class="input-clear-wrapper with-icon quick-add-row">
+                            <ha-icon class="field-icon" icon="mdi:flash-outline"></ha-icon>
+                            <input type="text" id="event-quick" class="form-input" placeholder="${this._language.quickAdd}"
+                                @change="${(e) => this._handleQuickAdd(e.target.value)}" />
+                            <button type="button" class="input-clear" @click="${() => this._clearInput('event-quick')}" title="${this._language.cancel}">
+                                <ha-icon icon="mdi:close-circle"></ha-icon>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
                         <div class="input-clear-wrapper with-icon">
                             <ha-icon class="field-icon" icon="mdi:format-title"></ha-icon>
-                            <input type="text" id="event-title" class="form-input" required placeholder="${this._language.eventTitle}" />
-                            <button type="button" class="input-clear" @click="${() => this._clearInput('event-title')}" title="${this._language.cancel}">
+                            <input type="text" id="event-title" class="form-input" required placeholder="${this._language.eventTitle}"
+                                .value="${this._createTitle ?? ''}"
+                                @input="${(e) => { this._createTitle = e.target.value; }}" />
+                            <button type="button" class="input-clear" @click="${() => { this._createTitle = ''; this._clearInput('event-title'); }}" title="${this._language.cancel}">
                                 <ha-icon icon="mdi:close-circle"></ha-icon>
                             </button>
                         </div>
                     </div>
                     <div class="form-row with-icon" style="${isAllDay ? 'display: none' : ''}">
                         <ha-icon class="field-icon" icon="mdi:clock-outline"></ha-icon>
-                        <input type="text" id="event-start-time" class="form-input" required placeholder="8:30" .value="${startTimeValue}"
-                            @change="${(e) => { const t = this._parseTime(e.target.value); if (t) e.target.value = t; }}" />
+                        <input type="text" id="event-start-time" class="form-input" required placeholder="8:30"
+                            .value="${this._createStartTime ?? startTimeValue}"
+                            @change="${(e) => { const t = this._parseTime(e.target.value); this._createStartTime = t || (this._createStartTime ?? startTimeValue); }}" />
                     </div>
                     <div class="form-row">
                         <div class="field-row-icon">
@@ -2253,6 +2277,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createDuration = '60';
         this._createShowAdvanced = false;
         this._createEndTouched = false;
+        this._createTitle = null;
+        this._createStartTime = null;
         this._showCreateEventDialog = { date: day.date };
     }
 
@@ -2263,6 +2289,33 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createDuration = '60';
         this._createShowAdvanced = false;
         this._createEndTouched = false;
+        this._createTitle = null;
+        this._createStartTime = null;
+    }
+
+    // Quick add: from one handwritten string, extract the start time (token
+    // with h or :) and use the rest as the title. No time → all-day event.
+    _handleQuickAdd(text) {
+        if (!text || !text.trim()) return;
+        const raw = text.trim();
+        const m = raw.match(/(\d{1,2})\s*[hH:]\s*(\d{2})?/);
+        let title = raw;
+        let time = null;
+        if (m) {
+            time = this._parseTime(m[0]);
+            if (time) {
+                title = (raw.slice(0, m.index) + raw.slice(m.index + m[0].length));
+            }
+        }
+        title = title.replace(/\s{2,}/g, ' ').replace(/^[-–,:\s]+|[-–,:\s]+$/g, '').trim();
+
+        this._createTitle = title;
+        if (time) {
+            this._createStartTime = time;
+            if (this._createDuration === 'allday') this._createDuration = '60';
+        } else {
+            this._createDuration = 'allday';
+        }
     }
 
     _clearInput(id) {
@@ -2360,10 +2413,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     async _handleCreateEvent() {
-        const title = this.shadowRoot.querySelector('#event-title')?.value?.trim();
+        const title = (this._createTitle ?? this.shadowRoot.querySelector('#event-title')?.value ?? '').trim();
         const calendar = this.shadowRoot.querySelector('#event-calendar')?.value;
         const startDate = this.shadowRoot.querySelector('#event-start-date')?.value;
-        const startTime = this._parseTime(this.shadowRoot.querySelector('#event-start-time')?.value);
+        const startTime = this._parseTime(this._createStartTime ?? this.shadowRoot.querySelector('#event-start-time')?.value);
         const endDate = this.shadowRoot.querySelector('#event-end-date')?.value;
         const endTime = this.shadowRoot.querySelector('#event-end-time')?.value;
         const startInput = (startDate && startTime) ? `${startDate}T${startTime}` : '';

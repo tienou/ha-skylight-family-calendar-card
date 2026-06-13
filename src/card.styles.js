@@ -1439,6 +1439,15 @@ export default css`
         color: var(--primary-text-color);
     }
 
+    /* ── Quick-add field (write time + title in one go) ── */
+    .create-event-form .quick-add-row .form-input {
+        border-color: var(--primary-color, #03a9f4);
+        border-width: 2px;
+    }
+    .create-event-form .quick-add-row > .field-icon {
+        color: var(--primary-color, #03a9f4);
+    }
+
     /* ── Leading field icon (replaces the text label on the main fields) ── */
     .create-event-form .field-icon {
         color: var(--secondary-text-color, #888);
