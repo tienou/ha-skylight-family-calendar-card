@@ -346,14 +346,20 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
     }
 
     addTextField(name, label, type, defaultValue) {
+        // Native <input> instead of ha-textfield: ha-textfield is not reliably
+        // registered in every HA build's card-editor context (it would render
+        // invisible), whereas a native input always renders.
         return html`
-            <ha-textfield
-                name="${name}"
-                label="${label ?? name}"
-                type="${type ?? 'text'}"
-                .value="${String(this.getConfigValue(name, defaultValue) ?? '')}"
-                @change="${this._valueChanged}"
-            ></ha-textfield>
+            <div class="sk-field">
+                <label class="sk-label">${label ?? name}</label>
+                <input
+                    class="sk-input"
+                    name="${name}"
+                    type="${type ?? 'text'}"
+                    .value="${String(this.getConfigValue(name, defaultValue) ?? '')}"
+                    @change="${this._valueChanged}"
+                />
+            </div>
         `;
     }
 
@@ -453,7 +459,8 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
         }
 
         // Store numeric text fields as numbers, not strings
-        if (target.tagName === 'HA-TEXTFIELD' && target.getAttribute('type') === 'number'
+        if ((target.tagName === 'HA-TEXTFIELD' || target.tagName === 'INPUT')
+            && target.getAttribute('type') === 'number'
             && value !== '' && value != null) {
             const num = Number(value);
             if (!Number.isNaN(num)) value = num;
