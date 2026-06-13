@@ -1544,11 +1544,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
         return html`
             <ha-dialog
                 open
+                class="hw-dialog"
                 @closed="${this._closeCreateEventDialog}"
                 .heading="${this._renderCreateEventDialogHeading()}"
             >
-                <div class="create-event-form">
-                    <div class="form-row">
+                <div class="create-event-form hw-form">
+                    <div class="form-row hw-row">
                         <div class="hw-zone">
                             <canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
                                 @pointerdown="${this._canvasPointerDown}"

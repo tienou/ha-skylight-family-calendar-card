@@ -1477,6 +1477,26 @@ export default css`
     .create-event-form .quick-add-row > .field-icon {
         color: var(--primary-color, #03a9f4);
     }
+    /* ── Maximised handwriting dialog (tablet): biggest possible canvas ── */
+    ha-dialog.hw-dialog {
+        --mdc-dialog-min-width: 94vw;
+        --mdc-dialog-max-width: 94vw;
+        --mdc-dialog-max-height: 94vh;
+    }
+    ha-dialog.hw-dialog .hw-form,
+    ha-dialog.hw-dialog .hw-zone {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    ha-dialog.hw-dialog .hw-row {
+        flex: 1;
+        margin-bottom: 8px;
+    }
+    ha-dialog.hw-dialog .hw-canvas {
+        height: 68vh;
+    }
+
     /* ── Handwriting canvas (Gemini Vision quick add) ── */
     .create-event-form .hw-zone {
         position: relative;

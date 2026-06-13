@@ -1476,6 +1476,26 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,i=t.ShadowRoot
     .create-event-form .quick-add-row > .field-icon {
         color: var(--primary-color, #03a9f4);
     }
+    /* ── Maximised handwriting dialog (tablet): biggest possible canvas ── */
+    ha-dialog.hw-dialog {
+        --mdc-dialog-min-width: 94vw;
+        --mdc-dialog-max-width: 94vw;
+        --mdc-dialog-max-height: 94vh;
+    }
+    ha-dialog.hw-dialog .hw-form,
+    ha-dialog.hw-dialog .hw-zone {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    ha-dialog.hw-dialog .hw-row {
+        flex: 1;
+        margin-bottom: 8px;
+    }
+    ha-dialog.hw-dialog .hw-canvas {
+        height: 68vh;
+    }
+
     /* ── Handwriting canvas (Gemini Vision quick add) ── */
     .create-event-form .hw-zone {
         position: relative;
@@ -2133,11 +2153,12 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,i=t.ShadowRoot
         `}_renderHandwritingCreateDialog(){return P`
             <ha-dialog
                 open
+                class="hw-dialog"
                 @closed="${this._closeCreateEventDialog}"
                 .heading="${this._renderCreateEventDialogHeading()}"
             >
-                <div class="create-event-form">
-                    <div class="form-row">
+                <div class="create-event-form hw-form">
+                    <div class="form-row hw-row">
                         <div class="hw-zone">
                             <canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
                                 @pointerdown="${this._canvasPointerDown}"
