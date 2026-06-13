@@ -202,8 +202,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._showWeekDayText = config.showWeekDayText ?? true;
         this._startDate = this._getStartDate();
         this._updateInterval = config.updateInterval ?? 60;
-        this._slotStartHour = config.slotStartHour ?? 7;
-        this._slotEndHour = config.slotEndHour ?? 22;
+        this._slotStartHour = parseInt(config.slotStartHour) || 7;
+        this._slotEndHour = parseInt(config.slotEndHour) || 22;
         this._aiTaskEntity = config.aiTaskEntity ?? null;
         this._aiQuickAdd = config.aiQuickAdd ?? null; // null = auto-detect an ai_task entity
         this._geminiApiKey = config.geminiApiKey ?? '';

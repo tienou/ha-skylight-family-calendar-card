@@ -140,6 +140,12 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                         ${this.addHint('Limit events per day, extra shown as "+X more"')}
                         ${this.addBooleanField('showNavigation', 'Show navigation')}
                         ${this.addHint('Show arrows to navigate between weeks/months')}
+                        ${this.addBooleanField('showLegend', 'Show calendar legend')}
+                        ${this.addHint('Show the list of calendars with their colors')}
+                        ${this.addBooleanField('legendToggle', 'Legend toggles calendar visibility')}
+                        ${this.addHint('Click a legend entry to show/hide that calendar')}
+                        ${this.addTextField('startingDayOffset', 'Starting day offset', 'number')}
+                        ${this.addHint('Shift the first day by N days')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -172,6 +178,13 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                         ${this.addHint('Display event location in the calendar day view')}
                         ${this.addBooleanField('showLocationInForm', 'Show location in event forms', true)}
                         ${this.addHint('Show location field with autocomplete in create/edit forms')}
+                        ${this.addBooleanField('showDescription', 'Show description')}
+                        ${this.addHint('Show the event description in the calendar view')}
+                        ${this.addBooleanField('showDate', 'Show date in event details')}
+                        ${this.addBooleanField('showCalendarName', 'Show calendar name in event details')}
+                        ${this.addTextField('slotStartHour', 'Time picker — first hour', 'number', 7)}
+                        ${this.addTextField('slotEndHour', 'Time picker — last hour', 'number', 22)}
+                        ${this.addHint('Range of hours offered in the event time-slot picker (create/edit forms)')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -227,6 +240,10 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                         ${this.addHint('Custom background color for all events (hex or CSS color)')}
                         ${this.addBooleanField('compact', 'Compact mode')}
                         ${this.addHint('Reduce spacing and padding for smaller displays')}
+                        ${this.addTextField('dayHeaderFontSize', 'Day header font size')}
+                        ${this.addHint('e.g. 1.2em or 18px for the weekday header text')}
+                        ${this.addTextField('dayHeaderColor', 'Day header color')}
+                        ${this.addHint('CSS color for the weekday header text')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -268,10 +285,33 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     `
                 )}
                 ${this.addExpansionPanel(
+                    'AI & Handwriting',
+                    html`
+                        ${this.addBooleanField('aiQuickAdd', 'Enable AI quick add')}
+                        ${this.addHint('Adds an "Analyze with AI" button that turns a free sentence into title + time via a Home Assistant ai_task entity (auto-enabled when one exists)')}
+                        ${this.addEntityPickerField('aiTaskEntity', 'AI Task entity', ['ai_task'])}
+                        ${this.addHint('ai_task entity to use (auto-detected if empty)')}
+                        ${this.addSelectField('aiProvider', 'Handwriting provider', [
+                            { value: 'gemini', label: 'Google Gemini' },
+                            { value: 'claude', label: 'Anthropic Claude' },
+                        ], true)}
+                        ${this.addHint('Which model reads the handwriting canvas (auto when only one key is set; Claude preferred if both)')}
+                        ${this.addTextField('geminiApiKey', 'Google Gemini API key')}
+                        ${this.addHint('Enables the stylus handwriting canvas in quick add (Gemini Vision). Get a free key at aistudio.google.com/apikey')}
+                        ${this.addTextField('geminiModel', 'Gemini model', 'text', 'gemini-2.0-flash')}
+                        ${this.addTextField('claudeApiKey', 'Anthropic Claude API key')}
+                        ${this.addHint('Alternative handwriting provider (Claude Vision). Get a key at console.anthropic.com')}
+                        ${this.addTextField('claudeModel', 'Claude model', 'text', 'claude-opus-4-8')}
+                        ${this.addHint('e.g. claude-haiku-4-5 for lower cost/latency')}
+                    `
+                )}
+                ${this.addExpansionPanel(
                     'Miscellaneous',
                     html`
                         ${this.addTextField('googleApiKey', 'Google Places API key')}
                         ${this.addHint('Enable location autocomplete in event forms. Without key, location is a simple text field.')}
+                        ${this.addTextField('locationLink', 'Location link base URL')}
+                        ${this.addHint('Base URL for the location map link (default: Google Maps search)')}
                         ${this.addTextField('updateInterval', 'Override update interval', 'number')}
                         ${this.addHint('Auto-refresh interval in seconds (default: 60)')}
                     `
