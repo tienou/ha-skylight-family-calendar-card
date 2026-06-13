@@ -10,9 +10,28 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
     }
 
     async loadCustomElements() {
-        if (!customElements.get("ha-entity-picker")) {
-            await customElements.get("hui-entities-card").getConfigElement();
+        // All of these must be registered for the editor to render. Checking
+        // only ha-entity-picker is not enough: it is often already registered
+        // globally, which would skip loading ha-textfield / ha-list-item and
+        // leave the text fields and dropdown items invisible.
+        if (customElements.get("ha-textfield")
+            && customElements.get("ha-select")
+            && customElements.get("ha-list-item")
+            && customElements.get("ha-entity-picker")) {
+            return;
         }
+        try {
+            const helpers = window.loadCardHelpers ? await window.loadCardHelpers() : null;
+            if (helpers) {
+                const card = await helpers.createCardElement({ type: "entities", entities: [] });
+                await card.constructor.getConfigElement();
+            } else if (customElements.get("hui-entities-card")) {
+                await customElements.get("hui-entities-card").getConfigElement();
+            }
+        } catch (e) {
+            console.warn("Skylight Family Calendar: editor component preload failed", e);
+        }
+        this.requestUpdate();
     }
 
     static get properties() {
