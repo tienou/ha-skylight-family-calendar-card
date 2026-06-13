@@ -717,7 +717,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     updated() {
         // Initialise the handwriting canvas once the create dialog is open
-        if (this._showCreateEventDialog && this._handwritingEnabled() && !this._canvasReady) {
+        if (this._showCreateEventDialog && this._showHandwritingCanvas() && !this._canvasReady) {
             if (this.shadowRoot?.querySelector('#quick-canvas')) {
                 this._initCanvas();
                 this._canvasReady = true;
@@ -2349,9 +2349,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _renderQuickAdd() {
-        // With a vision API key (Gemini or Claude): a handwriting canvas read
-        // by the model — bypasses Windows handwriting recognition entirely.
-        if (this._handwritingEnabled()) {
+        // With a vision API key (Gemini or Claude) on a tablet: a handwriting
+        // canvas read by the model. Desktop and phone fall through to keyboard.
+        if (this._showHandwritingCanvas()) {
             return html`
                 <div class="form-row">
                     <div class="hw-zone">
@@ -2468,6 +2468,20 @@ export class SkylightFamilyCalendarCard extends LitElement {
         return !!(this._geminiApiKey || this._claudeApiKey);
     }
 
+    // Handwriting canvas only on a touch device with a large screen (tablet).
+    // Desktop (mouse) and phones (small screen) keep 100% keyboard entry.
+    _isHandwritingDevice() {
+        try {
+            return window.matchMedia('(any-pointer: coarse)').matches && window.innerWidth >= 768;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    _showHandwritingCanvas() {
+        return this._handwritingEnabled() && this._isHandwritingDevice();
+    }
+
     _resolveAiProvider() {
         if (this._aiProvider === 'claude' && this._claudeApiKey) return 'claude';
         if (this._aiProvider === 'gemini' && this._geminiApiKey) return 'gemini';
@@ -2526,10 +2540,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 : await this._analyzeWithGemini(base64);
             if (data && (data.title || data.time || data.raw)) {
                 const applied = this._applyAiQuickAdd(data.title, data.time, data.duration_minutes, data.raw);
-                // Visual feedback of what the AI read (also helps diagnose)
+                // Clean confirmation of what was detected
                 const t = applied.time || (this._language.fullDay ?? 'all day');
-                this._aiResult = `${applied.title || '—'} · ${t}`
-                    + (data.raw && data.raw !== applied.title ? ` (lu : "${data.raw}")` : '');
+                this._aiResult = `✓ ${applied.title || '—'} · ${t}`;
             } else {
                 this._aiError = 'No result returned by the AI';
             }
