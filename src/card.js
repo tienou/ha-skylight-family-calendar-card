@@ -1334,7 +1334,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     </div>
                     <div class="form-row with-icon" style="${isAllDay ? 'display: none' : ''}">
                         <ha-icon class="field-icon" icon="mdi:clock-outline"></ha-icon>
-                        <input type="time" id="event-start-time" class="form-input" .value="${startTimeValue}" required />
+                        <input type="text" id="event-start-time" class="form-input" required placeholder="8:30" .value="${startTimeValue}"
+                            @change="${(e) => { const t = this._parseTime(e.target.value); if (t) e.target.value = t; }}" />
                     </div>
                     <div class="form-row">
                         <div class="field-row-icon">
@@ -1509,9 +1510,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     </div>
                     <div class="form-row with-icon" style="${form.allDay ? 'display: none' : ''}">
                         <ha-icon class="field-icon" icon="mdi:clock-outline"></ha-icon>
-                        <input type="time" id="edit-event-start-time" class="form-input" required
+                        <input type="text" id="edit-event-start-time" class="form-input" required placeholder="8:30"
                             .value="${form.startTime}"
-                            @input="${(e) => this._updateEditStart({ startTime: e.target.value })}" />
+                            @change="${(e) => { const t = this._parseTime(e.target.value); if (t) { this._updateEditStart({ startTime: t }); } else { e.target.value = form.startTime; } }}" />
                     </div>
                     <div class="form-row">
                         <div class="field-row-icon">
@@ -2362,7 +2363,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const title = this.shadowRoot.querySelector('#event-title')?.value?.trim();
         const calendar = this.shadowRoot.querySelector('#event-calendar')?.value;
         const startDate = this.shadowRoot.querySelector('#event-start-date')?.value;
-        const startTime = this.shadowRoot.querySelector('#event-start-time')?.value;
+        const startTime = this._parseTime(this.shadowRoot.querySelector('#event-start-time')?.value);
         const endDate = this.shadowRoot.querySelector('#event-end-date')?.value;
         const endTime = this.shadowRoot.querySelector('#event-end-time')?.value;
         const startInput = (startDate && startTime) ? `${startDate}T${startTime}` : '';
@@ -2792,6 +2793,30 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const startInput = this.shadowRoot?.querySelector('#event-start-date')?.value;
         if (startInput) return DateTime.fromISO(startInput).day;
         return DateTime.now().day;
+    }
+
+    // Lenient handwriting-friendly time parser: accepts "14h30", "14:30",
+    // "14.30", "1430", "930", "14h", "9" → returns "HH:MM" or null
+    _parseTime(str) {
+        if (!str) return null;
+        let s = String(str).trim().toLowerCase().replace(/\s+/g, '');
+        let h, m;
+        const sep = s.match(/^(\d{1,2})[h:.,](\d{0,2})$/);
+        if (sep) {
+            h = parseInt(sep[1]);
+            m = sep[2] === '' ? 0 : parseInt(sep[2]);
+        } else if (/^\d{3,4}$/.test(s)) {
+            const p = s.padStart(4, '0');
+            h = parseInt(p.slice(0, 2));
+            m = parseInt(p.slice(2));
+        } else if (/^\d{1,2}$/.test(s)) {
+            h = parseInt(s);
+            m = 0;
+        } else {
+            return null;
+        }
+        if (isNaN(h) || isNaN(m) || h > 23 || m > 59) return null;
+        return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
     }
 
     _formatDuration(minutes) {
