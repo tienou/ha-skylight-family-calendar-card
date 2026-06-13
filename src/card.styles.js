@@ -1516,13 +1516,15 @@ export default css`
         padding: 4px;
         --mdc-icon-size: 26px;
     }
-    .hw-overlay .hw-zone {
+    .hw-overlay .hw-modal .hw-zone {
         flex: 1;
         min-height: 0;
         position: relative;
         width: 100%;
     }
-    .hw-overlay .hw-canvas {
+    /* High specificity so it beats .create-event-form .hw-canvas (incl. the
+       touch media rule that otherwise caps the height) */
+    .hw-overlay .hw-modal .hw-zone .hw-canvas {
         display: block;
         width: 100%;
         height: 100%;
