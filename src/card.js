@@ -1325,7 +1325,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 <div class="create-event-form">
                     <div class="form-row">
                         <label for="event-title">${this._language.eventTitle} *</label>
-                        <input type="text" id="event-title" class="form-input" required placeholder="${this._language.eventTitle}" />
+                        <div class="input-clear-wrapper">
+                            <input type="text" id="event-title" class="form-input" required placeholder="${this._language.eventTitle}" />
+                            <button type="button" class="input-clear" @click="${() => this._clearInput('event-title')}" title="${this._language.cancel}">
+                                <ha-icon icon="mdi:close-circle"></ha-icon>
+                            </button>
+                        </div>
                     </div>
                     <div class="form-row" style="${isAllDay ? 'display: none' : ''}">
                         <label for="event-start-time">${this._language.eventStart} *</label>
@@ -1345,8 +1350,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="event-location">${this._language.eventLocation ?? 'Location'}</label>
-                        <input type="text" id="event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
-                            @input="${this._handleLocationInput}" autocomplete="off" />
+                        <div class="input-clear-wrapper">
+                            <input type="text" id="event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
+                                @input="${this._handleLocationInput}" autocomplete="off" />
+                            <button type="button" class="input-clear" @click="${() => this._clearInput('event-location')}" title="${this._language.cancel}">
+                                <ha-icon icon="mdi:close-circle"></ha-icon>
+                            </button>
+                        </div>
                         <ul class="location-suggestions" id="event-location-suggestions"></ul>
                     </div>
                     ` : ''}
@@ -1486,9 +1496,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 <div class="create-event-form">
                     <div class="form-row">
                         <label for="edit-event-title">${this._language.eventTitle} *</label>
-                        <input type="text" id="edit-event-title" class="form-input" required
-                            .value="${form.title}"
-                            @input="${(e) => { this._editFormData = { ...this._editFormData, title: e.target.value }; }}" />
+                        <div class="input-clear-wrapper">
+                            <input type="text" id="edit-event-title" class="form-input" required
+                                .value="${form.title}"
+                                @input="${(e) => { this._editFormData = { ...this._editFormData, title: e.target.value }; }}" />
+                            <button type="button" class="input-clear" @click="${() => { this._editFormData = { ...this._editFormData, title: '' }; this._clearInput('edit-event-title'); }}" title="${this._language.cancel}">
+                                <ha-icon icon="mdi:close-circle"></ha-icon>
+                            </button>
+                        </div>
                     </div>
                     <div class="form-row" style="${form.allDay ? 'display: none' : ''}">
                         <label for="edit-event-start-time">${this._language.eventStart} *</label>
@@ -1510,7 +1525,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <label for="edit-event-location">${this._language.eventLocation ?? 'Location'}</label>
-                        <div class="location-input-wrapper">
+                        <div class="location-input-wrapper${form.location ? ' has-maps' : ''}">
                             <input type="text" id="edit-event-location" class="form-input" placeholder="${this._language.eventLocation ?? 'Location'}"
                                 .value="${form.location ?? ''}"
                                 @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
@@ -1520,6 +1535,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                 <ha-icon icon="mdi:map-marker"></ha-icon>
                             </a>
                             ` : ''}
+                            <button type="button" class="input-clear" @click="${() => { this._editFormData = { ...this._editFormData, location: '' }; this._clearInput('edit-event-location'); }}" title="${this._language.cancel}">
+                                <ha-icon icon="mdi:close-circle"></ha-icon>
+                            </button>
                         </div>
                         <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
                     </div>
@@ -2240,6 +2258,17 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createDuration = '60';
         this._createShowAdvanced = false;
         this._createEndTouched = false;
+    }
+
+    _clearInput(id) {
+        const input = this.shadowRoot?.querySelector('#' + id);
+        if (input) {
+            input.value = '';
+            if (id.endsWith('location')) {
+                this._clearLocationSuggestions(input);
+            }
+            input.focus();
+        }
     }
 
     _handleLocationInput(e) {

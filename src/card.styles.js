@@ -768,7 +768,14 @@ export default css`
 
     .create-event-form .location-input-wrapper .form-input {
         flex: 1;
-        padding-right: 36px;
+        padding-right: 44px;
+    }
+    /* When the Maps shortcut is present, leave room for both it and ✕ */
+    .create-event-form .location-input-wrapper.has-maps .form-input {
+        padding-right: 80px;
+    }
+    .create-event-form .location-input-wrapper.has-maps .location-maps-icon {
+        right: 44px;
     }
 
     .create-event-form .location-maps-icon {
@@ -1399,15 +1406,61 @@ export default css`
         }
     }
 
+    /* ── Clearable text input (tap the ✕ to empty the field) ── */
+    .create-event-form .input-clear-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .create-event-form .input-clear-wrapper .form-input {
+        flex: 1;
+        padding-right: 44px;
+    }
+    .create-event-form .input-clear {
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: none;
+        background: none;
+        color: var(--secondary-text-color, #888);
+        cursor: pointer;
+        border-radius: 50%;
+        --mdc-icon-size: 22px;
+    }
+    .create-event-form .input-clear:hover {
+        background: var(--divider-color, rgba(0,0,0,0.08));
+        color: var(--primary-text-color);
+    }
+
     /* ── Touch devices: taller form inputs for comfortable pen
        handwriting directly in the fields (Windows Ink) ── */
     @media (any-pointer: coarse) {
         .create-event-form .form-input {
-            min-height: 48px;
+            min-height: 52px;
             font-size: 1.05em;
         }
+        /* Text fields you handwrite into need extra vertical room */
+        .create-event-form input[type="text"].form-input {
+            min-height: 68px;
+            font-size: 1.2em;
+        }
+        .create-event-form .input-clear {
+            width: 44px;
+            height: 44px;
+            --mdc-icon-size: 26px;
+        }
+        .create-event-form .input-clear-wrapper .form-input {
+            padding-right: 52px;
+        }
         .create-event-form .duration-btn {
-            min-height: 44px;
+            min-height: 48px;
         }
     }
 
