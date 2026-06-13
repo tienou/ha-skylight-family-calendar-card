@@ -1362,6 +1362,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return html``;
         }
 
+        // Tablet: minimal handwriting-only dialog (write → Create → AI + create
+        // run in the background). Desktop/phone get the full keyboard form below.
+        if (this._showHandwritingCanvas()) {
+            return this._renderHandwritingCreateDialog();
+        }
+
         const dayDate = this._showCreateEventDialog.date;
         const now = DateTime.now();
         const defaultStart = dayDate.set({
@@ -1527,6 +1533,40 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     <div class="form-actions">
                         <button class="btn btn-cancel" @click="${this._closeCreateEventDialog}">${this._language.cancel}</button>
                         <button class="btn btn-submit" @click="${this._handleCreateEvent}">${this._language.create}</button>
+                    </div>
+                </div>
+            </ha-dialog>
+        `;
+    }
+
+    // Tablet-only minimal dialog: just the handwriting canvas + Create.
+    _renderHandwritingCreateDialog() {
+        return html`
+            <ha-dialog
+                open
+                @closed="${this._closeCreateEventDialog}"
+                .heading="${this._renderCreateEventDialogHeading()}"
+            >
+                <div class="create-event-form">
+                    <div class="form-row">
+                        <div class="hw-zone">
+                            <canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
+                                @pointerdown="${this._canvasPointerDown}"
+                                @pointermove="${this._canvasPointerMove}"
+                                @pointerup="${this._canvasPointerUp}"
+                                @pointerleave="${this._canvasPointerUp}"></canvas>
+                            <div class="hw-hint">${this._language.handwriteHint}</div>
+                            <div class="hw-actions">
+                                <button type="button" class="hw-clear" @click="${this._clearCanvas}">
+                                    <ha-icon icon="mdi:eraser"></ha-icon> ${this._language.clearDrawing}
+                                </button>
+                            </div>
+                            ${this._aiError ? html`<div class="hw-error">${this._aiError}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-cancel" @click="${this._closeCreateEventDialog}">${this._language.cancel}</button>
+                        <button class="btn btn-submit" @click="${this._handleHandwritingCreate}">${this._language.create}</button>
                     </div>
                 </div>
             </ha-dialog>
@@ -2348,35 +2388,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._canvasReady = false;
     }
 
+    // Keyboard quick-add (desktop / phone). The tablet handwriting canvas is a
+    // separate minimal dialog (_renderHandwritingCreateDialog).
     _renderQuickAdd() {
-        // With a vision API key (Gemini or Claude) on a tablet: a handwriting
-        // canvas read by the model. Desktop and phone fall through to keyboard.
-        if (this._showHandwritingCanvas()) {
-            return html`
-                <div class="form-row">
-                    <div class="hw-zone">
-                        <canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
-                            @pointerdown="${this._canvasPointerDown}"
-                            @pointermove="${this._canvasPointerMove}"
-                            @pointerup="${this._canvasPointerUp}"
-                            @pointerleave="${this._canvasPointerUp}"></canvas>
-                        <div class="hw-hint">${this._language.handwriteHint}</div>
-                        <div class="hw-actions">
-                            <button type="button" class="hw-clear" @click="${this._clearCanvas}">
-                                <ha-icon icon="mdi:eraser"></ha-icon> ${this._language.clearDrawing}
-                            </button>
-                            <button type="button" class="ai-analyze-btn" ?disabled="${this._aiLoading}" @click="${this._analyzeHandwriting}">
-                                <ha-icon class="${this._aiLoading ? 'spin' : ''}" icon="${this._aiLoading ? 'mdi:loading' : 'mdi:auto-fix'}"></ha-icon>
-                                <span>${this._language.aiAnalyze}</span>
-                            </button>
-                        </div>
-                        ${this._aiError ? html`<div class="hw-error">${this._aiError}</div>` : ''}
-                        ${this._aiResult ? html`<div class="hw-result">${this._aiResult}</div>` : ''}
-                    </div>
-                </div>
-            `;
-        }
-        // Fallback: plain text quick-add (+ ai_task button if available)
         return html`
             <div class="form-row">
                 <div class="input-clear-wrapper with-icon quick-add-row">
@@ -2516,12 +2530,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
         return null;
     }
 
-    // Send the drawn handwriting image to the configured vision model
-    async _analyzeHandwriting() {
-        if (this._aiLoading) return;
+    // Tablet "Create": capture the drawing, close the form, then analyze and
+    // create the event in the background. Errors surface as an HA toast.
+    _handleHandwritingCreate() {
         const canvas = this.shadowRoot?.querySelector('#quick-canvas');
-        if (!canvas) return;
-        if (!this._hasDrawing) {
+        if (!canvas || !this._hasDrawing) {
             this._aiError = this._language.handwriteHint ?? 'Write something first';
             return;
         }
@@ -2531,31 +2544,88 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return;
         }
         const base64 = canvas.toDataURL('image/png').split(',')[1];
-        this._aiError = null;
-        this._aiResult = null;
-        this._aiLoading = true;
+        const date = this._showCreateEventDialog?.date;
+        const calendar = this._defaultCalendar
+            || (this._calendars && this._calendars[0] && this._calendars[0].entity);
+        this._closeCreateEventDialog();
+        this._backgroundCreateFromImage(provider, base64, date, calendar);
+    }
+
+    async _backgroundCreateFromImage(provider, base64, date, calendar) {
         try {
+            if (!date || !calendar) throw new Error('No date or calendar');
             const data = provider === 'claude'
                 ? await this._analyzeWithClaude(base64)
                 : await this._analyzeWithGemini(base64);
-            if (data && (data.title || data.time || data.raw)) {
-                const applied = this._applyAiQuickAdd(data.title, data.time, data.duration_minutes, data.raw);
-                // Clean confirmation of what was detected
-                const t = applied.time || (this._language.fullDay ?? 'all day');
-                this._aiResult = `✓ ${applied.title || '—'} · ${t}`;
-            } else {
-                this._aiError = 'No result returned by the AI';
+            const { title, time, durationMin } = this._parseAiResult(data);
+            if (!title) {
+                this._notify(this._language.aiAnalyze + ' — ' + (this._language.titleRequired ?? 'nothing read'));
+                return;
             }
+            const summary = title;
+            let eventData;
+            if (time) {
+                const [h, mn] = time.split(':').map(Number);
+                const start = date.set({ hour: h, minute: mn, second: 0, millisecond: 0 });
+                const dur = (durationMin && durationMin > 0) ? durationMin : 60;
+                const end = start.plus({ minutes: dur });
+                eventData = {
+                    summary,
+                    dtstart: start.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                    dtend: end.toFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                };
+            } else {
+                eventData = {
+                    summary,
+                    dtstart: date.toISODate(),
+                    dtend: date.plus({ days: 1 }).toISODate(),
+                };
+            }
+            await this.hass.callWS({
+                type: 'calendar/event/create',
+                entity_id: calendar,
+                event: eventData,
+            });
+            this._updateEvents();
         } catch (e) {
-            this._aiError = (e && e.message) ? e.message : String(e);
-            console.error('Skylight Family Calendar: handwriting analysis failed', e);
-        } finally {
-            this._aiLoading = false;
+            console.error('Skylight Family Calendar: background create failed', e);
+            this._notify('⚠️ ' + ((e && e.message) ? e.message : String(e)));
         }
     }
 
+    // Parse the model's structured result, recovering the time from the raw
+    // transcription if it wasn't routed into the time field.
+    _parseAiResult(data) {
+        let title = (data && data.title && String(data.title).trim()) ? String(data.title).trim() : null;
+        let time = (data && data.time) ? this._parseTime(String(data.time)) : null;
+        const raw = data && data.raw ? String(data.raw) : '';
+        if (!time && raw) {
+            const m = raw.match(/(\d{1,2})\s*[hH:]\s*(\d{2})?/);
+            if (m) {
+                time = this._parseTime(m[0]);
+                if (!title) {
+                    title = (raw.slice(0, m.index) + raw.slice(m.index + m[0].length))
+                        .replace(/\s{2,}/g, ' ').replace(/^[-–,:\s]+|[-–,:\s]+$/g, '').trim();
+                }
+            } else if (!title) {
+                title = raw.trim();
+            }
+        }
+        let durationMin = parseInt(data && data.duration_minutes);
+        if (isNaN(durationMin)) durationMin = null;
+        return { title, time, durationMin };
+    }
+
+    _notify(message) {
+        this.dispatchEvent(new CustomEvent('hass-notification', {
+            detail: { message },
+            bubbles: true,
+            composed: true,
+        }));
+    }
+
     async _analyzeWithGemini(base64) {
-        const model = this._geminiModel || 'gemini-2.0-flash';
+        const model = this._geminiModel || 'gemini-2.5-flash';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(this._geminiApiKey)}`;
         const resp = await fetch(url, {
             method: 'POST',
@@ -2673,7 +2743,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 return_response: true,
             });
             const data = res?.response?.data ?? res?.response ?? {};
-            this._applyAiQuickAdd(data.title, data.time, data.duration_minutes);
+            this._applyAiQuickAdd(data);
         } catch (e) {
             console.error('Skylight Family Calendar: AI quick-add failed, using local parser', e);
             this._handleQuickAdd(text);
@@ -2682,33 +2752,15 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
     }
 
-    _applyAiQuickAdd(title, time, duration, raw) {
-        let parsed = time ? this._parseTime(String(time)) : null;
-        let finalTitle = (title && String(title).trim()) ? String(title).trim() : null;
-
-        // Recovery: if the model didn't route a usable time, re-extract it from
-        // its verbatim transcription (handles "time was read but not separated")
-        if (!parsed && raw) {
-            const m = String(raw).match(/(\d{1,2})\s*[hH:]\s*(\d{2})?/);
-            if (m) {
-                parsed = this._parseTime(m[0]);
-                if (!finalTitle) {
-                    finalTitle = (String(raw).slice(0, m.index) + String(raw).slice(m.index + m[0].length))
-                        .replace(/\s{2,}/g, ' ').replace(/^[-–,:\s]+|[-–,:\s]+$/g, '').trim();
-                }
-            } else if (!finalTitle) {
-                finalTitle = String(raw).trim();
-            }
+    _applyAiQuickAdd(data) {
+        const { title, time, durationMin } = this._parseAiResult(data);
+        if (title) {
+            this._createTitle = title;
         }
-
-        if (finalTitle) {
-            this._createTitle = finalTitle;
-        }
-        const dur = parseInt(duration);
-        if (parsed) {
-            this._createStartTime = parsed;
-            if (!isNaN(dur) && dur > 0) {
-                this._createDuration = String(dur);
+        if (time) {
+            this._createStartTime = time;
+            if (durationMin && durationMin > 0) {
+                this._createDuration = String(durationMin);
             } else if (this._createDuration === 'allday') {
                 this._createDuration = '60';
             }
@@ -2716,7 +2768,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             // No clock time → all-day event (matches the manual quick-add rule)
             this._createDuration = 'allday';
         }
-        return { title: this._createTitle, time: parsed };
+        return { title: this._createTitle, time };
     }
 
     // Quick add: from one handwritten string, extract the start time (token
