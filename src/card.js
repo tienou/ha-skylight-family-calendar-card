@@ -2395,8 +2395,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _initCanvas() {
         const canvas = this.shadowRoot?.querySelector('#quick-canvas');
         if (!canvas) return;
-        canvas.width = canvas.clientWidth || 640;
-        canvas.height = canvas.clientHeight || 200;
+        // Render the bitmap at 2.5x the displayed size so the image sent to the
+        // model is crisp — this is the biggest lever for handwriting accuracy.
+        const scale = 2.5;
+        this._canvasScale = scale;
+        canvas.width = Math.round((canvas.clientWidth || 640) * scale);
+        canvas.height = Math.round((canvas.clientHeight || 200) * scale);
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2438,7 +2442,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const p = this._canvasCoords(e, canvas);
         const ctx = canvas.getContext('2d');
         ctx.strokeStyle = '#111111';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2.5 * (this._canvasScale || 1);
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.beginPath();
@@ -2466,9 +2470,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _handwritingPrompt() {
-        return 'This image shows a handwritten calendar event. Read the handwriting and extract a JSON object with: '
-            + 'title (the subject only, without time or date words), '
-            + 'time (start time as HH:MM in 24-hour format if a clock time is written, otherwise an empty string), '
+        return 'This image is a short handwritten calendar note: usually a title plus a start time. '
+            + 'Times are written like "9h", "9 h", "14h30", "9:00" or "20h". '
+            + 'Read the digits very carefully — handwritten 9 can look like "g", 1 like "l" or "I", '
+            + '0 like "o", 7 like "/", 4 like "y". A token that is a number (optionally followed by '
+            + '"h" or ":" and minutes) is the START TIME, not part of the title. '
+            + 'Extract a JSON object with: '
+            + 'title (the subject only, without the time or date), '
+            + 'time (start time as HH:MM in 24-hour format if a time is present, otherwise an empty string), '
             + 'duration_minutes (integer; default 60 if unspecified, 0 for an all-day event). '
             + 'Keep the title in its original language.';
     }
