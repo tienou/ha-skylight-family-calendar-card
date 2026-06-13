@@ -1506,6 +1506,15 @@ export default css`
         gap: 8px;
         margin-top: 8px;
     }
+    .create-event-form .hw-error {
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-radius: 4px;
+        background: var(--error-color, #db4437);
+        color: #fff;
+        font-size: 0.85em;
+        word-break: break-word;
+    }
     .create-event-form .hw-actions .ai-analyze-btn {
         flex: 1;
         margin-top: 0;

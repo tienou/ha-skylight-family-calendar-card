@@ -105,6 +105,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _createTitle = null;
     _createStartTime = null;
     _aiLoading = false;
+    _aiError = null;
     _drawing = false;
     _hasDrawing = false;
     _canvasReady = false;
@@ -173,7 +174,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _createShowAdvanced: { type: Boolean },
             _createTitle: { type: String },
             _createStartTime: { type: String },
-            _aiLoading: { type: Boolean }
+            _aiLoading: { type: Boolean },
+            _aiError: { type: String }
         }
     }
 
@@ -2317,6 +2319,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createEndTouched = false;
         this._createTitle = null;
         this._aiLoading = false;
+        this._aiError = null;
         this._drawing = false;
         this._hasDrawing = false;
         this._canvasReady = false;
@@ -2335,6 +2338,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createTitle = null;
         this._createStartTime = null;
         this._aiLoading = false;
+        this._aiError = null;
         this._drawing = false;
         this._hasDrawing = false;
         this._canvasReady = false;
@@ -2362,6 +2366,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                 <span>${this._language.aiAnalyze}</span>
                             </button>
                         </div>
+                        ${this._aiError ? html`<div class="hw-error">${this._aiError}</div>` : ''}
                     </div>
                 </div>
             `;
@@ -2484,17 +2489,30 @@ export class SkylightFamilyCalendarCard extends LitElement {
     async _analyzeHandwriting() {
         if (this._aiLoading) return;
         const canvas = this.shadowRoot?.querySelector('#quick-canvas');
-        if (!canvas || !this._hasDrawing) return;
+        if (!canvas) return;
+        if (!this._hasDrawing) {
+            this._aiError = this._language.handwriteHint ?? 'Write something first';
+            return;
+        }
         const provider = this._resolveAiProvider();
-        if (!provider) return;
+        if (!provider) {
+            this._aiError = 'No AI key configured';
+            return;
+        }
         const base64 = canvas.toDataURL('image/png').split(',')[1];
+        this._aiError = null;
         this._aiLoading = true;
         try {
             const data = provider === 'claude'
                 ? await this._analyzeWithClaude(base64)
                 : await this._analyzeWithGemini(base64);
-            if (data) this._applyAiQuickAdd(data.title, data.time, data.duration_minutes);
+            if (data && (data.title || data.time)) {
+                this._applyAiQuickAdd(data.title, data.time, data.duration_minutes);
+            } else {
+                this._aiError = 'No result returned by the AI';
+            }
         } catch (e) {
+            this._aiError = (e && e.message) ? e.message : String(e);
             console.error('Skylight Family Calendar: handwriting analysis failed', e);
         } finally {
             this._aiLoading = false;
