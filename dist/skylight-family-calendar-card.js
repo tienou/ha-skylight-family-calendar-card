@@ -504,42 +504,38 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,i=t.ShadowRoot
         cursor: pointer;
     }
 
-    /* ── Multi-day banner events: continuous strip across day columns ── */
+    /* ── Multi-day banner events: continuous strip across day columns ──
+       Each day cell is position:relative, so a later (right) cell paints over
+       the previous one. We therefore bleed each joined slice to the LEFT so
+       the right-hand cell covers the inter-column gap. ── */
     .container .day .events .event.banner {
         position: relative;
         z-index: 1;
     }
 
-    /* Bleed over the column gap and the day border to join the next slice */
-    .container .day .events .event.banner-start,
-    .container .day .events .event.banner-middle {
-        margin-right: calc(-1 * var(--days-spacing) - 1px);
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    .container .day .events .event.banner-middle,
-    .container .day .events .event.banner-end {
+    /* Joins to the slice on its left: bleed left over the gap + border */
+    .container .day .events .event.banner.ljoin {
+        margin-left: calc(-1 * var(--days-spacing) - 1px);
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-left-width: 0 !important;
     }
 
-    /* Slices carrying the label paint above the following empty slices so
-       the text can overflow across the band */
-    .container .day .events .event.banner-start,
-    .container .day .events .event.banner-rowstart {
-        z-index: 2;
+    /* Continues to the right: square the right corners */
+    .container .day .events .event.banner.rjoin {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
     .container .day .events .event.banner .inner {
-        overflow: visible;
+        overflow: hidden;
         min-width: 0;
     }
 
     .container .day .events .event.banner .title {
         white-space: nowrap;
-        overflow: visible;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .container .day .events .event .additionalColor {
@@ -1976,10 +1972,10 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,i=t.ShadowRoot
                     ${this._renderEvents(this._selectedDay,!0)}
                 </div>
             </div>
-        `:P``}_renderEvents(e,t=!1){let i=[];if(e.events.map(e=>{if(!this._calendarEvents[e])return;let t=Object.assign({},this._calendarEvents[e]),n=[...t.calendars],a=[...t.colors],r=0;for(;r<n.length;)this._hideCalendars.indexOf(n[r])>-1?(n.splice(r,1),a.splice(r,1)):r++;0!==n.length&&(t.calendars=n,t.colors=a,i.push(t))}),0===i.length)return this._renderNoEvents();let n=!1;this._maxDayEvents>0&&i.length>this._maxDayEvents&&(i.splice(this._maxDayEvents),n=!0);let a=e.date.weekday===this._startDate?.weekday;return P`
-            ${i.map(e=>{let i=[e.colors[0]],n=!t&&"banner"===this._multiDayMode&&e.multiDay,r=n?" banner banner-"+(e.multiDayPosition??"middle")+(a?" banner-rowstart":""):"",o=!n||"start"===e.multiDayPosition||a;return P`
+        `:P``}_renderEvents(e,t=!1){let i=[];if(e.events.map(e=>{if(!this._calendarEvents[e])return;let t=Object.assign({},this._calendarEvents[e]),n=[...t.calendars],a=[...t.colors],r=0;for(;r<n.length;)this._hideCalendars.indexOf(n[r])>-1?(n.splice(r,1),a.splice(r,1)):r++;0!==n.length&&(t.calendars=n,t.colors=a,i.push(t))}),0===i.length)return this._renderNoEvents();let n=!1;this._maxDayEvents>0&&i.length>this._maxDayEvents&&(i.splice(this._maxDayEvents),n=!0);let a=this._days&&this._days[0]?this._days[0].date.weekday:this._startDate?this._startDate.weekday:1,r=e.date.weekday===a,o=e.date.weekday===(a+5)%7+1;return P`
+            ${i.map(e=>{let i=[e.colors[0]],n=!t&&"banner"===this._multiDayMode&&e.multiDay,a=e.multiDayPosition??"middle",s=n?" banner"+(n&&"start"!==a&&!r?" ljoin":"")+(n&&"end"!==a&&!o?" rjoin":""):"";return P`
                     <div
-                        class="event ${e.class}${r}"
+                        class="event ${e.class}${s}"
                         data-entity="${e.calendars[0]}"
                         data-additional-entities="${e.calendars.join(",")}"
                         data-summary="${e.summary}"
@@ -1999,7 +1995,7 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,i=t.ShadowRoot
                             `))}
                         ${n?P`
                             <div class="inner">
-                                <div class="title">${o&&this._showEventTitle?e.summary:P` `}</div>
+                                <div class="title">${(!n||"start"===a||r)&&this._showEventTitle?e.summary:P` `}</div>
                             </div>
                         `:P`
                         <div class="inner">

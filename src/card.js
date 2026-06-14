@@ -1136,17 +1136,26 @@ export class SkylightFamilyCalendarCard extends LitElement {
             moreEvents = true;
         }
 
-        // First column of a 7-day row: repeat the banner label there
-        const isRowStart = day.date.weekday === this._startDate?.weekday;
+        // Row boundaries of the grid: a banner band is "joined" to a neighbour
+        // only within the same visual week row (so it gets rounded ends at the
+        // row edges and at the event's real start/end).
+        const rowStartWd = (this._days && this._days[0]) ? this._days[0].date.weekday
+            : (this._startDate ? this._startDate.weekday : 1);
+        const rowEndWd = ((rowStartWd + 5) % 7) + 1;
+        const isRowStart = day.date.weekday === rowStartWd;
+        const isRowEnd = day.date.weekday === rowEndWd;
 
         return html`
             ${dayEvents.map((event) => {
                 const doneColors = [event.colors[0]];
                 const banner = !plain && this._multiDayMode === 'banner' && event.multiDay;
+                const pos = event.multiDayPosition ?? 'middle';
+                const leftJoin = banner && pos !== 'start' && !isRowStart;
+                const rightJoin = banner && pos !== 'end' && !isRowEnd;
                 const bannerClasses = banner
-                    ? ' banner banner-' + (event.multiDayPosition ?? 'middle') + (isRowStart ? ' banner-rowstart' : '')
+                    ? ' banner' + (leftJoin ? ' ljoin' : '') + (rightJoin ? ' rjoin' : '')
                     : '';
-                const showBannerText = !banner || event.multiDayPosition === 'start' || isRowStart;
+                const showBannerText = !banner || pos === 'start' || isRowStart;
                 return html`
                     <div
                         class="event ${event.class}${bannerClasses}"

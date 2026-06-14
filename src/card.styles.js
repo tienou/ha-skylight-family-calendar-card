@@ -505,42 +505,38 @@ export default css`
         cursor: pointer;
     }
 
-    /* ── Multi-day banner events: continuous strip across day columns ── */
+    /* ── Multi-day banner events: continuous strip across day columns ──
+       Each day cell is position:relative, so a later (right) cell paints over
+       the previous one. We therefore bleed each joined slice to the LEFT so
+       the right-hand cell covers the inter-column gap. ── */
     .container .day .events .event.banner {
         position: relative;
         z-index: 1;
     }
 
-    /* Bleed over the column gap and the day border to join the next slice */
-    .container .day .events .event.banner-start,
-    .container .day .events .event.banner-middle {
-        margin-right: calc(-1 * var(--days-spacing) - 1px);
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    .container .day .events .event.banner-middle,
-    .container .day .events .event.banner-end {
+    /* Joins to the slice on its left: bleed left over the gap + border */
+    .container .day .events .event.banner.ljoin {
+        margin-left: calc(-1 * var(--days-spacing) - 1px);
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-left-width: 0 !important;
     }
 
-    /* Slices carrying the label paint above the following empty slices so
-       the text can overflow across the band */
-    .container .day .events .event.banner-start,
-    .container .day .events .event.banner-rowstart {
-        z-index: 2;
+    /* Continues to the right: square the right corners */
+    .container .day .events .event.banner.rjoin {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
     .container .day .events .event.banner .inner {
-        overflow: visible;
+        overflow: hidden;
         min-width: 0;
     }
 
     .container .day .events .event.banner .title {
         white-space: nowrap;
-        overflow: visible;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .container .day .events .event .additionalColor {
