@@ -516,14 +516,16 @@ export default css`
 
     /* Joins to the slice on its left: bleed left over the gap + border */
     .container .day .events .event.banner.ljoin {
-        margin-left: calc(-1 * var(--days-spacing) - 1px);
+        margin-left: calc(-1 * var(--days-spacing) - 2px);
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-left-width: 0 !important;
     }
 
-    /* Continues to the right: square the right corners */
+    /* Continues to the right: also bleed right so the gap is covered from both
+       sides regardless of which cell paints on top (same colour = no seam) */
     .container .day .events .event.banner.rjoin {
+        margin-right: calc(-1 * var(--days-spacing) - 2px);
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
     }
