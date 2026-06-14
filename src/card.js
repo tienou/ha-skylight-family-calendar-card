@@ -332,7 +332,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 aiAnalyze: 'Analyze with AI',
                 handwriteHint: 'Write the event here (e.g. 9am dentist)',
                 clearDrawing: 'Clear',
-                eraser: 'Eraser',
+                eraser: 'Eraser', pen: 'Pen',
             },
             localeTexts,
             config.texts ?? {}
@@ -400,7 +400,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             aiAnalyze: 'Analyser avec l’IA',
             handwriteHint: 'Écrivez l’événement ici (ex : 9h dentiste)',
             clearDrawing: 'Effacer',
-            eraser: 'Gomme',
+            eraser: 'Gomme', pen: 'Stylo',
         },
         de: {
             fullDay: 'Ganzt\u00e4gig', noEvents: 'Keine Termine', moreEvents: 'Mehr Termine',
@@ -435,7 +435,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             aiAnalyze: 'Mit KI analysieren',
             handwriteHint: 'Termin hier schreiben (z. B. 9 Uhr Zahnarzt)',
             clearDrawing: 'Löschen',
-            eraser: 'Radierer',
+            eraser: 'Radierer', pen: 'Stift',
         },
         es: {
             fullDay: 'Todo el d\u00eda', noEvents: 'Sin eventos', moreEvents: 'M\u00e1s eventos',
@@ -470,7 +470,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             aiAnalyze: 'Analizar con IA',
             handwriteHint: 'Escribe el evento aquí (ej.: 9h dentista)',
             clearDrawing: 'Borrar',
-            eraser: 'Goma',
+            eraser: 'Goma', pen: 'Lápiz',
         },
         it: {
             fullDay: 'Tutto il giorno', noEvents: 'Nessun evento', moreEvents: 'Pi\u00f9 eventi',
@@ -505,7 +505,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             aiAnalyze: 'Analizza con IA',
             handwriteHint: 'Scrivi qui l’evento (es.: 9 dentista)',
             clearDrawing: 'Cancella',
-            eraser: 'Gomma',
+            eraser: 'Gomma', pen: 'Penna',
         },
         nl: {
             fullDay: 'Hele dag', noEvents: 'Geen evenementen', moreEvents: 'Meer evenementen',
@@ -540,7 +540,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             aiAnalyze: 'Analyseren met AI',
             handwriteHint: 'Schrijf hier het evenement (bijv.: 9u tandarts)',
             clearDrawing: 'Wissen',
-            eraser: 'Gum',
+            eraser: 'Gum', pen: 'Pen',
         },
         pt: {
             fullDay: 'Dia inteiro', noEvents: 'Sem eventos', moreEvents: 'Mais eventos',
@@ -575,7 +575,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             aiAnalyze: 'Analisar com IA',
             handwriteHint: 'Escreva o evento aqui (ex.: 9h dentista)',
             clearDrawing: 'Limpar',
-            eraser: 'Borracha',
+            eraser: 'Borracha', pen: 'Caneta',
         },
     };
 
@@ -1665,7 +1665,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     </div>
                     ${this._aiError ? html`<div class="hw-error">${this._aiError}</div>` : ''}
                     <div class="hw-modal-actions">
-                        <button type="button" class="hw-clear hw-eraser ${this._eraserMode ? 'active' : ''}" @click="${this._toggleEraser}">
+                        <button type="button" class="hw-clear hw-pen ${!this._eraserMode ? 'active' : ''}" @click="${this._usePen}">
+                            <ha-icon icon="mdi:pencil"></ha-icon> ${this._language.pen}
+                        </button>
+                        <button type="button" class="hw-clear hw-eraser ${this._eraserMode ? 'active' : ''}" @click="${this._useEraser}">
                             <ha-icon icon="mdi:eraser"></ha-icon> ${this._language.eraser}
                         </button>
                         <button type="button" class="hw-clear" @click="${this._clearCanvas}">
@@ -1957,7 +1960,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             <div class="hw-hint">${this._language.handwriteHint}</div>
                         </div>
                         <div class="hw-modal-actions">
-                            <button type="button" class="hw-clear hw-eraser ${this._eraserMode ? 'active' : ''}" @click="${this._toggleEraser}">
+                            <button type="button" class="hw-clear hw-pen ${!this._eraserMode ? 'active' : ''}" @click="${this._usePen}">
+                                <ha-icon icon="mdi:pencil"></ha-icon> ${this._language.pen}
+                            </button>
+                            <button type="button" class="hw-clear hw-eraser ${this._eraserMode ? 'active' : ''}" @click="${this._useEraser}">
                                 <ha-icon icon="mdi:eraser"></ha-icon> ${this._language.eraser}
                             </button>
                             <button type="button" class="hw-clear" @click="${this._clearCanvas}">
@@ -2724,8 +2730,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._drawing = false;
     }
 
-    _toggleEraser() {
-        this._eraserMode = !this._eraserMode;
+    _usePen() {
+        this._eraserMode = false;
+    }
+
+    _useEraser() {
+        this._eraserMode = true;
     }
 
     _handwritingEnabled() {

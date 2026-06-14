@@ -1669,7 +1669,8 @@ export default css`
         color: var(--primary-text-color);
         --mdc-icon-size: 20px;
     }
-    .hw-overlay .hw-eraser.active {
+    .hw-eraser.active,
+    .hw-pen.active {
         background: var(--primary-color, #03a9f4);
         color: var(--text-primary-color, #fff);
         border-color: var(--primary-color, #03a9f4);
