@@ -727,15 +727,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     updated() {
-        // Initialise the handwriting canvas once the create overlay is open
-        if (this._showCreateEventDialog && this._showHandwritingCanvas()) {
+        // Initialise the handwriting canvas once the create/edit overlay is open
+        const overlayOpen = (this._showCreateEventDialog || this._showEditEventDialog) && this._showHandwritingCanvas();
+        if (overlayOpen) {
             if (!this._canvasReady && this.shadowRoot?.querySelector('#quick-canvas')) {
                 // Wait one frame so the full-screen overlay is laid out before
                 // sizing the canvas bitmap to its displayed box.
                 this._canvasReady = true;
                 requestAnimationFrame(() => this._initCanvas());
             }
-        } else if (!this._showCreateEventDialog && this._canvasReady) {
+        } else if (this._canvasReady) {
             this._canvasReady = false;
         }
     }
@@ -1621,7 +1622,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return html``;
         }
 
-        const event = this._showEditEventDialog;
+        // Tablet: big touch overlay (rewrite title with the pen). Desktop/phone
+        // keep the full keyboard ha-dialog form below.
+        if (this._showHandwritingCanvas()) {
+            return this._renderEditOverlay();
+        }
+
         const form = this._editFormData;
         const duration = this._getFormDuration(form);
 
@@ -1682,114 +1688,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <ul class="location-suggestions" id="edit-event-location-suggestions"></ul>
                     </div>
                     ` : ''}
-                    <button type="button" class="advanced-toggle" @click="${() => { this._editFormData = { ...this._editFormData, showAdvanced: !form.showAdvanced }; }}">
-                        <ha-icon icon="${form.showAdvanced ? 'mdi:chevron-up' : 'mdi:chevron-down'}"></ha-icon>
-                        <span>${this._language.advancedOptions}</span>
-                    </button>
-                    <div class="advanced-section" style="${form.showAdvanced ? '' : 'display: none'}">
-                    <div class="form-row">
-                        <label for="edit-event-start-date">${this._language.eventDate}</label>
-                        <input type="date" id="edit-event-start-date" class="form-input" required
-                            .value="${form.startDate}"
-                            @input="${(e) => this._updateEditStart({ startDate: e.target.value })}" />
-                    </div>
-                    <div class="form-row">
-                        <label for="edit-event-calendar">${this._language.eventCalendar}</label>
-                        <select id="edit-event-calendar" class="form-input"
-                            @change="${(e) => { this._editFormData = { ...this._editFormData, calendar: e.target.value }; }}">
-                            ${this._calendars.map((calendar) => html`
-                                <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${this._getCalendarDisplayName(calendar)}</option>
-                            `)}
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <label for="edit-event-end-date">${this._language.eventEnd}</label>
-                        <div class="datetime-row">
-                            <input type="date" id="edit-event-end-date" class="form-input"
-                                .value="${form.endDate}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, endDate: e.target.value }; }}" />
-                            <input type="time" id="edit-event-end-time" class="form-input" style="${form.allDay ? 'display: none' : ''}"
-                                .value="${form.endTime}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, endTime: e.target.value }; }}" />
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <label for="edit-event-recurrence">${this._language.eventRecurrence}</label>
-                        <select id="edit-event-recurrence" class="form-input"
-                            .value="${form.recurrence || ''}"
-                            @change="${(e) => { this._editFormData = { ...this._editFormData, recurrence: e.target.value, recurrenceByDay: [], recurrenceEndType: 'never' }; }}">
-                            <option value="" ?selected="${!form.recurrence}">${this._language.recurrenceNone}</option>
-                            <option value="FREQ=DAILY" ?selected="${form.recurrence === 'FREQ=DAILY'}">${this._language.recurrenceDaily}</option>
-                            <option value="FREQ=WEEKLY" ?selected="${form.recurrence === 'FREQ=WEEKLY'}">${this._language.recurrenceWeekly}</option>
-                            <option value="FREQ=MONTHLY" ?selected="${form.recurrence === 'FREQ=MONTHLY'}">${this._language.recurrenceMonthly}</option>
-                            <option value="FREQ=YEARLY" ?selected="${form.recurrence === 'FREQ=YEARLY'}">${this._language.recurrenceYearly}</option>
-                        </select>
-                    </div>
-                    ${form.recurrence ? html`
-                        ${form.recurrence !== 'FREQ=YEARLY' ? html`
-                        <div class="form-row recurrence-inline">
-                            <label>${this._language.recurrenceInterval}</label>
-                            <input type="number" id="edit-event-recurrence-interval" class="form-input recurrence-number" min="1"
-                                .value="${String(form.recurrenceInterval || 1)}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceInterval: parseInt(e.target.value) || 1 }; }}" />
-                            <span class="recurrence-unit">${
-                                form.recurrence === 'FREQ=DAILY' ? this._language.recurrenceDays :
-                                form.recurrence === 'FREQ=WEEKLY' ? this._language.recurrenceWeeks :
-                                this._language.recurrenceMonths
-                            }</span>
-                        </div>
-                        ` : ''}
-                        ${form.recurrence === 'FREQ=WEEKLY' ? html`
-                        <div class="form-row">
-                            <div class="day-picker" id="edit-event-day-picker">
-                                ${['MO','TU','WE','TH','FR','SA','SU'].map(d => html`
-                                    <button type="button" class="day-btn ${(form.recurrenceByDay || []).includes(d) ? 'active' : ''}" data-day="${d}"
-                                        @click="${(e) => this._toggleEditDayBtn(e, d)}">${this._dayLabel(d)}</button>
-                                `)}
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${form.recurrence === 'FREQ=MONTHLY' ? html`
-                        <div class="form-row recurrence-inline">
-                            <label>${this._language.recurrenceMonthlyOn}</label>
-                            <input type="number" id="edit-event-recurrence-monthday" class="form-input recurrence-number"
-                                min="1" max="31" .value="${String(form.recurrenceByMonthDay || 1)}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceByMonthDay: parseInt(e.target.value) || 1 }; }}" />
-                        </div>
-                        ` : ''}
-                        <div class="form-row">
-                            <label>${this._language.recurrenceEnds}</label>
-                            <select id="edit-event-recurrence-end" class="form-input"
-                                @change="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndType: e.target.value }; }}">
-                                <option value="never" ?selected="${form.recurrenceEndType === 'never'}">${this._language.recurrenceEndsNever}</option>
-                                <option value="date" ?selected="${form.recurrenceEndType === 'date'}">${this._language.recurrenceEndsOnDate}</option>
-                                <option value="count" ?selected="${form.recurrenceEndType === 'count'}">${this._language.recurrenceEndsAfter}</option>
-                            </select>
-                        </div>
-                        ${form.recurrenceEndType === 'date' ? html`
-                        <div class="form-row">
-                            <input type="date" id="edit-event-recurrence-end-date" class="form-input"
-                                .value="${form.recurrenceEndDate || ''}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndDate: e.target.value }; }}" />
-                        </div>
-                        ` : ''}
-                        ${form.recurrenceEndType === 'count' ? html`
-                        <div class="form-row recurrence-inline">
-                            <input type="number" id="edit-event-recurrence-end-count" class="form-input recurrence-number"
-                                min="1" .value="${String(form.recurrenceEndCount || 10)}"
-                                @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndCount: parseInt(e.target.value) || 10 }; }}" />
-                            <span class="recurrence-unit">${this._language.recurrenceOccurrences}</span>
-                        </div>
-                        ` : ''}
-                    ` : ''}
-                    <div class="form-row notify-row">
-                        <label class="notify-label" for="edit-event-notify">
-                            <input type="checkbox" id="edit-event-notify" .checked="${form.notify ?? false}"
-                                @change="${(e) => { this._editFormData = { ...this._editFormData, notify: e.target.checked }; }}" />
-                            <span>\u{1F514} ${this._language.eventNotify}</span>
-                        </label>
-                    </div>
-                    </div>
+                    ${this._renderEditAdvanced(form, true)}
                     <div class="form-actions">
                         <button class="btn btn-delete" @click="${this._handleDeleteEventFromEdit}">
                             <ha-icon icon="mdi:delete"></ha-icon> ${this._language.deleteEvent}
@@ -1800,6 +1699,239 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 </div>
             </ha-dialog>
         `;
+    }
+
+    // Advanced "drawer" shared by the desktop edit dialog and the tablet edit
+    // overlay. includeCalendar=false on tablet (calendar picked via buttons).
+    _renderEditAdvanced(form, includeCalendar) {
+        return html`
+            <button type="button" class="advanced-toggle" @click="${() => { this._editFormData = { ...this._editFormData, showAdvanced: !form.showAdvanced }; }}">
+                <ha-icon icon="${form.showAdvanced ? 'mdi:chevron-up' : 'mdi:chevron-down'}"></ha-icon>
+                <span>${this._language.advancedOptions}</span>
+            </button>
+            <div class="advanced-section" style="${form.showAdvanced ? '' : 'display: none'}">
+                <div class="form-row">
+                    <label for="edit-event-start-date">${this._language.eventDate}</label>
+                    <input type="date" id="edit-event-start-date" class="form-input" required
+                        .value="${form.startDate}"
+                        @input="${(e) => this._updateEditStart({ startDate: e.target.value })}" />
+                </div>
+                ${includeCalendar ? html`
+                <div class="form-row">
+                    <label for="edit-event-calendar">${this._language.eventCalendar}</label>
+                    <select id="edit-event-calendar" class="form-input"
+                        @change="${(e) => { this._editFormData = { ...this._editFormData, calendar: e.target.value }; }}">
+                        ${this._calendars.map((calendar) => html`
+                            <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${this._getCalendarDisplayName(calendar)}</option>
+                        `)}
+                    </select>
+                </div>
+                ` : ''}
+                <div class="form-row">
+                    <label for="edit-event-end-date">${this._language.eventEnd}</label>
+                    <div class="datetime-row">
+                        <input type="date" id="edit-event-end-date" class="form-input"
+                            .value="${form.endDate}"
+                            @input="${(e) => { this._editFormData = { ...this._editFormData, endDate: e.target.value }; }}" />
+                        <input type="time" id="edit-event-end-time" class="form-input" style="${form.allDay ? 'display: none' : ''}"
+                            .value="${form.endTime}"
+                            @input="${(e) => { this._editFormData = { ...this._editFormData, endTime: e.target.value }; }}" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="edit-event-recurrence">${this._language.eventRecurrence}</label>
+                    <select id="edit-event-recurrence" class="form-input"
+                        .value="${form.recurrence || ''}"
+                        @change="${(e) => { this._editFormData = { ...this._editFormData, recurrence: e.target.value, recurrenceByDay: [], recurrenceEndType: 'never' }; }}">
+                        <option value="" ?selected="${!form.recurrence}">${this._language.recurrenceNone}</option>
+                        <option value="FREQ=DAILY" ?selected="${form.recurrence === 'FREQ=DAILY'}">${this._language.recurrenceDaily}</option>
+                        <option value="FREQ=WEEKLY" ?selected="${form.recurrence === 'FREQ=WEEKLY'}">${this._language.recurrenceWeekly}</option>
+                        <option value="FREQ=MONTHLY" ?selected="${form.recurrence === 'FREQ=MONTHLY'}">${this._language.recurrenceMonthly}</option>
+                        <option value="FREQ=YEARLY" ?selected="${form.recurrence === 'FREQ=YEARLY'}">${this._language.recurrenceYearly}</option>
+                    </select>
+                </div>
+                ${form.recurrence ? html`
+                    ${form.recurrence !== 'FREQ=YEARLY' ? html`
+                    <div class="form-row recurrence-inline">
+                        <label>${this._language.recurrenceInterval}</label>
+                        <input type="number" id="edit-event-recurrence-interval" class="form-input recurrence-number" min="1"
+                            .value="${String(form.recurrenceInterval || 1)}"
+                            @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceInterval: parseInt(e.target.value) || 1 }; }}" />
+                        <span class="recurrence-unit">${
+                            form.recurrence === 'FREQ=DAILY' ? this._language.recurrenceDays :
+                            form.recurrence === 'FREQ=WEEKLY' ? this._language.recurrenceWeeks :
+                            this._language.recurrenceMonths
+                        }</span>
+                    </div>
+                    ` : ''}
+                    ${form.recurrence === 'FREQ=WEEKLY' ? html`
+                    <div class="form-row">
+                        <div class="day-picker" id="edit-event-day-picker">
+                            ${['MO','TU','WE','TH','FR','SA','SU'].map(d => html`
+                                <button type="button" class="day-btn ${(form.recurrenceByDay || []).includes(d) ? 'active' : ''}" data-day="${d}"
+                                    @click="${(e) => this._toggleEditDayBtn(e, d)}">${this._dayLabel(d)}</button>
+                            `)}
+                        </div>
+                    </div>
+                    ` : ''}
+                    ${form.recurrence === 'FREQ=MONTHLY' ? html`
+                    <div class="form-row recurrence-inline">
+                        <label>${this._language.recurrenceMonthlyOn}</label>
+                        <input type="number" id="edit-event-recurrence-monthday" class="form-input recurrence-number"
+                            min="1" max="31" .value="${String(form.recurrenceByMonthDay || 1)}"
+                            @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceByMonthDay: parseInt(e.target.value) || 1 }; }}" />
+                    </div>
+                    ` : ''}
+                    <div class="form-row">
+                        <label>${this._language.recurrenceEnds}</label>
+                        <select id="edit-event-recurrence-end" class="form-input"
+                            @change="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndType: e.target.value }; }}">
+                            <option value="never" ?selected="${form.recurrenceEndType === 'never'}">${this._language.recurrenceEndsNever}</option>
+                            <option value="date" ?selected="${form.recurrenceEndType === 'date'}">${this._language.recurrenceEndsOnDate}</option>
+                            <option value="count" ?selected="${form.recurrenceEndType === 'count'}">${this._language.recurrenceEndsAfter}</option>
+                        </select>
+                    </div>
+                    ${form.recurrenceEndType === 'date' ? html`
+                    <div class="form-row">
+                        <input type="date" id="edit-event-recurrence-end-date" class="form-input"
+                            .value="${form.recurrenceEndDate || ''}"
+                            @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndDate: e.target.value }; }}" />
+                    </div>
+                    ` : ''}
+                    ${form.recurrenceEndType === 'count' ? html`
+                    <div class="form-row recurrence-inline">
+                        <input type="number" id="edit-event-recurrence-end-count" class="form-input recurrence-number"
+                            min="1" .value="${String(form.recurrenceEndCount || 10)}"
+                            @input="${(e) => { this._editFormData = { ...this._editFormData, recurrenceEndCount: parseInt(e.target.value) || 10 }; }}" />
+                        <span class="recurrence-unit">${this._language.recurrenceOccurrences}</span>
+                    </div>
+                    ` : ''}
+                ` : ''}
+                <div class="form-row notify-row">
+                    <label class="notify-label" for="edit-event-notify">
+                        <input type="checkbox" id="edit-event-notify" .checked="${form.notify ?? false}"
+                            @change="${(e) => { this._editFormData = { ...this._editFormData, notify: e.target.checked }; }}" />
+                        <span>\u{1F514} ${this._language.eventNotify}</span>
+                    </label>
+                </div>
+            </div>
+        `;
+    }
+
+    // Tablet edit overlay: full-screen, touch buttons (calendar/time/duration),
+    // optional pen rewrite of the title, advanced drawer, delete/save.
+    _renderEditOverlay() {
+        const form = this._editFormData;
+        const duration = this._getFormDuration(form);
+        const date = form.startDate ? DateTime.fromISO(form.startDate) : null;
+        return html`
+            <div class="hw-overlay" @click="${(e) => { if (e.target === e.currentTarget) this._closeEditEventDialog(); }}">
+                <div class="hw-modal create-event-form">
+                    <div class="hw-modal-header">
+                        <span>${this._language.editEventTitle}${date && date.isValid ? ' — ' + date.toFormat('cccc d LLLL') : ''}</span>
+                        <button type="button" class="hw-close" @click="${this._closeEditEventDialog}">
+                            <ha-icon icon="mdi:close"></ha-icon>
+                        </button>
+                    </div>
+                    <div class="hw-edit-scroll">
+                        ${this._calendars && this._calendars.length > 1 ? html`
+                        <div class="hw-cal-picker">
+                            ${this._calendars.map((cal) => html`
+                                <button type="button" class="hw-cal-btn ${form.calendar === cal.entity ? 'active' : ''}"
+                                    style="--cal-color: ${cal.color || '#888'}"
+                                    @click="${() => { this._editFormData = { ...this._editFormData, calendar: cal.entity }; }}">
+                                    <span class="hw-cal-dot" style="background: ${cal.color || '#888'}"></span>
+                                    ${this._getCalendarDisplayName(cal)}
+                                </button>
+                            `)}
+                        </div>
+                        ` : ''}
+                        <div class="form-row" style="${form.allDay ? 'display: none' : ''}">
+                            <div class="field-row-icon slots">
+                                <ha-icon class="field-icon" icon="mdi:clock-outline"></ha-icon>
+                                ${this._renderTimeSlots(form.startTime, true)}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="field-row-icon">
+                                <ha-icon class="field-icon" icon="mdi:timer-outline"></ha-icon>
+                                <div class="duration-picker">
+                                    ${this.constructor.DURATION_PRESETS.map((m) => html`
+                                        <button type="button" class="duration-btn ${String(m) === duration ? 'active' : ''}"
+                                            @click="${() => this._setEditDuration(String(m))}">${this._formatDuration(m)}</button>
+                                    `)}
+                                    <button type="button" class="duration-btn ${duration === 'allday' ? 'active' : ''}"
+                                        @click="${() => this._setEditDuration('allday')}">${this._language.fullDay}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hw-current-title">
+                            <ha-icon icon="mdi:format-title"></ha-icon>
+                            <span>${form.title || '—'}</span>
+                        </div>
+                        <div class="hw-zone hw-zone-edit">
+                            <canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
+                                @pointerdown="${this._canvasPointerDown}"
+                                @pointermove="${this._canvasPointerMove}"
+                                @pointerup="${this._canvasPointerUp}"
+                                @pointerleave="${this._canvasPointerUp}"></canvas>
+                            <div class="hw-hint">${this._language.handwriteHint}</div>
+                        </div>
+                        <div class="hw-modal-actions">
+                            <button type="button" class="hw-clear hw-eraser ${this._eraserMode ? 'active' : ''}" @click="${this._toggleEraser}">
+                                <ha-icon icon="mdi:eraser"></ha-icon> ${this._language.eraser}
+                            </button>
+                            <button type="button" class="hw-clear" @click="${this._clearCanvas}">
+                                <ha-icon icon="mdi:delete-outline"></ha-icon> ${this._language.clearDrawing}
+                            </button>
+                        </div>
+                        ${this._renderEditAdvanced(form, false)}
+                        ${this._aiError ? html`<div class="hw-error">${this._aiError}</div>` : ''}
+                    </div>
+                    <div class="hw-modal-actions">
+                        <button class="btn btn-delete" @click="${this._handleDeleteEventFromEdit}">
+                            <ha-icon icon="mdi:delete"></ha-icon> ${this._language.deleteEvent}
+                        </button>
+                        <span style="flex:1"></span>
+                        <button class="btn btn-cancel" @click="${this._closeEditEventDialog}">${this._language.cancel}</button>
+                        <button class="btn btn-submit" ?disabled="${this._aiLoading}" @click="${this._handleEditOverlaySave}">
+                            ${this._aiLoading ? html`<ha-icon class="spin" icon="mdi:loading"></ha-icon> ` : ''}${this._language.save}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Tablet edit save: if the title was rewritten with the pen, read it with
+    // the AI first, then run the normal update (which handles recurrence).
+    async _handleEditOverlaySave() {
+        if (this._aiLoading) return;
+        const canvas = this.shadowRoot?.querySelector('#quick-canvas');
+        const provider = this._resolveAiProvider();
+        if (canvas && this._hasDrawing && provider) {
+            this._aiError = null;
+            this._aiLoading = true;
+            try {
+                const base64 = canvas.toDataURL('image/png').split(',')[1];
+                const data = provider === 'claude'
+                    ? await this._analyzeWithClaude(base64)
+                    : await this._analyzeWithGemini(base64);
+                const { title, time, durationMin } = this._parseAiResult(data);
+                if (title) this._editFormData = { ...this._editFormData, title };
+                if (time) {
+                    const [h, mn] = time.split(':').map(Number);
+                    this._setEditTime(h, mn);
+                    if (durationMin && durationMin > 0) this._setEditDuration(String(durationMin));
+                }
+            } catch (e) {
+                this._aiError = (e && e.message) ? e.message : String(e);
+                this._aiLoading = false;
+                return;
+            }
+            this._aiLoading = false;
+        }
+        this._handleUpdateEvent();
     }
 
     _renderEditEventDialogHeading() {
@@ -3053,6 +3185,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
     }
 
     _openEditEventDialog(event) {
+        // Reset the pen canvas state (shared with the create overlay)
+        this._aiError = null;
+        this._aiLoading = false;
+        this._drawing = false;
+        this._hasDrawing = false;
+        this._canvasReady = false;
+        this._eraserMode = false;
         // Extract recurrence rule from event if available
         let rruleStr = '';
         if (event.rrule) {
@@ -3095,6 +3234,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _closeEditEventDialog() {
         this._showEditEventDialog = null;
         this._editFormData = null;
+        this._aiError = null;
+        this._aiLoading = false;
+        this._drawing = false;
+        this._hasDrawing = false;
+        this._canvasReady = false;
+        this._eraserMode = false;
     }
 
     async _handleDeleteEventFromEdit() {

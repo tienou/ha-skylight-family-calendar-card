@@ -1572,6 +1572,29 @@ export default css`
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
+    }
+    /* Edit overlay: middle section scrolls; header + bottom actions stay put */
+    .hw-overlay .hw-edit-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .hw-overlay .hw-zone-edit {
+        flex: none;
+        height: 26vh;
+    }
+    .hw-overlay .hw-current-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.1em;
+        font-weight: 600;
+        color: var(--primary-text-color);
+        --mdc-icon-size: 20px;
     }
     .hw-overlay .hw-eraser.active {
         background: var(--primary-color, #03a9f4);
