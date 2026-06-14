@@ -1139,7 +1139,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
         });
 
         if (dayEvents.length === 0) {
-            return this._renderNoEvents();
+            // In multi-day grids (week / biweek / month) an empty cell stays
+            // empty. The "no events" placeholder is a .none box whose background
+            // is the card colour — harmless in light mode but a dark bar in dark
+            // mode — so only show it in the single-day (Today/Tomorrow) view.
+            return this._numberOfDays > 1 ? html`` : this._renderNoEvents();
         }
 
         let moreEvents = false;
