@@ -115,8 +115,8 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                                         ${this.addEntityPickerField('calendars.' + index + '.entity', 'Entity', ['calendar'])}
                                         ${this.addTextField('calendars.' + index + '.name', 'Name')}
                                         ${this.addHint('Custom display name (uses HA friendly name if empty)')}
-                                        ${this.addTextField('calendars.' + index + '.color', 'Color')}
-                                        ${this.addHint('Hex color code (e.g. #FF5733). Auto-assigned if empty')}
+                                        ${this.addColorField('calendars.' + index + '.color', 'Color')}
+                                        ${this.addHint('Pick a colour, or "A" (Auto) to let the card assign one')}
                                         ${this.addIconPickerField('calendars.' + index + '.icon', 'Icon')}
                                         ${this.addTextField('calendars.' + index + '.eventTitleField', 'Event title field', 'text', 'summary')}
                                         ${this.addHint('Event attribute to use as title (default: summary)')}
@@ -416,6 +416,40 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     @change="${this._valueChanged}"
                 ></ha-switch>
             </ha-formfield>
+        `;
+    }
+
+    // Color picker as a palette of preset swatches (plus an "Auto" option that
+    // clears the value so the card auto-assigns a pastel). If the current value
+    // isn't in the palette (e.g. a custom hex set via YAML), it's shown as an
+    // extra selected swatch so nothing is silently lost.
+    addColorField(name, label, defaultValue) {
+        const palette = [
+            '#D50000', '#E67C73', '#F4511E', '#F6BF26',
+            '#33B679', '#0B8043', '#039BE5', '#3F51B5',
+            '#7986CB', '#8E24AA', '#E91E63', '#616161',
+        ];
+        const current = String(this.getConfigValue(name, defaultValue) ?? '').trim();
+        const currentLc = current.toLowerCase();
+        const inPalette = palette.some((c) => c.toLowerCase() === currentLc);
+        return html`
+            <div class="sk-field">
+                <label class="sk-label">${label ?? name}</label>
+                <div class="sk-swatches">
+                    <button type="button" class="sk-swatch sk-swatch-auto ${current === '' ? 'selected' : ''}"
+                        title="Auto" @click="${() => this.setConfigValue(name, '')}">A</button>
+                    ${palette.map((c) => html`
+                        <button type="button"
+                            class="sk-swatch ${currentLc === c.toLowerCase() ? 'selected' : ''}"
+                            style="background:${c}" title="${c}"
+                            @click="${() => this.setConfigValue(name, c)}"></button>
+                    `)}
+                    ${current !== '' && !inPalette ? html`
+                        <button type="button" class="sk-swatch selected"
+                            style="background:${current}" title="${current}"></button>
+                    ` : ''}
+                </div>
+            </div>
         `;
     }
 

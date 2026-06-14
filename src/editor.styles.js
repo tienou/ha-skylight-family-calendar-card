@@ -37,4 +37,36 @@ export default css`
       outline: none;
       border-color: var(--primary-color, #03a9f4);
     }
+
+    .sk-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .sk-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      padding: 0;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px var(--divider-color, rgba(0, 0, 0, 0.2));
+      transition: transform 0.1s ease;
+    }
+    .sk-swatch:hover {
+      transform: scale(1.12);
+    }
+    .sk-swatch.selected {
+      box-shadow: 0 0 0 2px var(--card-background-color, #fff),
+        0 0 0 4px var(--primary-color, #03a9f4);
+    }
+    .sk-swatch-auto {
+      background: var(--card-background-color, #fff);
+      color: var(--secondary-text-color, #888);
+      font-size: 0.8em;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
 `;
