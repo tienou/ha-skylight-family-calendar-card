@@ -1540,6 +1540,11 @@ export default css`
         align-items: center;
         gap: 8px;
     }
+    .hw-overlay .hw-eraser.active {
+        background: var(--primary-color, #03a9f4);
+        color: var(--text-primary-color, #fff);
+        border-color: var(--primary-color, #03a9f4);
+    }
 
     /* ── Handwriting canvas (Gemini Vision quick add) ── */
     .create-event-form .hw-zone {
