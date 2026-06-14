@@ -1324,6 +1324,12 @@ export default css`
         font-weight: 600;
         color: var(--secondary-text-color, #888);
     }
+    /* Calendar picker promoted to the main form area (next to its icon) */
+    .create-event-form .cal-select {
+        flex: 1;
+        min-width: 0;
+        cursor: pointer;
+    }
     .create-event-form .time-slot-picker {
         flex: 1;
         display: flex;

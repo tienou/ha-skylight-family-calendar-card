@@ -1425,6 +1425,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             </button>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="field-row-icon">
+                            <ha-icon class="field-icon" icon="mdi:calendar"></ha-icon>
+                            <select id="event-calendar" class="form-input cal-select">
+                                ${this._calendars.map((calendar) => html`
+                                    <option value="${calendar.entity}" ?selected="${calendar.entity === this._defaultCalendar}">${this._getCalendarDisplayName(calendar)}</option>
+                                `)}
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-row" style="${isAllDay ? 'display: none' : ''}">
                         <div class="field-row-icon">
                             <ha-icon class="field-icon" icon="mdi:clock-outline"></ha-icon>
@@ -1466,14 +1476,6 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     <div class="form-row">
                         <label for="event-start-date">${this._language.eventDate}</label>
                         <input type="date" id="event-start-date" class="form-input" .value="${startDateValue}" required />
-                    </div>
-                    <div class="form-row">
-                        <label for="event-calendar">${this._language.eventCalendar}</label>
-                        <select id="event-calendar" class="form-input">
-                            ${this._calendars.map((calendar) => html`
-                                <option value="${calendar.entity}" ?selected="${calendar.entity === this._defaultCalendar}">${this._getCalendarDisplayName(calendar)}</option>
-                            `)}
-                        </select>
                     </div>
                     <div class="form-row">
                         <label for="event-end-date">${this._language.eventEnd}</label>
@@ -1659,6 +1661,17 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             </button>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="field-row-icon">
+                            <ha-icon class="field-icon" icon="mdi:calendar"></ha-icon>
+                            <select id="edit-event-calendar" class="form-input cal-select"
+                                @change="${(e) => { this._editFormData = { ...this._editFormData, calendar: e.target.value }; }}">
+                                ${this._calendars.map((calendar) => html`
+                                    <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${this._getCalendarDisplayName(calendar)}</option>
+                                `)}
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-row" style="${form.allDay ? 'display: none' : ''}">
                         <div class="field-row-icon">
                             <ha-icon class="field-icon" icon="mdi:clock-outline"></ha-icon>
@@ -1727,17 +1740,6 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         .value="${form.startDate}"
                         @input="${(e) => this._updateEditStart({ startDate: e.target.value })}" />
                 </div>
-                ${includeCalendar ? html`
-                <div class="form-row">
-                    <label for="edit-event-calendar">${this._language.eventCalendar}</label>
-                    <select id="edit-event-calendar" class="form-input"
-                        @change="${(e) => { this._editFormData = { ...this._editFormData, calendar: e.target.value }; }}">
-                        ${this._calendars.map((calendar) => html`
-                            <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${this._getCalendarDisplayName(calendar)}</option>
-                        `)}
-                    </select>
-                </div>
-                ` : ''}
                 <div class="form-row">
                     <label for="edit-event-end-date">${this._language.eventEnd}</label>
                     <div class="datetime-row">
