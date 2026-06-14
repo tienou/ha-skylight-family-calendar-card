@@ -128,6 +128,7 @@ calendars:
 | `showDescription` | boolean | `false` | Show event description |
 | `colorFullEvent` | boolean | `true` | Color full event background with calendar color |
 | `compact` | boolean | `true` | Compact display mode |
+| `fillHeight` | boolean | `false` | Stretch the day rows so the calendar fills the screen height (best in a panel / full-height view, e.g. a wall-mounted tablet) |
 | `views` | list | all | Which view buttons to show (e.g. `Week,Month`) |
 | `defaultCalendar` | string | - | Default calendar entity for event creation |
 | `googleApiKey` | string | - | Google Places API key for location autocomplete |
@@ -221,6 +222,12 @@ automation:
 ```
 
 See [`examples/family_calendar.yaml`](examples/family_calendar.yaml) for a complete example with both voice and phone notifications.
+
+## Security & privacy
+
+- **Event descriptions are rendered as plain text** (not HTML). This prevents a malicious or compromised shared-calendar event from injecting scripts into your dashboard (XSS). Line breaks are preserved.
+- **API keys** (`geminiApiKey`, `claudeApiKey`, `googleApiKey`) are stored in the dashboard configuration and sent to the respective provider. On a shared dashboard, restrict each key to its specific API in the provider console (e.g. restrict the Gemini key to the *Generative Language API*). Keys are sent in request **headers**, not URLs.
+- **Handwriting recognition** uploads the drawn image to Google Gemini or Anthropic Claude for parsing. No image is sent unless a key is configured and you tap Create/Analyze.
 
 ## Localization
 

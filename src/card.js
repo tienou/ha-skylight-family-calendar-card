@@ -228,7 +228,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._timeFormat = config.timeFormat ?? 'HH:mm';
         this._multiDayTimeFormat = config.multiDayTimeFormat ?? 'd LLL HH:mm';
         this._multiDayMode = config.multiDayMode ?? 'banner';
-        this._locationLink = config.locationLink ?? 'https://www.google.com/maps/search/?api=1&query=';
+        // Only accept an http(s) base — guards against a javascript:/data: URL in
+        // the config landing in an <a href> (clickable script execution).
+        const linkBase = config.locationLink ?? 'https://www.google.com/maps/search/?api=1&query=';
+        this._locationLink = /^https?:\/\//i.test(linkBase) ? linkBase : 'https://www.google.com/maps/search/?api=1&query=';
         this._showTitle = config.showTitle ?? true;
         this._showEventTitle = config.showEventTitle ?? true;
         this._showHeaderDate = config.showHeaderDate ?? true;
@@ -771,11 +774,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (!grid) return;
         if (!this._fillHeight) {
             grid.style.removeProperty('--day-fill-height');
+            this._fillSig = null;
             return;
         }
         const container = this.shadowRoot?.querySelector('.calendar-container');
         const dayCells = grid ? [...grid.querySelectorAll('.day:not(.header)')] : [];
         if (!container || dayCells.length === 0) return;
+        // Only run the layout-reading measurement when an input that affects the
+        // fill changed (viewport height, view, month, cell count) — not on every
+        // re-render (e.g. the clock tick), which would force a needless reflow.
+        const sig = window.innerHeight + ':' + dayCells.length + ':' + this._currentView + ':' + (this._startDate ? this._startDate.toISODate() : '');
+        if (sig === this._fillSig) return;
+        this._fillSig = sig;
         requestAnimationFrame(() => {
             const contRect = container.getBoundingClientRect();
             // Distinct vertical positions = number of visual week rows.
@@ -801,7 +811,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _startClock() {
         this._stopClock();
-        this._clockInterval = setInterval(() => this.requestUpdate(), 30000);
+        // The header clock only shows HH:MM, so a 60s tick is enough — halves the
+        // periodic full re-render churn on an always-on wall tablet.
+        this._clockInterval = setInterval(() => this.requestUpdate(), 60000);
     }
 
     _stopClock() {
@@ -1267,7 +1279,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             ${this._showDescription ?
                                 html`
                                     <div class="description">
-                                        ${unsafeHTML(event.description)}
+                                        ${event.description}
                                     </div>
                                 ` :
                                 ''
@@ -1313,8 +1325,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
         if (event.multiDay && this._multiDayMode !== 'default') {
             return html`
-                ${event.originalStart.toFormat(this._multiDayTimeFormat)}
-                ${' - ' + event.originalEnd.toFormat(this._multiDayTimeFormat)}
+                ${event.originalStart ? event.originalStart.toFormat(this._multiDayTimeFormat) : ''}
+                ${event.originalEnd ? ' - ' + event.originalEnd.toFormat(this._multiDayTimeFormat) : ''}
             `;
         } else if (event.fullDay) {
             return html`${this._language.fullDay}`;
@@ -1369,7 +1381,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             <div class="location">
                                 <ha-icon icon="mdi:map-marker"></ha-icon>
                                 <div class="info">
-                                    <a href="${this._locationLink}${encodeURIComponent(this._currentEventDetails.location)}" target="_blank">${this._currentEventDetails.location}</a>
+                                    <a href="${this._locationLink}${encodeURIComponent(this._currentEventDetails.location)}" target="_blank" rel="noopener noreferrer">${this._currentEventDetails.location}</a>
                                 </div>
                             </div>
                         ` :
@@ -1378,7 +1390,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     ${this._currentEventDetails.description ?
                         html`
                             <div class="description">
-                                ${unsafeHTML(this._currentEventDetails.description)}
+                                ${this._currentEventDetails.description}
                             </div>
                         ` :
                         ''
@@ -1768,7 +1780,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                 @input="${(e) => { this._editFormData = { ...this._editFormData, location: e.target.value }; this._handleLocationInput(e); }}"
                                 autocomplete="off" />
                             ${form.location ? html`
-                            <a class="location-maps-icon" href="${this._locationLink}${encodeURIComponent(form.location)}" target="_blank" title="${this._language.openInMaps ?? 'Google Maps'}">
+                            <a class="location-maps-icon" href="${this._locationLink}${encodeURIComponent(form.location)}" target="_blank" rel="noopener noreferrer" title="${this._language.openInMaps ?? 'Google Maps'}">
                                 <ha-icon icon="mdi:open-in-new"></ha-icon>
                             </a>
                             ` : ''}
@@ -2085,7 +2097,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return null;
         }
 
-        const customWeatherIcon = getComputedStyle(this).getPropertyValue('--weather-icon-' + state).trim();
+        // Cache the (config-static) custom icon lookup — getComputedStyle is a
+        // forced style resolution and this runs once per day cell per render.
+        this._weatherIconCache ??= {};
+        let customWeatherIcon = this._weatherIconCache[state];
+        if (customWeatherIcon === undefined) {
+            customWeatherIcon = getComputedStyle(this).getPropertyValue('--weather-icon-' + state).trim();
+            this._weatherIconCache[state] = customWeatherIcon;
+        }
         if (customWeatherIcon !== null && ['', 'none', 'inherit'].indexOf(customWeatherIcon) === -1) {
             return html`<div class="icon" style="background-image: var(--weather-icon-${state})"></div>`;
         }
@@ -2120,6 +2139,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
     _subscribeToWeatherForecast() {
         if (!this._weather?.entity || !this.hass.states[this._weather.entity]) {
             this._weatherForecast = [];
+            return;
+        }
+        // Guard against a second subscribe while one is already in flight — that
+        // would overwrite _weatherUnsub and leak the first subscription.
+        if (this._weatherUnsub) {
             return;
         }
         this._loading++;
@@ -2478,6 +2502,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     events = this._events[dateKey].sort((event1, event2) => {
                         const e1 = this._calendarEvents[event1];
                         const e2 = this._calendarEvents[event2];
+                        if (!e1 || !e2) return 0;
 
                         // Banner mode: multi-day bands always on top so they
                         // align across days, ordered by their original start
@@ -2493,7 +2518,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             return e1.summary > e2.summary ? 1 : (e1.summary < e2.summary ? -1 : 0);
                         }
 
-                        if (e1.start.toISO() === e2.start.toISO()) {
+                        if (e1.start.toMillis() === e2.start.toMillis()) {
                             return e1.calendarSorting < e2.calendarSorting ? 1 : (e1.calendarSorting > e2.calendarSorting) ? -1 : 0;
                         }
 
@@ -2504,7 +2529,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     numberOfEvents += events.length;
 
                     if (this._maxEvents > 0 && numberOfEvents > this._maxEvents) {
-                        events.splice(this._maxEvents - numberOfEvents);
+                        // Keep only what fits under the global cap. Use the count
+                        // BEFORE this day (previousNumberOfEvents), and slice a copy
+                        // so the cached _events[dateKey] array is never truncated.
+                        events = events.slice(0, Math.max(0, this._maxEvents - previousNumberOfEvents));
                     }
                 }
 
@@ -2886,10 +2914,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     async _analyzeWithGemini(base64) {
         const model = this._geminiModel || 'gemini-2.5-flash';
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(this._geminiApiKey)}`;
+        // Key goes in a header, not the URL query string (URLs leak via history,
+        // Referer and logging proxies). Matches the Claude / Places key handling.
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
         const resp = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this._geminiApiKey },
             body: JSON.stringify({
                 contents: [{
                     parts: [
@@ -3154,7 +3184,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const title = (this._createTitle ?? this.shadowRoot.querySelector('#event-title')?.value ?? '').trim();
         const calendar = this.shadowRoot.querySelector('#event-calendar')?.value;
         const startDate = this.shadowRoot.querySelector('#event-start-date')?.value;
-        const startTime = this._parseTime(this._createStartTime ?? this.shadowRoot.querySelector('#event-start-time')?.value);
+        const startTime = this._parseTime(this._createStartTime ?? '09:00');
         const endDate = this.shadowRoot.querySelector('#event-end-date')?.value;
         const endTime = this.shadowRoot.querySelector('#event-end-time')?.value;
         const startInput = (startDate && startTime) ? `${startDate}T${startTime}` : '';
@@ -3783,8 +3813,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
             rrule += ';BYMONTHDAY=' + byMonthDay;
         }
         if (endType === 'date' && endDate) {
-            const dt = DateTime.fromISO(endDate).endOf('day');
-            rrule += ';UNTIL=' + dt.toFormat("yyyyMMdd'T'HHmmss");
+            // RFC 5545: UNTIL must be UTC (Z suffix) for a TZ/UTC DTSTART, else
+            // the last occurrence can be dropped/added depending on the timezone.
+            const dt = DateTime.fromISO(endDate).endOf('day').toUTC();
+            rrule += ';UNTIL=' + dt.toFormat("yyyyMMdd'T'HHmmss'Z'");
         } else if (endType === 'count' && endCount > 0) {
             rrule += ';COUNT=' + endCount;
         }
@@ -3799,16 +3831,26 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (!rruleStr) return result;
         const parts = rruleStr.split(';');
         for (const part of parts) {
-            const [key, val] = part.split('=');
+            const [rawKey, rawVal] = part.split('=');
+            // RRULE keys/values are case-insensitive (RFC 5545); some calendar
+            // backends emit lower/mixed case. Normalise so editing never silently
+            // drops the recurrence.
+            const key = (rawKey || '').toUpperCase();
+            const val = rawVal || '';
             switch(key) {
-                case 'FREQ': result.freq = 'FREQ=' + val; break;
+                case 'FREQ': result.freq = 'FREQ=' + val.toUpperCase(); break;
                 case 'INTERVAL': result.interval = parseInt(val) || 1; break;
-                case 'BYDAY': result.byDay = val.split(','); break;
+                case 'BYDAY': result.byDay = val.toUpperCase().split(','); break;
                 case 'BYMONTHDAY': result.byMonthDay = parseInt(val); break;
-                case 'UNTIL':
+                case 'UNTIL': {
                     result.endType = 'date';
-                    result.endDate = DateTime.fromFormat(val, "yyyyMMdd'T'HHmmss").toFormat('yyyy-MM-dd');
+                    // Handle both UTC (…Z) and legacy floating local values.
+                    const isUtc = /z$/i.test(val);
+                    const clean = val.replace(/[zZ]$/, '');
+                    const parsed = DateTime.fromFormat(clean, "yyyyMMdd'T'HHmmss", isUtc ? { zone: 'utc' } : {});
+                    result.endDate = (parsed.isValid ? parsed : DateTime.fromISO(val)).toLocal().toFormat('yyyy-MM-dd');
                     break;
+                }
                 case 'COUNT':
                     result.endType = 'count';
                     result.endCount = parseInt(val) || 10;
@@ -4069,7 +4111,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return false;
         }
 
-        return multiDay || Math.abs(startDate.diff(endDate, 'days').toObject().days) === 1;
+        // Compare calendar days, not elapsed duration: on a DST-transition night
+        // the diff is 23h/25h (≠ exactly 1), which would mis-flag an all-day event.
+        return multiDay || Math.round(endDate.startOf('day').diff(startDate.startOf('day'), 'days').days) === 1;
     }
 
     _isSameDay(date1, date2) {

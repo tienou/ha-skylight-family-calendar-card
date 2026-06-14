@@ -309,10 +309,10 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     'AI & Handwriting',
                     html`
                         <p style="margin: 0 0 8px 0; font-weight: 500;">✍️ Handwriting recognition</p>
-                        ${this.addTextField('geminiApiKey', 'Google Gemini API key')}
+                        ${this.addTextField('geminiApiKey', 'Google Gemini API key', 'password')}
                         ${this.addHint('Paste your key here to enable stylus handwriting in the quick-add area. Free key at aistudio.google.com/apikey')}
                         ${this.addTextField('geminiModel', 'Gemini model', 'text', 'gemini-2.5-flash')}
-                        ${this.addTextField('claudeApiKey', 'Anthropic Claude API key (alternative)')}
+                        ${this.addTextField('claudeApiKey', 'Anthropic Claude API key (alternative)', 'password')}
                         ${this.addHint('Use Claude instead of Gemini. Key from console.anthropic.com')}
                         ${this.addTextField('claudeModel', 'Claude model', 'text', 'claude-opus-4-8')}
                         ${this.addHint('e.g. claude-haiku-4-5 for lower cost/latency')}
@@ -331,7 +331,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 ${this.addExpansionPanel(
                     'Miscellaneous',
                     html`
-                        ${this.addTextField('googleApiKey', 'Google Places API key')}
+                        ${this.addTextField('googleApiKey', 'Google Places API key', 'password')}
                         ${this.addHint('Enable location autocomplete in event forms. Without key, location is a simple text field.')}
                         ${this.addTextField('locationLink', 'Location link base URL')}
                         ${this.addHint('Base URL for the location map link (default: Google Maps search)')}

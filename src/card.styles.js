@@ -640,6 +640,10 @@ export default css`
         border-top: 1px solid var(--primary-text-color);
         margin-top: 16px;
         padding-top: 16px;
+        /* Descriptions render as plain text (not HTML) for safety — keep author
+           line breaks and avoid overflow from long unbroken strings. */
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
     }
 
     ha-dialog .event-actions {

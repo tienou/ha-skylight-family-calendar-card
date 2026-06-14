@@ -128,6 +128,7 @@ calendars:
 | `showDescription` | boolean | `false` | Afficher la description des evenements |
 | `colorFullEvent` | boolean | `true` | Colorer tout le fond de l'evenement |
 | `compact` | boolean | `true` | Mode d'affichage compact |
+| `fillHeight` | boolean | `false` | Étire les rangées de jours pour occuper toute la hauteur de l'écran (idéal en vue panneau, ex. tablette murale) |
 | `views` | list | toutes | Vues a afficher (ex. `Week,Month`) |
 | `defaultCalendar` | string | - | Calendrier par defaut pour la creation d'evenements |
 | `googleApiKey` | string | - | Cle API Google Places pour l'autocompletion du lieu |
@@ -201,6 +202,12 @@ automation:
 ```
 
 Voir [`examples/family_calendar.yaml`](examples/family_calendar.yaml) pour un exemple complet avec notifications vocales et telephone.
+
+## Sécurité & vie privée
+
+- **Les descriptions d'évènements sont affichées en texte brut** (pas en HTML). Cela empêche un évènement malveillant d'un calendrier partagé d'injecter du script dans le dashboard (XSS). Les retours à la ligne sont conservés.
+- **Les clés API** (`geminiApiKey`, `claudeApiKey`, `googleApiKey`) sont stockées dans la config du dashboard et envoyées au fournisseur concerné. Sur un dashboard partagé, restreignez chaque clé à son API dans la console du fournisseur. Les clés sont envoyées dans les **en-têtes** de requête, pas dans l'URL.
+- **La reconnaissance d'écriture** envoie l'image dessinée à Google Gemini ou Anthropic Claude pour analyse — uniquement si une clé est configurée et que vous lancez l'analyse.
 
 ## Localisation
 
