@@ -1980,7 +1980,7 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,i=t.ShadowRoot
                 </div>
             </div>
         `:P``}_renderEvents(e,t=!1){let i=[];if(e.events.map(e=>{if(!this._calendarEvents[e])return;let t=Object.assign({},this._calendarEvents[e]),n=[...t.calendars],a=[...t.colors],r=0;for(;r<n.length;)this._hideCalendars.indexOf(n[r])>-1?(n.splice(r,1),a.splice(r,1)):r++;0!==n.length&&(t.calendars=n,t.colors=a,i.push(t))}),0===i.length)return this._renderNoEvents();let n=!1;this._maxDayEvents>0&&i.length>this._maxDayEvents&&(i.splice(this._maxDayEvents),n=!0);let a=this._days&&this._days[0]?this._days[0].date.weekday:this._startDate?this._startDate.weekday:1,r=e.date.weekday===a,o=e.date.weekday===(a+5)%7+1;return P`
-            ${i.map(e=>{let i=[e.colors[0]],n=!t&&"banner"===this._multiDayMode&&e.multiDay,a=e.multiDayPosition??"middle",s=n?" banner"+(n&&"start"!==a&&!r?" ljoin":"")+(n&&"end"!==a&&!o?" rjoin":""):"";return P`
+            ${i.map(e=>{let i=[e.colors[0]],n=!t&&"banner"===this._multiDayMode&&e.multiDay,a=e.multiDayPosition??"middle",s=n?" banner"+(n&&"start"!==a&&!r?" ljoin":"")+(n&&"end"!==a&&!o?" rjoin":""):"",l=!n||"start"===a||r;return P`
                     <div
                         class="event ${e.class}${s}"
                         data-entity="${e.calendars[0]}"
@@ -2002,7 +2002,7 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,i=t.ShadowRoot
                             `))}
                         ${n?P`
                             <div class="inner">
-                                <div class="title">${(!n||"start"===a||r)&&this._showEventTitle?e.summary:P` `}</div>
+                                <div class="title">${l&&this._showEventTitle?e.summary:P` `}</div>
                             </div>
                         `:P`
                         <div class="inner">
@@ -2025,7 +2025,7 @@ function e(e){return e&&e.__esModule?e.default:e}let t=globalThis,i=t.ShadowRoot
                                 `:""}
                         </div>
                         `}
-                        ${e.icon?P`
+                        ${e.icon&&(!n||l)?P`
                                 <div class="icon">
                                     <ha-icon icon="${e.icon}"></ha-icon>
                                 </div>

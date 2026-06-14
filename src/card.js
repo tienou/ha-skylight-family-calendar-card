@@ -1218,7 +1218,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             }
                         </div>
                         `}
-                        ${event.icon ?
+                        ${event.icon && (!banner || showBannerText) ?
                             html`
                                 <div class="icon">
                                     <ha-icon icon="${event.icon}"></ha-icon>
