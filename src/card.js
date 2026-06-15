@@ -2208,15 +2208,20 @@ export class SkylightFamilyCalendarCard extends LitElement {
             calendarNumber++;
         });
 
-        await Promise.allSettled(fetches);
-
-        // Skip painting if a newer run (navigation) has superseded this one.
-        if (this._startDate.toISO() === runStartdate) {
-            this._updateCard();
+        try {
+            await Promise.allSettled(fetches);
+            // Skip painting if a newer run (navigation) has superseded this one.
+            if (this._startDate.toISO() === runStartdate) {
+                this._updateCard();
+            }
+        } finally {
+            // Always release the guard — if _updateCard threw, leaving it set
+            // would freeze every future refresh (created/edited events would
+            // never appear).
+            this._loading = Math.max(0, this._loading - 1);
+            this._updateLoader();
+            this._eventsLoading = false;
         }
-        this._loading = Math.max(0, this._loading - 1);
-        this._updateLoader();
-        this._eventsLoading = false;
 
         if (this._refreshAgain) {
             this._refreshAgain = false;
