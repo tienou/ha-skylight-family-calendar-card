@@ -226,7 +226,7 @@ See [`examples/family_calendar.yaml`](examples/family_calendar.yaml) for a compl
 ## Security & privacy
 
 - **Event descriptions are rendered as plain text** (not HTML). This prevents a malicious or compromised shared-calendar event from injecting scripts into your dashboard (XSS). Line breaks are preserved.
-- **API keys** (`geminiApiKey`, `claudeApiKey`, `googleApiKey`) are stored in the dashboard configuration and sent to the respective provider. On a shared dashboard, restrict each key to its specific API in the provider console (e.g. restrict the Gemini key to the *Generative Language API*). Keys are sent in request **headers**, not URLs.
+- **API keys** (`geminiApiKey`, `claudeApiKey`, `googleApiKey`) are stored in the dashboard configuration and sent to the respective provider. On a shared dashboard, restrict each key to its specific API in the provider console (e.g. restrict the Gemini key to the *Generative Language API*). The Claude and Google Places keys are sent as request headers; the Gemini key is passed as a URL query parameter (required by Google's browser API).
 - **Handwriting recognition** uploads the drawn image to Google Gemini or Anthropic Claude for parsing. No image is sent unless a key is configured and you tap Create/Analyze.
 
 ## Localization

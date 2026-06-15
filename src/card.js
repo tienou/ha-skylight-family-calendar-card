@@ -2880,12 +2880,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     async _analyzeWithGemini(base64) {
         const model = this._geminiModel || 'gemini-2.5-flash';
-        // Key goes in a header, not the URL query string (URLs leak via history,
-        // Referer and logging proxies). Matches the Claude / Places key handling.
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+        // Key must go in the URL query string: the Gemini REST API does not allow
+        // the x-goog-api-key header in a cross-origin (browser) request — adding a
+        // custom header triggers a CORS preflight that Google rejects, so the call
+        // fails from the card. ?key= is the documented browser form.
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(this._geminiApiKey)}`;
         const resp = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this._geminiApiKey },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
                     parts: [
