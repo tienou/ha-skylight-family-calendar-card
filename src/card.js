@@ -1,5 +1,6 @@
 import { html, LitElement } from 'lit';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { guard } from 'lit-html/directives/guard.js';
 import { DateTime, Settings as LuxonSettings, Info as LuxonInfo } from 'luxon';
 import styles from './card.styles';
 import clear_night from 'data-url:./icons/clear_night.png';
@@ -934,10 +935,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     </div>
                     <div class="calendar-container">
                         <div class="container${this._actions ? ' hasActions' : ''}${this._numberOfDaysIsMonth ? ' month-view' : ''}" style="${this._dayHeaderFontSize ? '--day-header-font-size: ' + this._dayHeaderFontSize + ';' : ''}${this._dayHeaderColor ? '--day-header-color: ' + this._dayHeaderColor + ';' : ''}" @click="${this._handleContainerClick}" @pointerdown="${this._handlePointerDown}" @pointerup="${this._handlePointerUp}" @pointercancel="${this._handlePointerCancel}">
-                            ${this._renderHeader()}
-                            ${this._renderWeekDays()}
-                            ${this._renderDays()}
-                            ${this._numberOfDaysIsMonth && this._selectedDay ? this._renderSelectedDayEvents() : ''}
+                            ${this._fullscreenOverlayOpen() ? '' : html`
+                                ${this._renderHeader()}
+                                ${this._renderWeekDays()}
+                                ${this._renderDays()}
+                                ${this._numberOfDaysIsMonth && this._selectedDay ? this._renderSelectedDayEvents() : ''}
+                            `}
                         </div>
                     </div>
                     ${this._renderEventDetailsDialog()}
@@ -1669,11 +1672,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     </div>
                     ` : ''}
                     <div class="hw-zone">
-                        <canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
+                        ${guard([], () => html`<canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
                             @pointerdown="${this._canvasPointerDown}"
                             @pointermove="${this._canvasPointerMove}"
                             @pointerup="${this._canvasPointerUp}"
-                            @pointerleave="${this._canvasPointerUp}"></canvas>
+                            @pointerleave="${this._canvasPointerUp}"></canvas>`)}
                         <div class="hw-hint">${this._language.handwriteHint}</div>
                     </div>
                     ${this._aiError ? html`<div class="hw-error">${this._aiError}</div>` : ''}
@@ -2737,6 +2740,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _showHandwritingCanvas() {
         return this._handwritingEnabled() && this._isHandwritingDevice();
+    }
+
+    // A full-screen tablet overlay (handwriting create / edit) is covering the
+    // calendar grid — used to skip rendering the heavy 42-cell grid behind it,
+    // so interacting with the overlay (e.g. picking a calendar) doesn't re-render
+    // the whole month each time.
+    _fullscreenOverlayOpen() {
+        return (this._showCreateEventDialog || this._showEditEventDialog) && this._showHandwritingCanvas();
     }
 
     _resolveAiProvider() {
