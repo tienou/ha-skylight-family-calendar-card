@@ -3239,7 +3239,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
             this._closeCreateEventDialog();
             this._updateEvents();
         } catch (e) {
+            // Surface the failure (e.g. an expired Google Calendar token) instead
+            // of swallowing it — otherwise the Create button just looks dead.
             console.error('Failed to create event:', e);
+            this._notify('⚠️ ' + (e?.message || e?.code || this._language.create));
         }
     }
 
@@ -3267,6 +3270,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             this._updateEvents();
         } catch (e) {
             console.error('Failed to delete event:', e);
+            this._notify('⚠️ ' + (e?.message || e?.code || this._language.deleteEvent));
         }
     }
 
@@ -3579,6 +3583,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 }
             } else {
                 console.error('Skylight Family Calendar: Failed to update event:', e);
+                this._notify('⚠️ ' + (e?.message || e?.code || this._language.save));
             }
         }
     }
