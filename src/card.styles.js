@@ -2036,9 +2036,9 @@ export default css`
        last view button (e.g. "Mois"). Fall back to compact icon buttons (and let
        it wrap as a safety net) so every view stays reachable. */
     @media (max-width: 640px) {
-        ha-card.theme-familial .view-selector { flex-wrap: wrap; }
+        ha-card.theme-familial .view-selector { flex-wrap: wrap; max-width: 100%; }
         ha-card.theme-familial .view-btn { padding: 6px 9px; }
-        ha-card.theme-familial .view-btn .view-icon { display: inline-flex; }
+        ha-card.theme-familial .view-btn .view-icon { display: inline-flex; --mdc-icon-size: 20px; color: inherit; }
         ha-card.theme-familial .view-btn .view-label { display: none; }
     }
 

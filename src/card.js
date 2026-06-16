@@ -4348,9 +4348,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const icons = {
             'Today': 'mdi:calendar-today',
             'Tomorrow': 'mdi:calendar-arrow-right',
-            'Week': 'mdi:view-week',
-            'Biweek': 'mdi:view-sequential',
-            'Month': 'mdi:view-grid',
+            'Week': 'mdi:calendar-week',
+            'Biweek': 'mdi:calendar-range',
+            'Month': 'mdi:calendar-month',
         };
         return icons[view] ?? 'mdi:calendar';
     }
