@@ -128,8 +128,8 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                                         ${this.addHint('Events hidden by default, toggle via filter buttons')}
                                         ${this.addBooleanField('calendars.' + index + '.allDayOnly', 'Info calendar (all-day only)')}
                                         ${this.addHint('Creates title-only all-day events (no time/duration), e.g. birthdays')}
-                                        ${this.addTextField('calendars.' + index + '.titleEmoji', 'Title emoji (e.g. 🎂)')}
-                                        ${this.addHint('Shown before every event title of this calendar (display only)')}
+                                        ${this.addEmojiField('calendars.' + index + '.titleEmoji', 'Title emoji')}
+                                        ${this.addHint('Shown before every event title of this calendar (display only), e.g. 🎂')}
                                         ${this.addButton('Remove calendar', 'mdi:trash-can', () => {
                                             const config = JSON.parse(JSON.stringify(this._config));
                                             if (config.calendars.length === 1) {
@@ -162,7 +162,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                                 ${this.addExpansionPanel(
                                     `Category: ${(cat && (cat.emoji || cat.label)) || index + 1}`,
                                     html`
-                                        ${this.addTextField('eventCategories.' + index + '.emoji', 'Emoji (e.g. 🏃)')}
+                                        ${this.addEmojiField('eventCategories.' + index + '.emoji', 'Icon')}
                                         ${this.addTextField('eventCategories.' + index + '.label', 'Label')}
                                         ${this.addButton('Remove category', 'mdi:trash-can', () => {
                                             const config = JSON.parse(JSON.stringify(this._config));
@@ -505,6 +505,44 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                             style="background:${current}" title="${current}"></button>
                     ` : ''}
                 </div>
+            </div>
+        `;
+    }
+
+    addEmojiField(name, label, defaultValue) {
+        // A tap-to-select emoji palette (no typing) plus a free-text fallback for
+        // any emoji not in the palette. Emoji are plain Unicode characters drawn
+        // by the system font — no external assets.
+        const palette = [
+            '🏃', '⚽', '🏀', '🎾', '🏊', '🚴', '⛷️', '🏋️',
+            '🩺', '💊', '🦷', '🏥', '🧠', '🩹',
+            '🎓', '📚', '✏️', '🎒', '🔬',
+            '💼', '🖥️', '📞', '📅', '⏰', '✉️',
+            '🍽️', '🍕', '☕', '🍷', '🎂', '🍔',
+            '🚐', '✈️', '🏖️', '🏕️', '🚗', '🚂', '⛵',
+            '🎉', '🎁', '🎵', '🎬', '🎨', '🎮', '🎤',
+            '🛒', '🧹', '🧺', '🔧', '🏠', '🐶', '🐱', '🌳',
+            '❤️', '⭐', '👶', '💆', '💇', '🙏', '🎯', '📷',
+        ];
+        const current = String(this.getConfigValue(name, defaultValue) ?? '').trim();
+        const inPalette = palette.includes(current);
+        return html`
+            <div class="sk-field">
+                <label class="sk-label">${label ?? name}</label>
+                <div class="sk-swatches">
+                    ${palette.map((e) => html`
+                        <button type="button"
+                            class="sk-swatch sk-emoji-swatch ${current === e ? 'selected' : ''}"
+                            title="${e}" @click="${() => this.setConfigValue(name, e)}">${e}</button>
+                    `)}
+                    ${current !== '' && !inPalette ? html`
+                        <button type="button" class="sk-swatch sk-emoji-swatch selected" title="${current}">${current}</button>
+                    ` : ''}
+                </div>
+                <input class="sk-input" name="${name}" type="text"
+                    placeholder="Custom emoji"
+                    .value="${current}"
+                    @change="${this._valueChanged}" />
             </div>
         `;
     }

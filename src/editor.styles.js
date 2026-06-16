@@ -69,4 +69,15 @@ export default css`
       align-items: center;
       justify-content: center;
     }
+    .sk-emoji-swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--card-background-color, #fff);
+      font-size: 1.25em;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
 `;
