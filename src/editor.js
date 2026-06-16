@@ -126,6 +126,8 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                                         ${this.addHint('Replace event text matching this pattern')}
                                         ${this.addBooleanField('calendars.' + index + '.initiallyHidden', 'Initially hide calendar events')}
                                         ${this.addHint('Events hidden by default, toggle via filter buttons')}
+                                        ${this.addBooleanField('calendars.' + index + '.allDayOnly', 'Info calendar (all-day only)')}
+                                        ${this.addHint('Creates title-only all-day events (no time/duration), e.g. birthdays')}
                                         ${this.addButton('Remove calendar', 'mdi:trash-can', () => {
                                             const config = JSON.parse(JSON.stringify(this._config));
                                             if (config.calendars.length === 1) {

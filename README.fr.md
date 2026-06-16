@@ -159,6 +159,9 @@ calendars:
 | `color` | string | Couleur hex (pastel auto-assigne si non defini) |
 | `icon` | string | Icone MDI |
 | `filter` | string | Regex pour filtrer les evenements |
+| `allDayOnly` | boolean | Calendrier "info" (ex. anniversaires) : le formulaire de creation n'affiche que le titre et enregistre un evenement d'une journee entiere, sans heure ni duree |
+
+> **Calendriers en lecture seule** (vacances scolaires, jours feries — integrations qui ne permettent pas la creation d'evenements) : detectes automatiquement. Ils n'apparaissent jamais comme cible de creation, et leurs evenements s'ouvrent en consultation seule (pas de modification/suppression).
 
 ### Google Places Autocomplete
 

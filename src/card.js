@@ -635,6 +635,27 @@ export class SkylightFamilyCalendarCard extends LitElement {
         return palette[(idx >= 0 ? idx : 0) % palette.length];
     }
 
+    // A calendar is writable when its entity advertises CREATE_EVENT (bit 1) in
+    // supported_features. Holiday / school-holiday calendars report none, so they
+    // can't be a create target and their events aren't editable/deletable.
+    _isWritable(entity) {
+        const f = this.hass?.states?.[entity]?.attributes?.supported_features;
+        return ((f || 0) & 1) === 1;
+    }
+
+    // True if every calendar an event belongs to is read-only.
+    _eventIsReadOnly(event) {
+        const cals = event?.calendars || [];
+        return cals.length > 0 && cals.every((entity) => !this._isWritable(entity));
+    }
+
+    _onCreateCalendarChange(e) {
+        // _createCalendar is non-reactive (tablet uses direct DOM); force a render
+        // so the form can switch in/out of "info" (all-day, no time) layout.
+        this._createCalendar = e.target.value;
+        this.requestUpdate();
+    }
+
     _getWeatherConfig(weatherConfiguration) {
         if (
             !weatherConfiguration
@@ -1463,7 +1484,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         ` :
                         ''
                     }
-                    ${this._currentEventDetails.uid ?
+                    ${(this._currentEventDetails.uid && !this._eventIsReadOnly(this._currentEventDetails)) ?
                         html`
                             <div class="event-actions">
                                 <button class="btn btn-edit" @click="${this._handleEditEventClick}">
@@ -1555,6 +1576,12 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const defaultEnd = effStart.plus({ minutes: durationMinutes });
         const endDateValue = defaultEnd.toFormat("yyyy-MM-dd");
         const endTimeValue = defaultEnd.toFormat("HH:mm");
+        // Read-only calendars (holidays, school holidays) can't be a create
+        // target. An "info" calendar (allDayOnly) creates a single all-day event
+        // with no time — the form then shows the title only.
+        const writableCals = this._calendars.filter((c) => this._isWritable(c.entity));
+        const targetCal = this._calendars.find((c) => c.entity === this._createCalendar);
+        const infoMode = !!(targetCal && targetCal.allDayOnly);
 
         return html`
             <ha-dialog
@@ -1577,19 +1604,20 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     <div class="form-row">
                         <div class="field-row-icon">
                             <ha-icon class="field-icon" icon="mdi:calendar"></ha-icon>
-                            <select id="event-calendar" class="form-input cal-select">
-                                ${this._calendars.map((calendar) => html`
-                                    <option value="${calendar.entity}" ?selected="${calendar.entity === this._defaultCalendar}">${this._getCalendarDisplayName(calendar)}</option>
+                            <select id="event-calendar" class="form-input cal-select" @change="${this._onCreateCalendarChange}">
+                                ${writableCals.map((calendar) => html`
+                                    <option value="${calendar.entity}" ?selected="${calendar.entity === this._createCalendar}">${this._getCalendarDisplayName(calendar)}</option>
                                 `)}
                             </select>
                         </div>
                     </div>
-                    <div class="form-row" style="${isAllDay ? 'display: none' : ''}">
+                    <div class="form-row" style="${(isAllDay || infoMode) ? 'display: none' : ''}">
                         <div class="field-row-icon">
                             <ha-icon class="field-icon" icon="mdi:clock-outline"></ha-icon>
                             ${this._renderTimeDropdowns(this._createStartTime ?? startTimeValue, false)}
                         </div>
                     </div>
+                    ${infoMode ? '' : html`
                     <div class="form-row">
                         <div class="field-row-icon">
                             <ha-icon class="field-icon" icon="mdi:timer-outline"></ha-icon>
@@ -1603,6 +1631,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             </div>
                         </div>
                     </div>
+                    `}
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <div class="input-clear-wrapper with-icon">
@@ -2648,7 +2677,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (this._actions) {
             return;
         }
-        if (event.uid) {
+        // Read-only calendars (holidays, school holidays): show details only,
+        // never the edit form (editing/deleting would fail at the source).
+        if (event.uid && !this._eventIsReadOnly(event)) {
             this._openEditEventDialog(event);
         } else {
             this._currentEventDetails = event;
@@ -2672,7 +2703,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._hasDrawing = false;
         this._canvasReady = false;
         this._eraserMode = false;
-        this._createCalendar = this._defaultCalendar || (this._calendars && this._calendars[0] && this._calendars[0].entity) || null;
+        const writableCals = (this._calendars || []).filter((c) => this._isWritable(c.entity));
+        this._createCalendar = (this._defaultCalendar && writableCals.some((c) => c.entity === this._defaultCalendar))
+            ? this._defaultCalendar
+            : (writableCals[0] && writableCals[0].entity)
+                || (this._calendars && this._calendars[0] && this._calendars[0].entity) || null;
         const now = DateTime.now();
         this._createStartTime = String(Math.min(now.hour + 1, 23)).padStart(2, '0') + ':00';
         this._showCreateEventDialog = { date: day.date };
@@ -3250,7 +3285,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     async _handleCreateEvent() {
         const title = (this._createTitle ?? this.shadowRoot.querySelector('#event-title')?.value ?? '').trim();
-        const calendar = this.shadowRoot.querySelector('#event-calendar')?.value;
+        const calendar = this._createCalendar || this.shadowRoot.querySelector('#event-calendar')?.value;
         const startDate = this.shadowRoot.querySelector('#event-start-date')?.value;
         const startTime = this._parseTime(this._createStartTime ?? '09:00');
         const endDate = this.shadowRoot.querySelector('#event-end-date')?.value;
@@ -3261,7 +3296,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const freq = this.shadowRoot.querySelector('#event-recurrence')?.value;
         const notify = this.shadowRoot.querySelector('#event-notify')?.checked ?? false;
         const durationValue = this._createDuration || '60';
-        const allDay = durationValue === 'allday';
+        // An "info" (allDayOnly) calendar always creates a single all-day event.
+        const targetCal = this._calendars.find((c) => c.entity === calendar);
+        const allDay = (targetCal && targetCal.allDayOnly) || durationValue === 'allday';
 
         if (!title) {
             return;

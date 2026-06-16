@@ -159,6 +159,9 @@ calendars:
 | `color` | string | Color hex (auto-assigned pastel if not set) |
 | `icon` | string | MDI icon |
 | `filter` | string | Regex to filter events |
+| `allDayOnly` | boolean | Treat as an "info" calendar (e.g. birthdays): the create form shows the title only and saves a single all-day event with no time or duration |
+
+> **Read-only calendars** (holidays, school holidays — integrations that don't support event creation) are detected automatically: they never appear as a create target, and their events open in read-only detail view (no edit/delete).
 
 ### Google Places Autocomplete
 
