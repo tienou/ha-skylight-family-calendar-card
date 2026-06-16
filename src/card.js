@@ -148,7 +148,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             { emoji: '\u{1F393}', fr: 'École', en: 'School' },
             { emoji: '\u{1F4BC}', fr: 'Travail', en: 'Work' },
             { emoji: '\u{1F37D}\u{FE0F}', fr: 'Repas', en: 'Meal' },
-            { emoji: '\u{1F690}', fr: 'Camping-car', en: 'Camping' },
+            { emoji: '\u{1F690}', fr: 'Vacances', en: 'Holidays' },
             { emoji: '\u{1F389}', fr: 'Fête', en: 'Party' },
             { emoji: '\u{1F6D2}', fr: 'Courses', en: 'Shopping' },
         ];

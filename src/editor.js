@@ -192,7 +192,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                                 { emoji: '🎓', label: 'École' },
                                 { emoji: '💼', label: 'Travail' },
                                 { emoji: '🍽️', label: 'Repas' },
-                                { emoji: '🚐', label: 'Camping-car' },
+                                { emoji: '🚐', label: 'Vacances' },
                                 { emoji: '🎉', label: 'Fête' },
                                 { emoji: '🛒', label: 'Courses' },
                             ];

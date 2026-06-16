@@ -168,7 +168,7 @@ calendars:
 
 On normal calendars, the create/edit form shows a **category picker**. Picking a category prepends its emoji to the event title (the same mechanism as the 🔔 reminder), so it persists and is visible everywhere — including the Google Calendar app.
 
-Default categories: 🏃 Sport · 🩺 Medical · 🎓 School · 💼 Work · 🍽️ Meal · 🚐 Camping · 🎉 Party · 🛒 Shopping.
+Default categories: 🏃 Sport · 🩺 Medical · 🎓 School · 💼 Work · 🍽️ Meal · 🚐 Holidays · 🎉 Party · 🛒 Shopping.
 
 You can edit the list in the visual editor (**Event categories** panel — add/remove rows, or "Load default categories" to start from the defaults), or in YAML:
 
