@@ -1546,9 +1546,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
         });
         const isAllDay = this._createDuration === 'allday';
         const durationMinutes = isAllDay ? 0 : (parseInt(this._createDuration) || 60);
-        const defaultEnd = defaultStart.plus({ minutes: durationMinutes });
         const startDateValue = defaultStart.toFormat("yyyy-MM-dd");
         const startTimeValue = defaultStart.toFormat("HH:mm");
+        // The displayed end must follow the SELECTED start (not the default), so
+        // it stays consistent: start 08:00 + 1 h → 09:00 (not now+1h + 1h).
+        const selStart = (this._createStartTime || startTimeValue).split(':');
+        const effStart = defaultStart.set({ hour: parseInt(selStart[0]) || 0, minute: parseInt(selStart[1]) || 0 });
+        const defaultEnd = effStart.plus({ minutes: durationMinutes });
         const endDateValue = defaultEnd.toFormat("yyyy-MM-dd");
         const endTimeValue = defaultEnd.toFormat("HH:mm");
 
