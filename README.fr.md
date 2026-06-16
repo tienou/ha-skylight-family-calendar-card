@@ -160,8 +160,27 @@ calendars:
 | `icon` | string | Icone MDI |
 | `filter` | string | Regex pour filtrer les evenements |
 | `allDayOnly` | boolean | Calendrier "info" (ex. anniversaires) : le formulaire de creation n'affiche que le titre et enregistre un evenement d'une journee entiere, sans heure ni duree |
+| `titleEmoji` | string | Emoji affiche devant chaque titre d'evenement de ce calendrier (affichage seul, ex. `🎂` pour les anniversaires) |
 
 > **Calendriers en lecture seule** (vacances scolaires, jours feries — integrations qui ne permettent pas la creation d'evenements) : detectes automatiquement. Ils n'apparaissent jamais comme cible de creation, et leurs evenements s'ouvrent en consultation seule (pas de modification/suppression).
+
+### Categories d'evenements
+
+Sur les calendriers normaux, le formulaire de creation/modification affiche un **selecteur de categorie**. Choisir une categorie ajoute son emoji devant le titre (meme mecanisme que le rappel 🔔), ce qui persiste et reste visible partout — y compris dans l'appli Google Agenda.
+
+Categories par defaut : 🏃 Sport · 🏥 Medical · 🎓 Ecole · 💼 Travail · 🍽️ Repas · ✈️ Voyage · 🎉 Fete · 🛒 Courses.
+
+Personnalisable par carte :
+
+```yaml
+eventCategories:
+  - emoji: "🏃"
+    label: Sport
+  - emoji: "🩺"
+    label: Medical
+```
+
+> Google Agenda n'a pas de champ "categorie"/tag par evenement accessible via Home Assistant (seuls le titre, la description, le lieu, les dates et la recurrence sont modifiables) : le prefixe emoji est donc la methode portable pour categoriser.
 
 ### Google Places Autocomplete
 

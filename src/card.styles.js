@@ -1339,6 +1339,38 @@ export default css`
         white-space: nowrap;
     }
 
+    /* ── Event category picker (emoji + label toggle buttons) ── */
+    .category-picker {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        flex: 1;
+    }
+    .category-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 10px;
+        border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.15));
+        border-radius: 4px;
+        background: transparent;
+        color: var(--primary-text-color, #333);
+        cursor: pointer;
+        font-size: 0.85em;
+        font-family: var(--skylight-font);
+        min-height: 36px;
+        white-space: nowrap;
+    }
+    .category-btn .category-emoji {
+        font-size: 1.15em;
+        line-height: 1;
+    }
+    .category-btn.active {
+        background-color: var(--primary-color, #03a9f4);
+        color: var(--text-primary-color, #fff);
+        border-color: var(--primary-color, #03a9f4);
+    }
+
     /* ── Tap-only time picker (hour grid + minutes) ── */
     .create-event-form .field-row-icon.slots {
         align-items: flex-start;

@@ -134,6 +134,24 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._aiError = null;
         this._aiResult = null;
         this._eraserMode = false;
+        this._createCategory = '';
+    }
+
+    // Built-in event categories. Each prepends its emoji to the event title on
+    // save (the same mechanism as the 🔔 reminder), so it persists and shows
+    // everywhere — including the Google Calendar app. Override per-card with the
+    // `eventCategories` config (a list of { emoji, label }).
+    static get DEFAULT_CATEGORIES() {
+        return [
+            { emoji: '\u{1F3C3}', fr: 'Sport', en: 'Sport' },
+            { emoji: '\u{1F3E5}', fr: 'Médical', en: 'Medical' },
+            { emoji: '\u{1F393}', fr: 'École', en: 'School' },
+            { emoji: '\u{1F4BC}', fr: 'Travail', en: 'Work' },
+            { emoji: '\u{1F37D}\u{FE0F}', fr: 'Repas', en: 'Meal' },
+            { emoji: '\u{2708}\u{FE0F}', fr: 'Voyage', en: 'Trip' },
+            { emoji: '\u{1F389}', fr: 'Fête', en: 'Party' },
+            { emoji: '\u{1F6D2}', fr: 'Courses', en: 'Shopping' },
+        ];
     }
 
     static getConfigElement() {
@@ -195,6 +213,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             _aiError: { type: String },
             _aiResult: { type: String },
             _eraserMode: { type: Boolean },
+            _createCategory: { type: String },
             _dayEventsPopup: { type: Object }
             // _createCalendar is intentionally NOT reactive: selecting a calendar
             // in the handwriting overlay updates the active button via direct DOM
@@ -215,8 +234,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
 
         this._numberOfDaysIsMonth = this._isNumberOfDaysMonth(config.days ?? 7);
+        this._locale = config.locale ?? 'en';
         this._title = config.title ?? null;
         this._calendars = this._applyDefaultColors(config.calendars);
+        this._categories = this._buildCategories(config.eventCategories);
         this._defaultCalendar = config.defaultCalendar ?? null;
         this._weather = this._getWeatherConfig(config.weather);
         this._numberOfDays = this._getNumberOfDays(config.days ?? 7);
@@ -654,6 +675,84 @@ export class SkylightFamilyCalendarCard extends LitElement {
         // so the form can switch in/out of "info" (all-day, no time) layout.
         this._createCalendar = e.target.value;
         this.requestUpdate();
+    }
+
+    // Resolve the category list: the `eventCategories` config (if any) wins,
+    // otherwise the built-in defaults. Each entry is normalised to { emoji, label }.
+    _buildCategories(configCategories) {
+        const locale = this._locale || 'en';
+        const source = Array.isArray(configCategories) && configCategories.length
+            ? configCategories
+            : this.constructor.DEFAULT_CATEGORIES;
+        return source
+            .map((c) => ({
+                emoji: c.emoji,
+                label: c.label ?? c[locale] ?? c.en ?? c.fr ?? '',
+            }))
+            .filter((c) => c.emoji);
+    }
+
+    // All known category emojis (built-in + configured). Used to detect and strip
+    // a leading category marker when editing an event.
+    _categoryEmojis() {
+        return (this._categories || []).map((c) => c.emoji);
+    }
+
+    // Strip a leading category emoji (after any 🔔) from a title and return both
+    // the clean title and the detected emoji.
+    _splitCategory(title) {
+        const t = title ?? '';
+        for (const emoji of this._categoryEmojis()) {
+            if (t.startsWith(emoji)) {
+                return { emoji, title: t.slice(emoji.length).replace(/^\s+/, '') };
+            }
+        }
+        return { emoji: '', title: t };
+    }
+
+    // Compose a summary from the clean title + reminder + category marker.
+    _composeSummary(title, notify, category) {
+        const prefix = [notify ? '\u{1F514}' : '', category || ''].filter(Boolean).join(' ');
+        return prefix ? prefix + ' ' + title : title;
+    }
+
+    _onCreateCategoryClick(e) {
+        const cat = e.currentTarget?.dataset?.category ?? '';
+        // Toggle off if the active category is tapped again.
+        this._createCategory = (this._createCategory === cat) ? '' : cat;
+        this.requestUpdate();
+    }
+
+    _onEditCategoryClick(e) {
+        const cat = e.currentTarget?.dataset?.category ?? '';
+        const cur = this._editFormData?.category || '';
+        // Reassign the object so Lit re-renders (toggles off if tapped again).
+        this._editFormData = { ...this._editFormData, category: cur === cat ? '' : cat };
+    }
+
+    // Shared category selector (a row of emoji+label toggle buttons).
+    _renderCategoryPicker(selected, onClick) {
+        if (!this._categories || !this._categories.length) {
+            return '';
+        }
+        return html`
+            <div class="form-row">
+                <div class="field-row-icon">
+                    <ha-icon class="field-icon" icon="mdi:tag-outline"></ha-icon>
+                    <div class="category-picker">
+                        ${this._categories.map((c) => html`
+                            <button type="button"
+                                class="category-btn ${selected === c.emoji ? 'active' : ''}"
+                                data-category="${c.emoji}" title="${c.label}"
+                                @click="${onClick}">
+                                <span class="category-emoji">${c.emoji}</span>
+                                <span class="category-label">${c.label}</span>
+                            </button>
+                        `)}
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     _getWeatherConfig(weatherConfiguration) {
@@ -1632,6 +1731,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         </div>
                     </div>
                     `}
+                    ${infoMode ? '' : this._renderCategoryPicker(this._createCategory, this._onCreateCategoryClick)}
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <div class="input-clear-wrapper with-icon">
@@ -1747,6 +1847,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
     // can't be overridden in some HA builds). We control the size entirely.
     _renderHandwritingCreateDialog() {
         const date = this._showCreateEventDialog?.date;
+        const targetCal = this._calendars.find((c) => c.entity === this._createCalendar);
+        const infoMode = !!(targetCal && targetCal.allDayOnly);
         return html`
             <div class="hw-overlay" @click="${(e) => { if (e.target === e.currentTarget) this._closeCreateEventDialog(); }}">
                 <div class="hw-modal create-event-form">
@@ -1768,6 +1870,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         `)}
                     </div>
                     ` : ''}
+                    ${infoMode ? '' : this._renderCategoryPicker(this._createCategory, this._onCreateCategoryClick)}
                     <div class="hw-zone">
                         ${guard([], () => html`<canvas id="quick-canvas" class="hw-canvas" width="640" height="200"
                             @pointerdown="${this._canvasPointerDown}"
@@ -1823,6 +1926,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
         const form = this._editFormData;
         const duration = this._getFormDuration(form);
+        const editCal = this._calendars.find((c) => c.entity === form.calendar);
+        const editInfoMode = !!(editCal && editCal.allDayOnly);
 
         return html`
             <ha-dialog
@@ -1872,6 +1977,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             </div>
                         </div>
                     </div>
+                    ${editInfoMode ? '' : this._renderCategoryPicker(form.category, this._onEditCategoryClick)}
                     ${this._showLocationInForm ? html`
                     <div class="form-row location-row">
                         <div class="location-input-wrapper with-icon${form.location ? ' has-maps' : ''}">
@@ -2019,6 +2125,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const form = this._editFormData;
         const duration = this._getFormDuration(form);
         const date = form.startDate ? DateTime.fromISO(form.startDate) : null;
+        const editCal = this._calendars.find((c) => c.entity === form.calendar);
+        const editInfoMode = !!(editCal && editCal.allDayOnly);
         return html`
             <div class="hw-overlay" @click="${(e) => { if (e.target === e.currentTarget) this._closeEditEventDialog(); }}">
                 <div class="hw-modal create-event-form">
@@ -2060,6 +2168,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                                 </div>
                             </div>
                         </div>
+                        ${editInfoMode ? '' : this._renderCategoryPicker(form.category, this._onEditCategoryClick)}
                         <div class="hw-current-title">
                             <ha-icon icon="mdi:format-title"></ha-icon>
                             <span>${form.title || '—'}</span>
@@ -2432,6 +2541,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
             }
         }
 
+        // Per-calendar title emoji (e.g. 🎂 for a birthdays calendar): prepended
+        // for display only — never stored on the event — and only when the title
+        // doesn't already start with it (avoids doubling up).
+        if (calendar.titleEmoji && !summary.startsWith(calendar.titleEmoji)) {
+            summary = calendar.titleEmoji + ' ' + summary;
+        }
+
         return summary;
     }
 
@@ -2696,6 +2812,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createShowAdvanced = false;
         this._createEndTouched = false;
         this._createTitle = null;
+        this._createCategory = '';
         this._aiLoading = false;
         this._aiError = null;
         this._aiResult = null;
@@ -2721,6 +2838,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._createShowAdvanced = false;
         this._createEndTouched = false;
         this._createTitle = null;
+        this._createCategory = '';
         this._createStartTime = null;
         this._aiLoading = false;
         this._aiError = null;
@@ -2936,11 +3054,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const date = this._showCreateEventDialog?.date;
         const calendar = this._createCalendar || this._defaultCalendar
             || (this._calendars && this._calendars[0] && this._calendars[0].entity);
+        // Capture the category before _closeCreateEventDialog resets it.
+        const category = this._createCategory;
         this._closeCreateEventDialog();
-        this._backgroundCreateFromImage(provider, base64, date, calendar);
+        this._backgroundCreateFromImage(provider, base64, date, calendar, category);
     }
 
-    async _backgroundCreateFromImage(provider, base64, date, calendar) {
+    async _backgroundCreateFromImage(provider, base64, date, calendar, category) {
         try {
             if (!date || !calendar) throw new Error('No date or calendar');
             const data = provider === 'claude'
@@ -2951,9 +3071,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 this._notify(this._language.aiAnalyze + ' — ' + (this._language.titleRequired ?? 'nothing read'));
                 return;
             }
-            const summary = title;
+            // Info calendars (allDayOnly) are always single all-day events, with
+            // their marker carried by the calendar's titleEmoji (not a category).
+            const calConf = this._calendars.find((c) => c.entity === calendar);
+            const infoMode = !!(calConf && calConf.allDayOnly);
+            const summary = this._composeSummary(title, false, infoMode ? '' : (category || ''));
             let eventData;
-            if (time) {
+            if (time && !infoMode) {
                 const [h, mn] = time.split(':').map(Number);
                 const start = date.set({ hour: h, minute: mn, second: 0, millisecond: 0 });
                 const dur = (durationMin && durationMin > 0) ? durationMin : 60;
@@ -3353,8 +3477,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
             rrule = this._buildRrule(freq, interval, byDay, byMonthDay, endType, endDate, endCount);
         }
 
+        // Info calendars (allDayOnly) carry their marker via the calendar's
+        // titleEmoji (display-only), so they don't use the per-event category.
+        const category = (targetCal && targetCal.allDayOnly) ? '' : this._createCategory;
         const eventData = {
-            summary: notify ? '\u{1F514} ' + title : title,
+            summary: this._composeSummary(title, notify, category),
             dtstart: dtstart,
             dtend: dtend,
         };
@@ -3430,6 +3557,15 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const parsed = this._parseRrule(rruleStr);
         const rawTitle = event.summary || '';
         const notify = rawTitle.startsWith('\u{1F514}');
+        let bareTitle = notify ? rawTitle.replace(/^\u{1F514}\s*/u, '') : rawTitle;
+        // The per-calendar display emoji (e.g. 🎂) is added for display only and
+        // is not stored — strip it so it isn't written back into the title.
+        const calConf = this._calendars.find((c) => c.entity === (event.calendars[0] || ''));
+        if (calConf && calConf.titleEmoji && bareTitle.startsWith(calConf.titleEmoji)) {
+            bareTitle = bareTitle.slice(calConf.titleEmoji.length).replace(/^\s+/, '');
+        }
+        // Detect a stored category marker so the picker can pre-select it.
+        const cat = this._splitCategory(bareTitle);
         // Detect on the original dates: the per-day slice fullDay flag is also
         // set on middle slices of timed multi-day events
         const allDay = this._isFullDay(event.originalStart, event.originalEnd, true);
@@ -3438,8 +3574,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
             ? (allDay ? event.originalEnd.minus({ days: 1 }) : event.originalEnd)
             : null;
         this._editFormData = {
-            title: notify ? rawTitle.replace(/^\u{1F514}\s*/u, '') : rawTitle,
+            title: cat.title,
             notify: notify,
+            category: cat.emoji,
             allDay: allDay,
             showAdvanced: !!parsed.freq,
             calendar: event.calendars[0] || '',
@@ -3604,7 +3741,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return;
         }
 
-        const summary = form.notify ? '\u{1F514} ' + title : title;
+        const summary = this._composeSummary(title, form.notify, form.category);
         let dtstart, dtend;
         if (form.allDay) {
             const startDay = DateTime.fromISO(form.startDate);

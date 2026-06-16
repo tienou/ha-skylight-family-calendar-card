@@ -160,8 +160,27 @@ calendars:
 | `icon` | string | MDI icon |
 | `filter` | string | Regex to filter events |
 | `allDayOnly` | boolean | Treat as an "info" calendar (e.g. birthdays): the create form shows the title only and saves a single all-day event with no time or duration |
+| `titleEmoji` | string | Emoji shown before every event title of this calendar (display only, e.g. `🎂` for birthdays) |
 
 > **Read-only calendars** (holidays, school holidays — integrations that don't support event creation) are detected automatically: they never appear as a create target, and their events open in read-only detail view (no edit/delete).
+
+### Event categories
+
+On normal calendars, the create/edit form shows a **category picker**. Picking a category prepends its emoji to the event title (the same mechanism as the 🔔 reminder), so it persists and is visible everywhere — including the Google Calendar app.
+
+Default categories: 🏃 Sport · 🏥 Medical · 🎓 School · 💼 Work · 🍽️ Meal · ✈️ Trip · 🎉 Party · 🛒 Shopping.
+
+Override them per-card:
+
+```yaml
+eventCategories:
+  - emoji: "🏃"
+    label: Sport
+  - emoji: "🩺"
+    label: Medical
+```
+
+> Google Calendar has no per-event "category"/tag field reachable through Home Assistant (only title, description, location, dates and recurrence are writable), so the emoji prefix is the portable way to tag events.
 
 ### Google Places Autocomplete
 
