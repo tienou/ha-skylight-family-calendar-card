@@ -122,12 +122,6 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                                         ${this.addIconPickerField('calendars.' + index + '.icon', 'Icon')}
                                         ${this.addIconPickerField('calendars.' + index + '.iconMaterial', 'Material Symbols icon')}
                                         ${this.addHint('Used instead of the icon above when "Use Material Symbols icons" is on (e.g. m3rf:home)')}
-                                        ${this.addTextField('calendars.' + index + '.eventTitleField', 'Event title field', 'text', 'summary')}
-                                        ${this.addHint('Event attribute to use as title (default: summary)')}
-                                        ${this.addTextField('calendars.' + index + '.filter', 'Filter events (regex)')}
-                                        ${this.addHint('Only show events matching this pattern')}
-                                        ${this.addTextField('calendars.' + index + '.filterText', 'Filter event text (regex)')}
-                                        ${this.addHint('Replace event text matching this pattern')}
                                         ${this.addBooleanField('calendars.' + index + '.initiallyHidden', 'Initially hide calendar events')}
                                         ${this.addHint('Events hidden by default, toggle via filter buttons')}
                                         ${this.addBooleanField('calendars.' + index + '.allDayOnly', 'Info calendar (all-day only)')}
@@ -228,8 +222,6 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                         ${this.addHint('Show the list of calendars with their colors')}
                         ${this.addBooleanField('legendToggle', 'Legend toggles calendar visibility')}
                         ${this.addHint('Click a legend entry to show/hide that calendar')}
-                        ${this.addTextField('startingDayOffset', 'Starting day offset', 'number')}
-                        ${this.addHint('Shift the first day by N days')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -246,14 +238,6 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                             { value: 'single', label: 'Single' },
                         ], true, 'banner')}
                         ${this.addHint('Banner: continuous strip across days (default). Others: repeated blocks or first day only')}
-                        ${this.addTextField('filter', 'Filter events (regex)')}
-                        ${this.addHint('Only show events whose title matches this pattern')}
-                        ${this.addTextField('filterText', 'Filter event text (regex)')}
-                        ${this.addHint('Replace displayed event text matching this pattern')}
-                        ${this.addBooleanField('combineSimilarEvents', 'Combine similar events')}
-                        ${this.addHint('Merge identical events from multiple calendars')}
-                        ${this.addBooleanField('showDayName', 'Show day name')}
-                        ${this.addHint('Show day name (Mon, Tue...) in each event')}
                         ${this.addBooleanField('showTime', 'Show time')}
                         ${this.addHint('Show start/end time in each event')}
                         ${this.addBooleanField('showEventTitle', 'Show title in overview', true)}
@@ -269,20 +253,6 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                         ${this.addTextField('slotStartHour', 'Time picker — first hour', 'number', 7)}
                         ${this.addTextField('slotEndHour', 'Time picker — last hour', 'number', 22)}
                         ${this.addHint('Range of hours offered in the event time-slot picker (create/edit forms)')}
-                    `
-                )}
-                ${this.addExpansionPanel(
-                    'Date/time formats',
-                    html`
-                        <p>These formats use <a href="https://moment.github.io/luxon/#/formatting?id=table-of-tokens" target="_blank">Luxon format tokens</a></p>
-                        ${this.addTextField('dateFormat', 'Date format')}
-                        ${this.addHint('e.g. dd/MM for "07/03", d MMM for "7 mars"')}
-                        ${this.addTextField('timeFormat', 'Time format')}
-                        ${this.addHint('e.g. HH:mm for "15:00", h:mm a for "3:00 PM"')}
-                        ${this.addTextField('multiDayTimeFormat', 'Multi day time format')}
-                        ${this.addHint('Format for multi-day events (default: d LLL HH:mm)')}
-                        ${this.addTextField('dayFormat', 'Override day number')}
-                        ${this.addHint('Custom format for the day number in column headers')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -303,33 +273,16 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     `
                 )}
                 ${this.addExpansionPanel(
-                    'Override columns',
-                    html`
-                        <p>The number of columns is based on the size of the card.</p>
-                        ${this.addTextField('columns.extraLarge', 'Extra large (>= 1920px)', 'number')}
-                        ${this.addTextField('columns.large', 'Large (>= 1280px)', 'number')}
-                        ${this.addTextField('columns.medium', 'Medium (>= 1024px)', 'number')}
-                        ${this.addTextField('columns.small', 'Small (>= 640px)', 'number')}
-                        ${this.addTextField('columns.extraSmall', 'Extra small (< 640px)', 'number')}
-                    `
-                )}
-                ${this.addExpansionPanel(
                     'Appearance',
                     html`
                         ${this.addBooleanField('colorFullEvent', 'Color full event background', true)}
                         ${this.addHint('Color entire event block with calendar color instead of left border only')}
                         ${this.addBooleanField('noCardBackground', 'No card background')}
                         ${this.addHint('Make the card background transparent')}
-                        ${this.addTextField('eventBackground', 'Override events background color')}
-                        ${this.addHint('Custom background color for all events (hex or CSS color)')}
                         ${this.addBooleanField('compact', 'Compact mode')}
                         ${this.addHint('Reduce spacing and padding for smaller displays')}
                         ${this.addBooleanField('fillHeight', 'Fill available height')}
                         ${this.addHint('Stretch the day rows so the calendar fills the screen height (best in a panel / full-height view, e.g. a wall tablet)')}
-                        ${this.addTextField('dayHeaderFontSize', 'Day header font size')}
-                        ${this.addHint('e.g. 1.2em or 18px for the weekday header text')}
-                        ${this.addTextField('dayHeaderColor', 'Day header color')}
-                        ${this.addHint('CSS color for the weekday header text')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -338,36 +291,6 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                         <p>Select which view buttons are displayed. Leave empty for all views.</p>
                         ${this.addTextField('views', 'Views (comma separated: Today,Tomorrow,Week,Biweek,Month)')}
                         ${this.addHint('e.g. "Week,Month" to show only these two views')}
-                    `
-                )}
-                ${this.addExpansionPanel(
-                    'Texts',
-                    html`
-                        <p style="color: var(--secondary-text-color); font-size: 0.85em; margin: 0 0 8px 0">Override auto-translated UI texts. Leave empty to use locale defaults.</p>
-                        ${this.addTextField('texts.fullDay', 'Entire day')}
-                        ${this.addTextField('texts.noEvents', 'No events')}
-                        ${this.addTextField('texts.moreEvents', 'More events')}
-                        ${this.addTextField('texts.today', 'Today')}
-                        ${this.addTextField('texts.tomorrow', 'Tomorrow')}
-                        ${this.addTextField('texts.yesterday', 'Yesterday')}
-                        ${this.addTextField('texts.sunday', 'Sunday')}
-                        ${this.addTextField('texts.monday', 'Monday')}
-                        ${this.addTextField('texts.tuesday', 'Tuesday')}
-                        ${this.addTextField('texts.wednesday', 'Wednesday')}
-                        ${this.addTextField('texts.thursday', 'Thursday')}
-                        ${this.addTextField('texts.friday', 'Friday')}
-                        ${this.addTextField('texts.saturday', 'Saturday')}
-                        ${this.addTextField('texts.editEvent', 'Edit event button')}
-                        ${this.addTextField('texts.deleteEvent', 'Delete event button')}
-                        ${this.addTextField('texts.eventTitle', 'Event title label')}
-                        ${this.addTextField('texts.eventCalendar', 'Event calendar label')}
-                        ${this.addTextField('texts.eventStart', 'Event start label')}
-                        ${this.addTextField('texts.eventEnd', 'Event end label')}
-                        ${this.addTextField('texts.cancel', 'Cancel button')}
-                        ${this.addTextField('texts.create', 'Create button')}
-                        ${this.addTextField('texts.save', 'Save button')}
-                        ${this.addTextField('texts.newEvent', 'New event title')}
-                        ${this.addTextField('texts.editEventTitle', 'Edit event title')}
                     `
                 )}
                 ${this.addExpansionPanel(
@@ -394,14 +317,10 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     `
                 )}
                 ${this.addExpansionPanel(
-                    'Miscellaneous',
+                    'Location autocomplete',
                     html`
                         ${this.addTextField('googleApiKey', 'Google Places API key', 'password')}
                         ${this.addHint('Enable location autocomplete in event forms. Without key, location is a simple text field.')}
-                        ${this.addTextField('locationLink', 'Location link base URL')}
-                        ${this.addHint('Base URL for the location map link (default: Google Maps search)')}
-                        ${this.addTextField('updateInterval', 'Override update interval', 'number')}
-                        ${this.addHint('Auto-refresh interval in seconds (default: 60)')}
                     `
                 )}
             </div>
