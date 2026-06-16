@@ -152,6 +152,56 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                     `
                 )}
                 ${this.addExpansionPanel(
+                    'Event categories',
+                    html`
+                        ${this.addHint('Picking a category in the event form prepends its emoji to the title. Leave the list empty to use the built-in categories; add rows here to define your own (this replaces the defaults).')}
+                        ${(() => {
+                            const cats = this.getConfigValue('eventCategories');
+                            const list = Array.isArray(cats) ? cats : [];
+                            return list.map((cat, index) => html`
+                                ${this.addExpansionPanel(
+                                    `Category: ${(cat && (cat.emoji || cat.label)) || index + 1}`,
+                                    html`
+                                        ${this.addTextField('eventCategories.' + index + '.emoji', 'Emoji (e.g. 🏃)')}
+                                        ${this.addTextField('eventCategories.' + index + '.label', 'Label')}
+                                        ${this.addButton('Remove category', 'mdi:trash-can', () => {
+                                            const config = JSON.parse(JSON.stringify(this._config));
+                                            const arr = Array.isArray(config.eventCategories) ? config.eventCategories : [];
+                                            arr.splice(index, 1);
+                                            config.eventCategories = arr;
+                                            this._config = config;
+                                            this.dispatchConfigChangedEvent();
+                                        })}
+                                    `
+                                )}
+                            `);
+                        })()}
+                        ${this.addButton('Add category', 'mdi:plus', () => {
+                            const config = JSON.parse(JSON.stringify(this._config));
+                            const arr = Array.isArray(config.eventCategories) ? config.eventCategories : [];
+                            arr.push({ emoji: '', label: '' });
+                            config.eventCategories = arr;
+                            this._config = config;
+                            this.dispatchConfigChangedEvent();
+                        })}
+                        ${this.addButton('Load default categories', 'mdi:restore', () => {
+                            const config = JSON.parse(JSON.stringify(this._config));
+                            config.eventCategories = [
+                                { emoji: '🏃', label: 'Sport' },
+                                { emoji: '🩺', label: 'Médical' },
+                                { emoji: '🎓', label: 'École' },
+                                { emoji: '💼', label: 'Travail' },
+                                { emoji: '🍽️', label: 'Repas' },
+                                { emoji: '🚐', label: 'Camping-car' },
+                                { emoji: '🎉', label: 'Fête' },
+                                { emoji: '🛒', label: 'Courses' },
+                            ];
+                            this._config = config;
+                            this.dispatchConfigChangedEvent();
+                        })}
+                    `
+                )}
+                ${this.addExpansionPanel(
                     'Days',
                     html`
                         ${this.addBooleanField('showWeekDayText', 'Show week day text', true)}

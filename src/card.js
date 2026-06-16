@@ -144,11 +144,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
     static get DEFAULT_CATEGORIES() {
         return [
             { emoji: '\u{1F3C3}', fr: 'Sport', en: 'Sport' },
-            { emoji: '\u{1F3E5}', fr: 'Médical', en: 'Medical' },
+            { emoji: '\u{1FA7A}', fr: 'Médical', en: 'Medical' },
             { emoji: '\u{1F393}', fr: 'École', en: 'School' },
             { emoji: '\u{1F4BC}', fr: 'Travail', en: 'Work' },
             { emoji: '\u{1F37D}\u{FE0F}', fr: 'Repas', en: 'Meal' },
-            { emoji: '\u{2708}\u{FE0F}', fr: 'Voyage', en: 'Trip' },
+            { emoji: '\u{1F690}', fr: 'Camping-car', en: 'Camping' },
             { emoji: '\u{1F389}', fr: 'Fête', en: 'Party' },
             { emoji: '\u{1F6D2}', fr: 'Courses', en: 'Shopping' },
         ];

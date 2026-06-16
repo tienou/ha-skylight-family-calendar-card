@@ -168,9 +168,9 @@ calendars:
 
 Sur les calendriers normaux, le formulaire de creation/modification affiche un **selecteur de categorie**. Choisir une categorie ajoute son emoji devant le titre (meme mecanisme que le rappel 🔔), ce qui persiste et reste visible partout — y compris dans l'appli Google Agenda.
 
-Categories par defaut : 🏃 Sport · 🏥 Medical · 🎓 Ecole · 💼 Travail · 🍽️ Repas · ✈️ Voyage · 🎉 Fete · 🛒 Courses.
+Categories par defaut : 🏃 Sport · 🩺 Medical · 🎓 Ecole · 💼 Travail · 🍽️ Repas · 🚐 Camping-car · 🎉 Fete · 🛒 Courses.
 
-Personnalisable par carte :
+Modifiable dans l'editeur visuel (panneau **Event categories** — ajout/suppression de lignes, ou « Load default categories » pour partir des valeurs par defaut), ou en YAML :
 
 ```yaml
 eventCategories:
