@@ -1983,7 +1983,7 @@ export default css`
         display: flex; align-items: flex-start; justify-content: space-between;
         gap: 24px; flex-wrap: wrap;
     }
-    ha-card.theme-familial .filter-groups { display: flex; flex-direction: column; gap: 16px; flex: 1; }
+    ha-card.theme-familial .filter-groups { display: flex; flex-direction: row; flex-wrap: wrap; gap: 12px 28px; flex: 1; align-items: flex-start; }
     ha-card.theme-familial .filter-group-label {
         font-size: 11px; font-weight: 700; letter-spacing: .06em;
         text-transform: uppercase; color: var(--fam-head); margin: 0 0 8px 2px;
