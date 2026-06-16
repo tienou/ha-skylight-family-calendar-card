@@ -2047,6 +2047,12 @@ export default css`
         ha-card.theme-familial .view-btn { padding: 6px 9px; flex: 0 0 auto; }
         ha-card.theme-familial .view-btn .view-icon { display: inline-flex; --mdc-icon-size: 20px; color: inherit; }
         ha-card.theme-familial .view-btn .view-label { display: none; }
+        /* The base styles hide Month & Biweek view buttons below 480px; the
+           familial theme keeps them so the month view stays reachable on mobile. */
+        ha-card.theme-familial .view-btn[data-view="month"],
+        ha-card.theme-familial .view-btn[data-view="biweek"] { display: inline-flex; }
+        /* Compact day cells on phones for a denser, Samsung-calendar-like month. */
+        ha-card.theme-familial .container .day { min-height: 84px; padding: 5px 6px 7px; }
     }
 
     /* Navigation month title */
