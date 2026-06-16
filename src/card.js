@@ -1355,7 +1355,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             </div>
                         ` : html`
                         <div class="inner">
-                            ${this._showTime ?
+                            ${this._showTime && !event.fullDay ?
                                 html`<div class="time">
                                     ${this._renderEventTime(event)}
                                 </div>` :
