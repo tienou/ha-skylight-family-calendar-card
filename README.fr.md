@@ -227,7 +227,9 @@ Voir [`examples/family_calendar.yaml`](examples/family_calendar.yaml) pour un ex
 
 ## Sécurité & vie privée
 
-- **Les descriptions d'évènements sont affichées en texte brut** (pas en HTML). Cela empêche un évènement malveillant d'un calendrier partagé d'injecter du script dans le dashboard (XSS). Les retours à la ligne sont conservés.
+- **Tout le texte des évènements est affiché en texte brut** (pas en HTML) — titres, descriptions et lieux. Cela empêche un évènement malveillant d'un calendrier partagé d'injecter du script dans le dashboard (XSS). Les retours à la ligne des descriptions sont conservés.
+- **Les liens de lieu** utilisent toujours une base `http(s)` (la valeur `locationLink` est validée) et le texte du lieu est encodé, donc un lieu piégé ne peut pas former un lien `javascript:`/`data:`.
+- **Les formats et filtres** issus de la config (`dayFormat`, `filter`, `filterText`) sont affichés en texte / compilés de façon défensive (une regex invalide est ignorée au lieu de casser la carte).
 - **Les clés API** (`geminiApiKey`, `claudeApiKey`, `googleApiKey`) sont stockées dans la config du dashboard et envoyées au fournisseur concerné. Sur un dashboard partagé, restreignez chaque clé à son API dans la console du fournisseur. Les clés Claude et Places sont envoyées en en-tête de requête ; la clé Gemini passe en paramètre d'URL (requis par l'API navigateur de Google).
 - **La reconnaissance d'écriture** envoie l'image dessinée à Google Gemini ou Anthropic Claude pour analyse — uniquement si une clé est configurée et que vous lancez l'analyse.
 

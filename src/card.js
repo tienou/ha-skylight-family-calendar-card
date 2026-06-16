@@ -1,5 +1,4 @@
 import { html, LitElement } from 'lit';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { guard } from 'lit-html/directives/guard.js';
 import { version } from '../package.json';
 import { DateTime, Settings as LuxonSettings, Info as LuxonInfo } from 'luxon';
@@ -238,6 +237,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._title = config.title ?? null;
         this._calendars = this._applyDefaultColors(config.calendars);
         this._categories = this._buildCategories(config.eventCategories);
+        // Lookups built once per config (not per event/render): O(1) calendar
+        // lookup by entity, and the category-emoji list pre-sorted longest-first
+        // so a base emoji can't shadow a longer ZWJ/variation-selector variant.
+        this._calByEntity = {};
+        for (const c of this._calendars) this._calByEntity[c.entity] = c;
+        this._categoryEmojiList = [...this._categories.map((c) => c.emoji)]
+            .sort((a, b) => b.length - a.length);
+        this._regexCache = new Map();
         this._defaultCalendar = config.defaultCalendar ?? null;
         this._weather = this._getWeatherConfig(config.weather);
         this._numberOfDays = this._getNumberOfDays(config.days ?? 7);
@@ -681,7 +688,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
     // otherwise the built-in defaults. Each entry is normalised to { emoji, label }.
     _buildCategories(configCategories) {
         const locale = this._locale || 'en';
-        const source = Array.isArray(configCategories) && configCategories.length
+        // An explicit array (even empty) means the user configured the list — only
+        // a missing/invalid value falls back to the built-in defaults. This matches
+        // the editor, where removing every row yields "no categories".
+        const source = Array.isArray(configCategories)
             ? configCategories
             : this.constructor.DEFAULT_CATEGORIES;
         return source
@@ -692,10 +702,21 @@ export class SkylightFamilyCalendarCard extends LitElement {
             .filter((c) => c.emoji);
     }
 
-    // All known category emojis (built-in + configured). Used to detect and strip
-    // a leading category marker when editing an event.
+    // All known category emojis, pre-sorted longest-first (cached in setConfig).
+    // Used to detect and strip a leading category marker when editing an event.
     _categoryEmojis() {
-        return (this._categories || []).map((c) => c.emoji);
+        return this._categoryEmojiList || [];
+    }
+
+    // Compile a config-supplied regex once and cache it; never throw on a bad
+    // pattern (returns null so filtering is simply skipped).
+    _safeRegex(src) {
+        if (!src) return null;
+        if (this._regexCache && this._regexCache.has(src)) return this._regexCache.get(src);
+        let re = null;
+        try { re = new RegExp(src); } catch (_) { re = null; }
+        if (this._regexCache) this._regexCache.set(src, re);
+        return re;
     }
 
     // Strip a leading category emoji (after any 🔔) from a title and return both
@@ -722,7 +743,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
     // if present, stays in the title.
     _eventMarker(event) {
         const s = event.summary || '';
-        const cal = this._calendars.find((c) => c.entity === (event.calendars && event.calendars[0]));
+        const cal = this._calByEntity[event.calendars && event.calendars[0]];
         const candidates = [];
         if (cal && cal.titleEmoji) candidates.push(cal.titleEmoji);
         candidates.push(...this._categoryEmojis());
@@ -1269,7 +1290,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         <div class="day-header">
                             <div class="date">
                                 ${this._dayFormat ?
-                                    unsafeHTML(day.date.toFormat(this._dayFormat)) :
+                                    html`${day.date.toFormat(this._dayFormat)}` :
                                     html`
                                         <span class="number">${day.date.day}</span>
                                         ${this._showDayName || (this._showWeekDayText && !this._numberOfDaysIsMonth && this._numberOfDays < 7) ?
@@ -1373,12 +1394,21 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _renderEvents(day, plain = false) {
         const dayEvents = [];
+        // When nothing is hidden (the common case) we can use the cached event
+        // objects directly — no per-event clone/array-copy on every render.
+        const hasHidden = this._hideCalendars && this._hideCalendars.length > 0;
         day.events.map((eventKey) => {
-            if (!this._calendarEvents[eventKey]) {
+            const cached = this._calendarEvents[eventKey];
+            if (!cached) {
                 return;
             }
 
-            const event = Object.assign({}, this._calendarEvents[eventKey]);
+            if (!hasHidden) {
+                dayEvents.push(cached);
+                return;
+            }
+
+            const event = Object.assign({}, cached);
 
             // Remove events and colors for calendars that are hidden
             const eventCalendars = [...event.calendars];
@@ -2483,8 +2513,9 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     _isFilterEvent(event, calendarFilter) {
         const summary = event.summary ?? '';
-        return this._filter && summary.match(this._filter)
-            || calendarFilter && summary.match(calendarFilter);
+        const gf = this._safeRegex(this._filter || '');
+        const cf = this._safeRegex(calendarFilter || '');
+        return !!((gf && summary.match(gf)) || (cf && summary.match(cf)));
     }
 
     _addEvent(event, startDate, endDate, fullDay, calendar, multiDay, multiDayPosition) {
@@ -2551,12 +2582,14 @@ export class SkylightFamilyCalendarCard extends LitElement {
             return '';
         }
 
-        if (calendar.filterText) {
-            summary = summary.replace(new RegExp(calendar.filterText), '');
+        const calRe = this._safeRegex(calendar.filterText);
+        if (calRe) {
+            summary = summary.replace(calRe, '');
         }
 
-        if (this._filterText) {
-            summary = summary.replace(new RegExp(this._filterText), '');
+        const globalRe = this._safeRegex(this._filterText);
+        if (globalRe) {
+            summary = summary.replace(globalRe, '');
         }
 
         if (calendar.replaceTitleText) {
@@ -3588,14 +3621,18 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
         const parsed = this._parseRrule(rruleStr);
         const rawTitle = event.summary || '';
-        const notify = rawTitle.startsWith('\u{1F514}');
-        let bareTitle = notify ? rawTitle.replace(/^\u{1F514}\s*/u, '') : rawTitle;
-        // The per-calendar display emoji (e.g. 🎂) is added for display only and
-        // is not stored — strip it so it isn't written back into the title.
-        const calConf = this._calendars.find((c) => c.entity === (event.calendars[0] || ''));
-        if (calConf && calConf.titleEmoji && bareTitle.startsWith(calConf.titleEmoji)) {
-            bareTitle = bareTitle.slice(calConf.titleEmoji.length).replace(/^\s+/, '');
+        // Unwrap the display title in the SAME order it was built, outermost first:
+        //   [calendar titleEmoji] [🔔 reminder] [category] <title>
+        // titleEmoji is prepended for display only (in _filterEventSummary), so it
+        // must be stripped first — before the 🔔 test — or notify/category detection
+        // mis-fires and the markers leak into the editable title.
+        let work = rawTitle;
+        const calConf = this._calByEntity[event.calendars[0] || ''];
+        if (calConf && calConf.titleEmoji && work.startsWith(calConf.titleEmoji)) {
+            work = work.slice(calConf.titleEmoji.length).replace(/^\s+/, '');
         }
+        const notify = work.startsWith('\u{1F514}');
+        const bareTitle = notify ? work.replace(/^\u{1F514}\s*/u, '') : work;
         // Detect a stored category marker so the picker can pre-select it.
         const cat = this._splitCategory(bareTitle);
         // Detect on the original dates: the per-day slice fullDay flag is also
