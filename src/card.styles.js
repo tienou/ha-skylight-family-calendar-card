@@ -2032,6 +2032,15 @@ export default css`
         border-color: color-mix(in srgb, var(--fam-border), #fff 12%);
         box-shadow: 0 1px 4px rgba(0, 0, 0, .5);
     }
+    /* Narrow screens: the labelled segmented control would overflow and clip the
+       last view button (e.g. "Mois"). Fall back to compact icon buttons (and let
+       it wrap as a safety net) so every view stays reachable. */
+    @media (max-width: 640px) {
+        ha-card.theme-familial .view-selector { flex-wrap: wrap; }
+        ha-card.theme-familial .view-btn { padding: 6px 9px; }
+        ha-card.theme-familial .view-btn .view-icon { display: inline-flex; }
+        ha-card.theme-familial .view-btn .view-label { display: none; }
+    }
 
     /* Navigation month title */
     ha-card.theme-familial .container .navigation .month {
