@@ -746,6 +746,31 @@ export class SkylightFamilyCalendarCard extends LitElement {
         return { emoji: '', title: t };
     }
 
+    // Reminder lead-time options for the 🔔 selector. The chosen delay (≠ default
+    // 20 min) is stored as a hidden [r:1h]/[r:1d] tag in the event description,
+    // which the HA reminder automation reads.
+    _reminderDelayOptions() {
+        const fr = (this._locale || 'en').startsWith('fr');
+        return [
+            { v: '20m', label: fr ? '20 min avant' : '20 min before' },
+            { v: '1h', label: fr ? '1 h avant' : '1 h before' },
+            { v: '1d', label: fr ? 'La veille' : 'Day before' },
+        ];
+    }
+
+    // Strip the hidden reminder tag from a description for display/editing.
+    _cleanDescription(desc) {
+        return (desc || '').replace(/\s*\[r:(?:20m|1h|1d)\]\s*/g, ' ').trim();
+    }
+
+    // Detect the reminder delay encoded in a description (default 20m).
+    _parseReminderDelay(desc) {
+        const d = desc || '';
+        if (d.includes('[r:1h]')) return '1h';
+        if (d.includes('[r:1d]')) return '1d';
+        return '20m';
+    }
+
     // Compose a summary from the clean title + reminder + category marker.
     _composeSummary(title, notify, category) {
         const prefix = [notify ? '\u{1F514}' : '', category || ''].filter(Boolean).join(' ');
@@ -1553,7 +1578,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             ${this._showDescription ?
                                 html`
                                     <div class="description">
-                                        ${event.description}
+                                        ${this._cleanDescription(event.description)}
                                     </div>
                                 ` :
                                 ''
@@ -1675,10 +1700,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
                         ` :
                         ''
                     }
-                    ${this._currentEventDetails.description ?
+                    ${this._cleanDescription(this._currentEventDetails.description) ?
                         html`
                             <div class="description">
-                                ${this._currentEventDetails.description}
+                                ${this._cleanDescription(this._currentEventDetails.description)}
                             </div>
                         ` :
                         ''
@@ -1931,6 +1956,16 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             <input type="checkbox" id="event-notify" />
                             <span>\u{1F514} ${this._language.eventNotify}</span>
                         </label>
+                    </div>
+                    <div class="form-row">
+                        <div class="field-row-icon">
+                            <ha-icon class="field-icon" icon="mdi:bell-ring-outline"></ha-icon>
+                            <select id="event-reminder-delay" class="form-input">
+                                ${this._reminderDelayOptions().map((o) => html`
+                                    <option value="${o.v}">${o.label}</option>
+                                `)}
+                            </select>
+                        </div>
                     </div>
                     </div>
                     </details>
@@ -2213,6 +2248,17 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             @change="${(e) => { this._editFormData = { ...this._editFormData, notify: e.target.checked }; }}" />
                         <span>\u{1F514} ${this._language.eventNotify}</span>
                     </label>
+                </div>
+                <div class="form-row">
+                    <div class="field-row-icon">
+                        <ha-icon class="field-icon" icon="mdi:bell-ring-outline"></ha-icon>
+                        <select class="form-input"
+                            @change="${(e) => { this._editFormData = { ...this._editFormData, reminderDelay: e.target.value }; }}">
+                            ${this._reminderDelayOptions().map((o) => html`
+                                <option value="${o.v}" ?selected="${(form.reminderDelay || '20m') === o.v}">${o.label}</option>
+                            `)}
+                        </select>
+                    </div>
                 </div>
             </div>
             </details>
@@ -3590,6 +3636,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
         };
         if (location) eventData.location = location;
         if (rrule) eventData.rrule = rrule;
+        // Reminder lead time: a non-default delay is stored as a hidden tag the HA
+        // reminder automation reads. 20 min is the automation default → no tag.
+        const reminderDelay = this.shadowRoot.querySelector('#event-reminder-delay')?.value || '20m';
+        if (notify && reminderDelay !== '20m') eventData.description = `[r:${reminderDelay}]`;
 
         try {
             await this.hass.callWS({
@@ -3673,6 +3723,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const bareTitle = notify ? work.replace(/^\u{1F514}\s*/u, '') : work;
         // Detect a stored category marker so the picker can pre-select it.
         const cat = this._splitCategory(bareTitle);
+        // Reminder delay is stored as a hidden tag in the description; pull it out
+        // and keep the rest of the description so editing doesn't lose it.
+        const reminderDelay = this._parseReminderDelay(event.description);
+        const cleanDescription = this._cleanDescription(event.description);
         // Detect on the original dates: the per-day slice fullDay flag is also
         // set on middle slices of timed multi-day events
         const allDay = this._isFullDay(event.originalStart, event.originalEnd, true);
@@ -3684,6 +3738,8 @@ export class SkylightFamilyCalendarCard extends LitElement {
             title: cat.title,
             notify: notify,
             category: cat.emoji,
+            reminderDelay: reminderDelay,
+            description: cleanDescription,
             allDay: allDay,
             showAdvanced: !!parsed.freq,
             calendar: event.calendars[0] || '',
@@ -3885,10 +3941,17 @@ export class SkylightFamilyCalendarCard extends LitElement {
         // a calendar change is done as delete-from-original + create-in-target.
         const movedCalendar = !!event.uid && targetEntity !== originalEntity;
 
+        // Preserve the (cleaned) description and re-attach the reminder tag for a
+        // non-default delay. Without this, editing an event would wipe its
+        // description entirely.
+        const reminderTag = (form.notify && form.reminderDelay && form.reminderDelay !== '20m')
+            ? `[r:${form.reminderDelay}]` : '';
+        const descriptionFinal = [(form.description || '').trim(), reminderTag].filter(Boolean).join('\n');
         const buildEventData = () => {
             const data = { summary: summary, dtstart: dtstart, dtend: dtend };
             if (location) data.location = location;
             if (recurrence) data.rrule = recurrence;
+            if (descriptionFinal) data.description = descriptionFinal;
             return data;
         };
         const deleteOriginal = async () => {

@@ -208,6 +208,8 @@ Sans cle API, le champ lieu fonctionne comme un simple champ texte.
 
 La carte inclut une case a cocher de notification dans les formulaires de creation/modification d'evenements. Lorsqu'elle est cochee, un prefixe `🔔` est ajoute au titre de l'evenement. Cela permet aux automations Home Assistant de detecter les evenements marques et de declencher des notifications vocales ou telephone.
 
+Un selecteur de **delai de rappel** (20 min / 1 h / la veille) est a cote de la case. La carte ne peut pas declencher de notification planifiee elle-meme (une carte Lovelace ne tourne que quand le dashboard est ouvert) : le delai est donc encode en tag cache `[r:1h]` / `[r:1d]` dans la **description** (20 min, le defaut, n'ecrit aucun tag). L'automation lit le tag et declenche au bon offset. Le tag est masque de l'affichage et conserve a la modification.
+
 Exemple d'automation :
 
 ```yaml

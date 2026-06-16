@@ -224,9 +224,11 @@ Get a key at the [Anthropic Console](https://console.anthropic.com/). If both ke
 
 ### 🔔 Notification Markers
 
-The card includes a notification checkbox in event create/edit forms. When checked, a `🔔` prefix is added to the event title (summary). This allows Home Assistant automations to detect marked events and trigger voice or phone notifications.
+The card includes a **notification** checkbox in event create/edit forms. When checked, a `🔔` prefix is added to the event title (summary). This lets Home Assistant automations detect marked events and trigger voice or phone notifications.
 
-Example automation trigger:
+A **reminder lead-time** selector (20 min / 1 h / day before) sits next to the checkbox. The card itself can't fire scheduled notifications (a Lovelace card only runs while the dashboard is open) — so the lead time is encoded as a hidden `[r:1h]` / `[r:1d]` tag in the event **description** (20 min, the default, writes no tag). Your automation reads the tag and fires at the matching offset. The tag is hidden from the card's display and preserved across edits.
+
+Example automation trigger (fixed 15 min, simplest form):
 
 ```yaml
 automation:
@@ -245,6 +247,17 @@ automation:
           entity_id: media_player.living_room_speaker
         data:
           message: "Reminder: {{ trigger.calendar_event.summary.replace('🔔 ', '') }} in 15 minutes"
+```
+
+For **per-event lead times**, give the automation three calendar triggers (offsets `-0:20:0`, `-1:0:0`, `-24:0:0`) with `id`s `r20m` / `r1h` / `r1d`, and a condition that matches the trigger to the tag in the description (defaulting to `r20m` when no tag is present):
+
+```yaml
+condition:
+  - condition: template
+    value_template: >
+      {% set d = (trigger.calendar_event.description or '') %}
+      {% set want = 'r1h' if '[r:1h]' in d else ('r1d' if '[r:1d]' in d else 'r20m') %}
+      {{ (trigger.calendar_event.summary or '').startswith('🔔') and trigger.id == want }}
 ```
 
 See [`examples/family_calendar.yaml`](examples/family_calendar.yaml) for a complete example with both voice and phone notifications.
