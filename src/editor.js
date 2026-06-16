@@ -134,6 +134,9 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                                         ${this.addHint('Creates title-only all-day events (no time/duration), e.g. birthdays')}
                                         ${this.addEmojiField('calendars.' + index + '.titleEmoji', 'Title emoji')}
                                         ${this.addHint('Shown before every event title of this calendar (display only), e.g. 🎂. With "Use Material Symbols icons" on, the calendar\'s Material Symbols icon above is shown instead.')}
+                                        ${index > 0 ? this.addButton('Move up', 'mdi:arrow-up', () => this._moveCalendar(index, -1)) : ''}
+                                        ${index < this.getConfigValue('calendars').length - 1 ? this.addButton('Move down', 'mdi:arrow-down', () => this._moveCalendar(index, 1)) : ''}
+                                        ${(index > 0 || index < this.getConfigValue('calendars').length - 1) ? this.addHint('Reorder this calendar (affects the legend / filter buttons / event order)') : ''}
                                         ${this.addButton('Remove calendar', 'mdi:trash-can', () => {
                                             const config = JSON.parse(JSON.stringify(this._config));
                                             if (config.calendars.length === 1) {
@@ -654,6 +657,21 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
         defaultValue = defaultValue ?? '';
 
         return key.split('.').reduce((o, i) => o[i] ?? defaultValue, this._config) ?? defaultValue;
+    }
+
+    // Swap a calendar with its neighbour to reorder the list (dir = -1 up / +1 down).
+    _moveCalendar(index, dir) {
+        const config = JSON.parse(JSON.stringify(this._config));
+        const arr = config.calendars;
+        const j = index + dir;
+        if (!Array.isArray(arr) || j < 0 || j >= arr.length) {
+            return;
+        }
+        const tmp = arr[index];
+        arr[index] = arr[j];
+        arr[j] = tmp;
+        this._config = config;
+        this.dispatchConfigChangedEvent();
     }
 
     setConfigValue(key, value) {
