@@ -2053,6 +2053,11 @@ export default css`
         ha-card.theme-familial .view-btn[data-view="biweek"] { display: inline-flex; }
         /* Compact day cells on phones for a denser, Samsung-calendar-like month. */
         ha-card.theme-familial .container .day { min-height: 84px; padding: 5px 6px 7px; }
+        /* fillHeight stretches rows to fill the screen — great on the wall tablet,
+           but it over-stretches the month grid on a phone. Use natural compact
+           heights (the grid scrolls instead) on mobile. */
+        ha-card.theme-familial.fill-height .container .day:not(.header) { height: auto; }
+        ha-card.theme-familial.fill-height .container .day:not(.header) .events { overflow: visible; }
     }
 
     /* Navigation month title */
