@@ -2816,11 +2816,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
     // so interacting with the overlay (e.g. picking a calendar) doesn't re-render
     // the whole month each time.
     _fullscreenOverlayOpen() {
-        // A create/edit dialog is open over the calendar. On the tablet it's a
-        // full-screen overlay; on desktop the ha-dialog scrim covers the grid —
-        // either way the month grid behind is hidden, so skip rendering it to keep
-        // dialog interactions (duration, calendar…) snappy.
-        return !!(this._showCreateEventDialog || this._showEditEventDialog);
+        // Only the TABLET handwriting overlay fully covers the calendar, so only
+        // then is it safe to skip rendering the grid behind it. The desktop
+        // ha-dialog has a semi-transparent scrim — skipping the grid there makes
+        // the (dimmed) calendar visibly disappear behind the dialog.
+        return (this._showCreateEventDialog || this._showEditEventDialog) && this._showHandwritingCanvas();
     }
 
     // Calendar selection in the handwriting create overlay: update the active
