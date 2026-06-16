@@ -170,7 +170,7 @@ On normal calendars, the create/edit form shows a **category picker**. Picking a
 
 Default categories: 🏃 Sport · 🩺 Medical · 🎓 School · 💼 Work · 🍽️ Meal · 🚐 Holidays · 🎉 Party · 🛒 Shopping.
 
-You can edit the list in the visual editor (**Event categories** panel — add/remove rows, or "Load default categories" to start from the defaults), or in YAML:
+You can edit the list in the visual editor (**Event categories** panel — the built-in categories show as editable rows; expand one to change its icon/name, remove it, or add your own), or in YAML:
 
 ```yaml
 eventCategories:

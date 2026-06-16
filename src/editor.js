@@ -154,48 +154,36 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 ${this.addExpansionPanel(
                     'Event categories',
                     html`
-                        ${this.addHint('Picking a category in the event form prepends its emoji to the title. Leave the list empty to use the built-in categories; add rows here to define your own (this replaces the defaults).')}
-                        ${(() => {
-                            const cats = this.getConfigValue('eventCategories');
-                            const list = Array.isArray(cats) ? cats : [];
-                            return list.map((cat, index) => html`
-                                ${this.addExpansionPanel(
-                                    `Category: ${(cat && (cat.emoji || cat.label)) || index + 1}`,
-                                    html`
-                                        ${this.addEmojiField('eventCategories.' + index + '.emoji', 'Icon')}
-                                        ${this.addTextField('eventCategories.' + index + '.label', 'Label')}
-                                        ${this.addButton('Remove category', 'mdi:trash-can', () => {
-                                            const config = JSON.parse(JSON.stringify(this._config));
-                                            const arr = Array.isArray(config.eventCategories) ? config.eventCategories : [];
-                                            arr.splice(index, 1);
-                                            config.eventCategories = arr;
-                                            this._config = config;
-                                            this.dispatchConfigChangedEvent();
-                                        })}
-                                    `
-                                )}
-                            `);
-                        })()}
-                        ${this.addButton('Add category', 'mdi:plus', () => {
-                            const config = JSON.parse(JSON.stringify(this._config));
-                            const arr = Array.isArray(config.eventCategories) ? config.eventCategories : [];
+                        ${this.addHint('Picking a category in the event form prepends its emoji to the event title. Expand a row below to change its icon or name, remove it, or add your own.')}
+                        ${this._effectiveCategories().map((cat, index) => html`
+                            ${this.addExpansionPanel(
+                                `${(cat && cat.emoji) || ''} ${(cat && cat.label) || ('Category ' + (index + 1))}`,
+                                html`
+                                    ${this._renderEmojiPicker(cat && cat.emoji, (v) => this._writeCategories((arr) => {
+                                        if (!arr[index]) arr[index] = { emoji: '', label: '' };
+                                        arr[index].emoji = v;
+                                    }), 'Icon')}
+                                    <div class="sk-field">
+                                        <label class="sk-label">Label</label>
+                                        <input class="sk-input" type="text"
+                                            .value="${(cat && cat.label) || ''}"
+                                            @change="${(e) => this._writeCategories((arr) => {
+                                                if (!arr[index]) arr[index] = { emoji: '', label: '' };
+                                                arr[index].label = e.target.value;
+                                            })}" />
+                                    </div>
+                                    ${this.addButton('Remove category', 'mdi:trash-can', () => this._writeCategories((arr) => {
+                                        arr.splice(index, 1);
+                                    }))}
+                                `
+                            )}
+                        `)}
+                        ${this.addButton('Add category', 'mdi:plus', () => this._writeCategories((arr) => {
                             arr.push({ emoji: '', label: '' });
-                            config.eventCategories = arr;
-                            this._config = config;
-                            this.dispatchConfigChangedEvent();
-                        })}
-                        ${this.addButton('Load default categories', 'mdi:restore', () => {
+                        }))}
+                        ${this.addButton('Reset to default categories', 'mdi:restore', () => {
                             const config = JSON.parse(JSON.stringify(this._config));
-                            config.eventCategories = [
-                                { emoji: '🏃', label: 'Sport' },
-                                { emoji: '🩺', label: 'Médical' },
-                                { emoji: '🎓', label: 'École' },
-                                { emoji: '💼', label: 'Travail' },
-                                { emoji: '🍽️', label: 'Repas' },
-                                { emoji: '🚐', label: 'Vacances' },
-                                { emoji: '🎉', label: 'Fête' },
-                                { emoji: '🛒', label: 'Courses' },
-                            ];
+                            config.eventCategories = this._defaultCategories();
                             this._config = config;
                             this.dispatchConfigChangedEvent();
                         })}
@@ -509,11 +497,9 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
         `;
     }
 
-    addEmojiField(name, label, defaultValue) {
-        // A tap-to-select emoji palette (no typing) plus a free-text fallback for
-        // any emoji not in the palette. Emoji are plain Unicode characters drawn
-        // by the system font — no external assets.
-        const palette = [
+    // Emoji are plain Unicode characters drawn by the system font — no assets.
+    _emojiPalette() {
+        return [
             '🏃', '⚽', '🏀', '🎾', '🏊', '🚴', '⛷️', '🏋️',
             '🩺', '💊', '🦷', '🏥', '🧠', '🩹',
             '🎓', '📚', '✏️', '🎒', '🔬',
@@ -524,27 +510,72 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
             '🛒', '🧹', '🧺', '🔧', '🏠', '🐶', '🐱', '🌳',
             '❤️', '⭐', '👶', '💆', '💇', '🙏', '🎯', '📷',
         ];
-        const current = String(this.getConfigValue(name, defaultValue) ?? '').trim();
-        const inPalette = palette.includes(current);
+    }
+
+    // A tap-to-select emoji palette (no typing) plus a free-text fallback for any
+    // emoji not in the palette. `onPick(emoji)` receives the chosen value.
+    _renderEmojiPicker(current, onPick, label) {
+        const palette = this._emojiPalette();
+        const cur = String(current ?? '').trim();
+        const inPalette = palette.includes(cur);
         return html`
             <div class="sk-field">
-                <label class="sk-label">${label ?? name}</label>
+                ${label ? html`<label class="sk-label">${label}</label>` : ''}
                 <div class="sk-swatches">
                     ${palette.map((e) => html`
                         <button type="button"
-                            class="sk-swatch sk-emoji-swatch ${current === e ? 'selected' : ''}"
-                            title="${e}" @click="${() => this.setConfigValue(name, e)}">${e}</button>
+                            class="sk-swatch sk-emoji-swatch ${cur === e ? 'selected' : ''}"
+                            title="${e}" @click="${() => onPick(e)}">${e}</button>
                     `)}
-                    ${current !== '' && !inPalette ? html`
-                        <button type="button" class="sk-swatch sk-emoji-swatch selected" title="${current}">${current}</button>
+                    ${cur !== '' && !inPalette ? html`
+                        <button type="button" class="sk-swatch sk-emoji-swatch selected" title="${cur}">${cur}</button>
                     ` : ''}
                 </div>
-                <input class="sk-input" name="${name}" type="text"
-                    placeholder="Custom emoji"
-                    .value="${current}"
-                    @change="${this._valueChanged}" />
+                <input class="sk-input" type="text" placeholder="Custom emoji"
+                    .value="${cur}"
+                    @change="${(e) => onPick(e.target.value)}" />
             </div>
         `;
+    }
+
+    addEmojiField(name, label, defaultValue) {
+        const current = this.getConfigValue(name, defaultValue);
+        return this._renderEmojiPicker(current, (v) => this.setConfigValue(name, v), label ?? name);
+    }
+
+    // The built-in category list, shown in the editor when the card has no
+    // explicit `eventCategories` (must mirror the card's DEFAULT_CATEGORIES).
+    _defaultCategories() {
+        return [
+            { emoji: '🏃', label: 'Sport' },
+            { emoji: '🩺', label: 'Médical' },
+            { emoji: '🎓', label: 'École' },
+            { emoji: '💼', label: 'Travail' },
+            { emoji: '🍽️', label: 'Repas' },
+            { emoji: '🚐', label: 'Vacances' },
+            { emoji: '🎉', label: 'Fête' },
+            { emoji: '🛒', label: 'Courses' },
+        ];
+    }
+
+    // The list the editor shows: the configured one, or the defaults as a
+    // starting point so the user always sees editable rows.
+    _effectiveCategories() {
+        const cats = this._config && this._config.eventCategories;
+        return Array.isArray(cats) ? cats : this._defaultCategories();
+    }
+
+    // Any edit/remove materialises the effective list into the config (so editing
+    // a shown-default actually writes all of them), then applies the change.
+    _writeCategories(mutate) {
+        const config = JSON.parse(JSON.stringify(this._config));
+        const arr = Array.isArray(config.eventCategories)
+            ? config.eventCategories
+            : JSON.parse(JSON.stringify(this._defaultCategories()));
+        mutate(arr);
+        config.eventCategories = arr;
+        this._config = config;
+        this.dispatchConfigChangedEvent();
     }
 
     addExpansionPanel(header, content, expanded) {

@@ -170,7 +170,7 @@ Sur les calendriers normaux, le formulaire de creation/modification affiche un *
 
 Categories par defaut : 🏃 Sport · 🩺 Medical · 🎓 Ecole · 💼 Travail · 🍽️ Repas · 🚐 Vacances · 🎉 Fete · 🛒 Courses.
 
-Modifiable dans l'editeur visuel (panneau **Event categories** — ajout/suppression de lignes, ou « Load default categories » pour partir des valeurs par defaut), ou en YAML :
+Modifiable dans l'editeur visuel (panneau **Event categories** — les categories par defaut apparaissent en lignes editables ; deplie une ligne pour changer son icone/nom, la supprimer, ou en ajouter une), ou en YAML :
 
 ```yaml
 eventCategories:
