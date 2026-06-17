@@ -2145,8 +2145,14 @@ export default css`
         color: var(--secondary-text-color, #888);
         margin-top: 1px;
     }
+    /* In the familial theme, tint it with the event's calendar colour (darkened
+       in light mode / lightened in dark mode so it stays readable). */
     ha-card.theme-familial .container .day .events .event .event-meta {
-        color: var(--fam-muted);
+        font-weight: 600;
+        color: color-mix(in srgb, var(--border-color, #888), #000 22%);
+    }
+    ha-card.theme-familial.dark .container .day .events .event .event-meta {
+        color: color-mix(in srgb, var(--border-color, #888), #fff 42%);
     }
     ha-card.theme-familial .container .day .events .event .time {
         font-size: 11px; font-weight: 700;
