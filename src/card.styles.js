@@ -2134,25 +2134,25 @@ export default css`
         display: flex; align-items: flex-start; justify-content: space-between;
         gap: 24px; flex-wrap: wrap;
     }
-    /* Keep "Membres" and "Catégories" side by side on ONE line (don't let the
-       Categories group drop below the Members group on a narrower tablet). The
-       pills still wrap WITHIN each group, and the view selector wraps to its own
-       row (buttons-row flex-wrap) when the width is tight. */
-    ha-card.theme-familial .filter-groups { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 12px 28px; flex: 1; align-items: flex-start; }
+    /* Keep "Membres" and "Catégories" side by side on ONE line each. flex-shrink:0
+       stops the groups being squeezed by the view selector — instead the view
+       selector wraps to its own row (buttons-row flex-wrap), so the filters get
+       the full width and each group fits on a single line (no 2-line wrap). */
+    ha-card.theme-familial .filter-groups { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 10px 24px; flex: 1 0 auto; align-items: flex-start; }
     ha-card.theme-familial .filter-group-label {
         font-size: 11px; font-weight: 700; letter-spacing: .06em;
         text-transform: uppercase; color: var(--fam-head); margin: 0 0 8px 2px;
     }
-    ha-card.theme-familial .calendar-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    ha-card.theme-familial .calendar-filters { display: flex; flex-wrap: wrap; gap: 6px; }
     ha-card.theme-familial .filter-btn {
-        display: inline-flex; align-items: center; gap: 7px;
-        padding: 6px 12px; border-radius: 999px;
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 4px 10px; border-radius: 999px;
         border: 1px solid var(--fam-border); background: transparent;
-        color: var(--fam-muted); font-size: 13px; font-weight: 600;
+        color: var(--fam-muted); font-size: 12.5px; font-weight: 600;
         cursor: pointer; transition: all .15s;
     }
     ha-card.theme-familial .filter-btn .cal-dot {
-        width: 9px; height: 9px; border-radius: 50%; box-sizing: border-box;
+        width: 8px; height: 8px; border-radius: 50%; box-sizing: border-box;
         border: 2px solid var(--cal-color, #888); background: transparent; flex: 0 0 auto;
     }
     ha-card.theme-familial .filter-btn.category .cal-dot { border-radius: 3px; }
