@@ -2072,6 +2072,11 @@ export default css`
 
     /* Grid + day cells */
     ha-card.theme-familial .container { --days-spacing: 0; gap: 0; }
+    /* A month is always a 7-column grid — keep 7 columns even on narrow phones.
+       The base responsive rules collapse columns (~3) on small widths, which
+       turned the month into a tall multi-row list ("étiré"). Forcing 7 keeps a
+       compact Samsung-calendar-style month; cells just get narrower. */
+    ha-card.theme-familial .container.month-view .day { --days-columns: 7 !important; }
     ha-card.theme-familial .container .day {
         background: var(--fam-cell);
         border-right: 1px solid var(--fam-line);
