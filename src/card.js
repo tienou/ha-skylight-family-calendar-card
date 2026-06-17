@@ -881,6 +881,32 @@ export class SkylightFamilyCalendarCard extends LitElement {
         return [member, catLabel].filter(Boolean).join(' · ');
     }
 
+    // Blend a #rrggbb / #rgb colour toward {r,g,b} by `amount` (0..1). Returns an
+    // rgb() string, or the input unchanged if it can't be parsed. Done in JS (not
+    // CSS color-mix) so it works on the older kiosk/phone WebViews that drop a
+    // color-mix() declaration entirely.
+    _mixHex(hex, target, amount) {
+        const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec((hex || '').trim());
+        if (!m) return hex;
+        let h = m[1];
+        if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+        const r = parseInt(h.slice(0, 2), 16);
+        const g = parseInt(h.slice(2, 4), 16);
+        const b = parseInt(h.slice(4, 6), 16);
+        const mix = (c, t) => Math.round(c + (t - c) * amount);
+        return `rgb(${mix(r, target.r)}, ${mix(g, target.g)}, ${mix(b, target.b)})`;
+    }
+
+    // Readable colour for the meta line: the event's calendar colour, darkened in
+    // light mode / lightened in dark mode.
+    _metaColor(event) {
+        const base = (event.colors && event.colors[0]) || '';
+        const dark = !!(this.hass && this.hass.themes && this.hass.themes.darkMode);
+        return dark
+            ? this._mixHex(base, { r: 255, g: 255, b: 255 }, 0.42)
+            : this._mixHex(base, { r: 0, g: 0, b: 0 }, 0.22);
+    }
+
     _onCreateCategoryClick(e) {
         const cat = e.currentTarget?.dataset?.category ?? '';
         // Toggle off if the active category is tapped again.
@@ -1655,7 +1681,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             ${this._showEventTitle ? html`<div class="title">
                                 ${marker.title}
                             </div>` : ''}
-                            ${plain && this._eventMeta(event) ? html`<div class="event-meta">${this._eventMeta(event)}</div>` : ''}
+                            ${plain && this._eventMeta(event) ? html`<div class="event-meta" style="${this._theme === 'familial' ? 'color: ' + this._metaColor(event) : ''}">${this._eventMeta(event)}</div>` : ''}
                             ${this._showDescription ?
                                 html`
                                     <div class="description">
