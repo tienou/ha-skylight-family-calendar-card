@@ -2,8 +2,6 @@
 
 [![en](https://img.shields.io/badge/lang-English-blue)](README.md) [![fr](https://img.shields.io/badge/lang-Fran%C3%A7ais-blue)](README.fr.md)
 
-![Skylight Family Calendar](examples/screenshots/main_view.png)
-
 A Skylight-inspired family calendar card for Home Assistant. Displays events from multiple calendars with a beautiful touchscreen-friendly interface, dual themes, weather integration, and full event management (create, edit, delete).
 
 ## Preview — "familial" theme
