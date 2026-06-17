@@ -1081,6 +1081,19 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._fillSig = sig;
         requestAnimationFrame(() => {
             const contRect = container.getBoundingClientRect();
+            // Phone-width layout: don't stretch. fillHeight is meant for a wide
+            // wall display; on a narrow (phone) card it over-stretches the month
+            // grid. Drop the fixed height so cells use their natural/compact size
+            // and the grid scrolls. Keyed on the real card width (robust even when
+            // a phone reports an oddly wide CSS viewport).
+            if (contRect.width > 0 && contRect.width <= 500) {
+                grid.style.removeProperty('--day-fill-height');
+                if (this._fillEventCap !== 0) {
+                    this._fillEventCap = 0;
+                    this.requestUpdate();
+                }
+                return;
+            }
             // Distinct vertical positions = number of visual week rows.
             const tops = dayCells.map((c) => Math.round(c.getBoundingClientRect().top - contRect.top));
             const rows = new Set(tops).size || 1;
