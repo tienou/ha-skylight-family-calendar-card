@@ -268,11 +268,17 @@ export default css`
            can't push the grid taller than the screen — the whole month stays on
            one page. Overflowing events are clipped inside the cell below. */
         height: var(--day-fill-height, auto);
+        /* Clip overflow at the CELL edge, not on .events: this keeps the vertical
+           clipping (events that don't fit are hidden) while letting a multi-day
+           banner slice still bleed horizontally out of .events to reach the cell
+           edge and meet its neighbour (otherwise overflow:hidden on .events chops
+           the bleed and the band breaks into separate per-cell pills). */
+        overflow: hidden;
     }
     ha-card.fill-height .container .day:not(.header) .events {
         flex: 1 1 auto;
         min-height: 0;
-        overflow: hidden;
+        overflow: visible;
     }
 
     /* ── Calendar Card Content ────────── */
@@ -613,11 +619,15 @@ export default css`
 
     /* Joins to the slice on its left: square the edge and bleed left far enough
        to swallow whatever insets the band inside the cell — the row-gap in the
-       skylight theme (--days-spacing) OR the day cell's inner padding in the HA
-       theme (where --days-spacing is 0, so this resolves to -8px). Over-bleed is
-       invisible because neighbouring slices share the same colour. */
+       skylight theme (--days-spacing) OR the day cell's inner horizontal padding
+       (8px in the HA theme, 9px in the familial theme) PLUS the 1px cell border.
+       The bleed must over-reach so adjacent slices OVERLAP across the grid line
+       (a 12px constant covers the largest padding + border + a few px of overlap);
+       over-bleed is invisible because neighbouring slices share the same colour.
+       At -8px the familial slices stopped ~2px short of the line → visible gaps
+       ("la fusion a sauté"). */
     .container .day .events .event.banner.ljoin {
-        margin-left: calc(-1 * var(--days-spacing) - 8px);
+        margin-left: calc(-1 * var(--days-spacing) - 12px);
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-left-width: 0 !important;
@@ -625,7 +635,7 @@ export default css`
 
     /* Continues to the right: square the edge and bleed right the same amount */
     .container .day .events .event.banner.rjoin {
-        margin-right: calc(-1 * var(--days-spacing) - 8px);
+        margin-right: calc(-1 * var(--days-spacing) - 12px);
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
     }

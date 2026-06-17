@@ -1114,9 +1114,13 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const dayCells = grid ? [...grid.querySelectorAll('.day:not(.header)')] : [];
         if (!container || dayCells.length === 0) return;
         // Only run the layout-reading measurement when an input that affects the
-        // fill changed (viewport height, view, month, cell count) — not on every
-        // re-render (e.g. the clock tick), which would force a needless reflow.
-        const sig = window.innerHeight + ':' + dayCells.length + ':' + this._currentView + ':' + (this._startDate ? this._startDate.toISODate() : '');
+        // fill changed (viewport height, view, month, cell count, OR whether the
+        // events have loaded) — not on every re-render (e.g. the clock tick),
+        // which would force a needless reflow. Including the event count is what
+        // makes the CURRENT month re-measure once its events arrive (otherwise the
+        // first month is measured empty/too-early and never clips → no "+N").
+        const evCount = this._calendarEvents ? Object.keys(this._calendarEvents).length : 0;
+        const sig = window.innerHeight + ':' + dayCells.length + ':' + this._currentView + ':' + (this._startDate ? this._startDate.toISODate() : '') + ':' + evCount;
         if (sig === this._fillSig) return;
         this._fillSig = sig;
         requestAnimationFrame(() => {
@@ -1152,15 +1156,20 @@ export class SkylightFamilyCalendarCard extends LitElement {
                 // Compute how many events fit per cell → cap with a "+N" chip.
                 // Measure a sample cell's header + one event (CSS clip is the
                 // safety net if the estimate is slightly off).
-                const sample = dayCells.find((c) => c.querySelector('.events .event'));
-                const headerEl = (sample || dayCells[0]).querySelector('.day-header');
-                const eventEl = sample && sample.querySelector('.events .event');
+                const headerEl = dayCells[0].querySelector('.day-header');
                 const headerH = headerEl ? headerEl.offsetHeight : 36;
-                const eventH = eventEl
-                    ? eventEl.offsetHeight + (parseFloat(getComputedStyle(eventEl).marginBottom) || 0)
-                    : 30;
+                // Row height = the SHORTEST event row (a 1-line event), not a single
+                // sample that might be a 2-line timed event (time + title). Using a
+                // tall sample made the cap collapse to ~1 even in roomy cells.
+                const eventEls = [...grid.querySelectorAll('.day:not(.header) .events .event')];
+                let eventH = 28;
+                if (eventEls.length) {
+                    eventH = Math.min(...eventEls.map((e) =>
+                        e.offsetHeight + (parseFloat(getComputedStyle(e).marginBottom) || 0)));
+                }
+                eventH = Math.max(18, eventH);
                 // Reserve ~20px for the "+N" chip so it isn't clipped.
-                const cap = Math.max(1, Math.floor((per - headerH - 20) / Math.max(18, eventH)));
+                const cap = Math.max(1, Math.floor((per - headerH - 20) / eventH));
                 if (cap !== this._fillEventCap) {
                     this._fillEventCap = cap;
                     this.requestUpdate();
