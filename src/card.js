@@ -314,6 +314,11 @@ export class SkylightFamilyCalendarCard extends LitElement {
         this._filter = config.filter ?? false;
         this._filterText = config.filterText ?? false;
         this._replaceTitleText = config.replaceTitleText ?? false;
+        // Optional: strip filler prefixes ("Rendez-vous", "RDV", …) from the START
+        // of event titles to save space. A following connector (chez/au/avec/à…)
+        // and separator (: -) are dropped too. Array of keywords; case-insensitive.
+        this._stripTitlePrefixes = Array.isArray(config.stripTitlePrefixes) ? config.stripTitlePrefixes : [];
+        this._stripTitleRegexes = this._buildStripTitleRegexes(this._stripTitlePrefixes);
         this._combineSimilarEvents = config.combineSimilarEvents ?? false;
         this._showLegend = config.showLegend ?? false;
         this._legendToggle = config.legendToggle ?? false;
@@ -2810,6 +2815,26 @@ export class SkylightFamilyCalendarCard extends LitElement {
         }
     }
 
+    // Build anchored, case-insensitive regexes that match a filler prefix at the
+    // start of a title plus a following connector (chez/au/avec/à…) and separator
+    // (: -). The keyword tolerates space/hyphen variants, so "Rendez-vous" also
+    // matches "Rendez vous" / "rendezvous".
+    _buildStripTitleRegexes(prefixes) {
+        const connector = '(?:\\s+(?:chez|au|aux|à|a|avec|pour|en)\\b)?';
+        const separator = '\\s*[:–-]?\\s*';
+        const out = [];
+        for (const p of (prefixes || [])) {
+            const raw = String(p || '').trim();
+            if (!raw) continue;
+            const src = raw
+                .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape regex specials
+                .replace(/[\s-]+/g, '[\\s-]*');          // tolerate space/hyphen variants
+            try { out.push(new RegExp('^\\s*' + src + '\\b' + connector + separator, 'i')); }
+            catch (_) { /* skip a malformed pattern */ }
+        }
+        return out;
+    }
+
     _filterEventSummary(event, calendar) {
         let summary = calendar.eventTitleField ? event[calendar.eventTitleField] : event.summary;
 
@@ -2838,6 +2863,20 @@ export class SkylightFamilyCalendarCard extends LitElement {
             for (const search in this._replaceTitleText) {
                 const replace = this._replaceTitleText[search];
                 summary = summary.replace(search, replace);
+            }
+        }
+
+        // Strip a configured filler prefix ("Rendez-vous chez", "RDV", …) from the
+        // start, with its connector/separator, then re-capitalise. Never blanks the
+        // title: a bare "Rendez-vous" (nothing meaningful after) is left untouched.
+        if (this._stripTitleRegexes && this._stripTitleRegexes.length) {
+            const trimmed = summary.trimStart();
+            for (const re of this._stripTitleRegexes) {
+                const s = trimmed.replace(re, '');
+                if (s && s !== trimmed) {
+                    summary = s.charAt(0).toUpperCase() + s.slice(1);
+                    break;
+                }
             }
         }
 
