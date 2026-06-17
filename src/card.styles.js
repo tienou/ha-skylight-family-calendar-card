@@ -2139,6 +2139,15 @@ export default css`
     ha-card.theme-familial .container .day .events .event .title {
         font-size: 12.5px; font-weight: 600; color: var(--fam-ink);
     }
+    /* "Member · Category" meta line (day-events panel / popup). */
+    .container .day .events .event .event-meta {
+        font-size: 11px;
+        color: var(--secondary-text-color, #888);
+        margin-top: 1px;
+    }
+    ha-card.theme-familial .container .day .events .event .event-meta {
+        color: var(--fam-muted);
+    }
     ha-card.theme-familial .container .day .events .event .time {
         font-size: 11px; font-weight: 700;
         color: color-mix(in srgb, var(--border-color, #888), #000 32%);

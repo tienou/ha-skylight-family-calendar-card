@@ -868,6 +868,19 @@ export class SkylightFamilyCalendarCard extends LitElement {
         return { emoji: '', icon: '', title: s };
     }
 
+    // "Member · Category" line for an event (shown in the day-events panel / popup
+    // so the calendar/member and category are visible without opening the editor).
+    _eventMeta(event) {
+        const cal = this._calByEntity[event.calendars && event.calendars[0]];
+        const member = cal ? this._getCalendarDisplayName(cal) : '';
+        let catLabel = '';
+        const s = event.summary || '';
+        for (const c of (this._categories || [])) {
+            if (c.emoji && s.includes(c.emoji)) { catLabel = c.label; break; }
+        }
+        return [member, catLabel].filter(Boolean).join(' · ');
+    }
+
     _onCreateCategoryClick(e) {
         const cat = e.currentTarget?.dataset?.category ?? '';
         // Toggle off if the active category is tapped again.
@@ -1642,6 +1655,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
                             ${this._showEventTitle ? html`<div class="title">
                                 ${marker.title}
                             </div>` : ''}
+                            ${plain && this._eventMeta(event) ? html`<div class="event-meta">${this._eventMeta(event)}</div>` : ''}
                             ${this._showDescription ?
                                 html`
                                     <div class="description">
