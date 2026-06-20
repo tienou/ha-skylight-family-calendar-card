@@ -50,7 +50,7 @@ const ICONS_NIGHT = {
   'lightning-rainy': storm_night
 };
 
-export class SkylightFamilyCalendarCard extends LitElement {
+export class FamilyCalendarCard extends LitElement {
     static styles = styles;
 
     _initialized = false;
@@ -185,7 +185,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
 
     static getConfigElement() {
         // Create and return an editor element
-        return document.createElement("skylight-family-calendar-card-editor");
+        return document.createElement("family-calendar-card-editor");
     }
 
     /**
@@ -3633,7 +3633,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             });
             this._updateEvents();
         } catch (e) {
-            console.error('Skylight Family Calendar: background create failed', e);
+            console.error('Family Calendar: background create failed', e);
             this._notify('⚠️ ' + ((e && e.message) ? e.message : String(e)));
         }
     }
@@ -3794,7 +3794,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             const data = res?.response?.data ?? res?.response ?? {};
             this._applyAiQuickAdd(data);
         } catch (e) {
-            console.error('Skylight Family Calendar: AI quick-add failed, using local parser', e);
+            console.error('Family Calendar: AI quick-add failed, using local parser', e);
             this._handleQuickAdd(text);
         } finally {
             this._aiLoading = false;
@@ -4177,7 +4177,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             this._editFormData = null;
             this._updateEvents();
         } catch (e) {
-            console.error('Skylight Family Calendar: Failed to delete event:', e);
+            console.error('Family Calendar: Failed to delete event:', e);
         }
     }
 
@@ -4204,7 +4204,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             }
             this._updateEvents();
         } catch (e) {
-            console.error('Skylight Family Calendar: Failed to delete single event:', e);
+            console.error('Family Calendar: Failed to delete single event:', e);
         }
     }
 
@@ -4231,7 +4231,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
             }
             this._updateEvents();
         } catch (e) {
-            console.error('Skylight Family Calendar: Failed to delete all events:', e);
+            console.error('Family Calendar: Failed to delete all events:', e);
         }
     }
 
@@ -4240,7 +4240,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         const form = this._editFormData;
 
         if (!event || !form) {
-            console.error('Skylight Family Calendar: No event or form data for update');
+            console.error('Family Calendar: No event or form data for update');
             return;
         }
 
@@ -4283,7 +4283,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         );
 
         if (!title || !startInput) {
-            console.error('Skylight Family Calendar: Missing required fields', { title, startInput });
+            console.error('Family Calendar: Missing required fields', { title, startInput });
             return;
         }
 
@@ -4292,7 +4292,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         if (form.allDay) {
             const startDay = DateTime.fromISO(form.startDate);
             if (!startDay.isValid) {
-                console.error('Skylight Family Calendar: Invalid start date', { startDate: form.startDate });
+                console.error('Family Calendar: Invalid start date', { startDate: form.startDate });
                 return;
             }
             // Form end date is inclusive; the calendar API expects an exclusive end
@@ -4305,7 +4305,7 @@ export class SkylightFamilyCalendarCard extends LitElement {
         } else {
             const start = DateTime.fromISO(startInput);
             if (!start.isValid) {
-                console.error('Skylight Family Calendar: Invalid start date', { startInput });
+                console.error('Family Calendar: Invalid start date', { startInput });
                 return;
             }
             let end = endInput ? DateTime.fromISO(endInput) : start.plus({ hours: 1 });
@@ -4401,10 +4401,10 @@ export class SkylightFamilyCalendarCard extends LitElement {
                     this._editFormData = null;
                     this._updateEvents();
                 } catch (fallbackError) {
-                    console.error('Skylight Family Calendar: Failed to update event (fallback):', fallbackError);
+                    console.error('Family Calendar: Failed to update event (fallback):', fallbackError);
                 }
             } else {
-                console.error('Skylight Family Calendar: Failed to update event:', e);
+                console.error('Family Calendar: Failed to update event:', e);
                 this._notify('⚠️ ' + (e?.message || e?.code || this._language.save));
             }
         }

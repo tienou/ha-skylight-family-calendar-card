@@ -1,8 +1,10 @@
-# Skylight Family Calendar Card
+# Family Calendar Card
 
 [![en](https://img.shields.io/badge/lang-English-blue)](README.md) [![fr](https://img.shields.io/badge/lang-Fran%C3%A7ais-blue)](README.fr.md)
 
-A Skylight-inspired family calendar card for Home Assistant. Displays events from multiple calendars with a beautiful touchscreen-friendly interface, dual themes, weather integration, and full event management (create, edit, delete).
+A family calendar card for Home Assistant. Displays events from multiple calendars with a beautiful touchscreen-friendly interface, multiple themes, weather integration, and full event management (create, edit, delete).
+
+> **Renamed in v2.0.0** (was *Skylight Family Calendar Card*). The card type is now `custom:family-calendar-card`. Dashboards still using `custom:skylight-family-calendar-card` keep working — the old type is kept as a backward-compatible alias.
 
 ## Preview — "familial" theme
 
@@ -73,13 +75,13 @@ Month view on mobile (Samsung-Calendar style — colored dots + a tap-to-open da
 1. Open HACS in your Home Assistant
 2. Go to Frontend
 3. Click the three dots menu and select "Custom repositories"
-4. Add `https://github.com/tienou/ha-skylight-family-calendar-card` with category "Lovelace"
-5. Install "Skylight Family Calendar Card"
+4. Add `https://github.com/tienou/family-calendar-card` with category "Lovelace"
+5. Install "Family Calendar Card"
 6. Restart Home Assistant
 
 ### Manual
 
-1. Download `skylight-family-calendar-card.js` from the [latest release](https://github.com/tienou/ha-skylight-family-calendar-card/releases)
+1. Download `skylight-family-calendar-card.js` from the [latest release](https://github.com/tienou/family-calendar-card/releases)
 2. Copy it to `config/www/skylight-family-calendar-card.js`
 3. Add the resource in your dashboard:
 
@@ -94,7 +96,7 @@ resources:
 ### Basic example
 
 ```yaml
-type: custom:skylight-family-calendar-card
+type: custom:family-calendar-card
 title: Family Calendar
 locale: fr
 defaultView: Week

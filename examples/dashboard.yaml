@@ -25,7 +25,7 @@ views:
       # --- CALENDAR CARD ---
       - type: grid
         cards:
-          - type: custom:skylight-family-calendar-card
+          - type: custom:family-calendar-card
             title: Family Calendar
             locale: fr                  # Language: en, fr, de, es, it, nl, pt
             defaultView: Month          # Default view: Today, Tomorrow, Week, Biweek, Month

@@ -1,7 +1,7 @@
 import { html, LitElement } from "lit";
 import styles from './editor.styles';
 
-export class SkylightFamilyCalendarCardEditor extends LitElement {
+export class FamilyCalendarCardEditor extends LitElement {
     static styles = styles;
 
     connectedCallback() {
@@ -29,7 +29,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                 await customElements.get("hui-entities-card").getConfigElement();
             }
         } catch (e) {
-            console.warn("Skylight Family Calendar: editor component preload failed", e);
+            console.warn("Family Calendar: editor component preload failed", e);
         }
         this.requestUpdate();
     }
@@ -100,7 +100,7 @@ export class SkylightFamilyCalendarCardEditor extends LitElement {
                             { value: 'month', label: 'Month' },
                         ], true)}
                         ${this.addHint('First day shown in the calendar')}
-                        ${this.addBooleanField('showHeader', 'Show Skylight header', true)}
+                        ${this.addBooleanField('showHeader', 'Show header', true)}
                         ${this.addHint('Show the date/time/weather header at the top')}
                         ${this.addBooleanField('showHeaderDate', 'Show date in header', true)}
                         ${this.addBooleanField('showHeaderClock', 'Show clock in header', true)}

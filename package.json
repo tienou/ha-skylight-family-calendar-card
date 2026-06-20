@@ -1,7 +1,7 @@
 {
-  "name": "ha-skylight-family-calendar-card",
-  "version": "1.0.169",
-  "description": "A Skylight-inspired family calendar card for Home Assistant with weather, event management, and touchscreen-friendly UI.",
+  "name": "family-calendar-card",
+  "version": "2.0.0",
+  "description": "A family calendar card for Home Assistant with weather, event management, and touchscreen-friendly UI.",
   "source": "src/index.js",
   "module": "dist/skylight-family-calendar-card.js",
   "targets": {
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tienou/ha-skylight-family-calendar-card.git"
+    "url": "git+https://github.com/tienou/family-calendar-card.git"
   },
   "keywords": [
     "lovelace",
@@ -28,9 +28,9 @@
   "author": "Etienne Gaillard",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tienou/ha-skylight-family-calendar-card/issues"
+    "url": "https://github.com/tienou/family-calendar-card/issues"
   },
-  "homepage": "https://github.com/tienou/ha-skylight-family-calendar-card",
+  "homepage": "https://github.com/tienou/family-calendar-card",
   "devDependencies": {
     "@parcel/optimizer-data-url": "^2.12.0",
     "@parcel/transformer-inline-string": "^2.11.0",

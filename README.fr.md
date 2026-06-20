@@ -1,10 +1,12 @@
-# Skylight Family Calendar Card
+# Family Calendar Card
 
 [![en](https://img.shields.io/badge/lang-English-blue)](README.md) [![fr](https://img.shields.io/badge/lang-Fran%C3%A7ais-blue)](README.fr.md)
 
-![Skylight Family Calendar](examples/screenshots/main_view.png)
+![Family Calendar](examples/screenshots/main_view.png)
 
-Une carte calendrier familial pour Home Assistant, inspiree de Skylight. Affiche les evenements de plusieurs calendriers avec une interface tactile, deux themes, integration meteo et gestion complete des evenements (creation, modification, suppression).
+Une carte calendrier familial pour Home Assistant. Affiche les evenements de plusieurs calendriers avec une interface tactile, plusieurs themes, integration meteo et gestion complete des evenements (creation, modification, suppression).
+
+> **Renommee en v2.0.0** (anciennement *Skylight Family Calendar Card*). Le type de carte est desormais `custom:family-calendar-card`. Les dashboards utilisant encore `custom:skylight-family-calendar-card` continuent de fonctionner — l'ancien type est conserve comme alias retro-compatible.
 
 ## Aperçu — thème « familial »
 
@@ -75,13 +77,13 @@ Vue mois sur mobile (style Samsung Calendar — pastilles colorées + panneau du
 1. Ouvrir HACS dans votre Home Assistant
 2. Aller dans Frontend
 3. Cliquer sur le menu trois points et selectionner "Depots personnalises"
-4. Ajouter `https://github.com/tienou/ha-skylight-family-calendar-card` avec la categorie "Lovelace"
-5. Installer "Skylight Family Calendar Card"
+4. Ajouter `https://github.com/tienou/family-calendar-card` avec la categorie "Lovelace"
+5. Installer "Family Calendar Card"
 6. Redemarrer Home Assistant
 
 ### Manuel
 
-1. Telecharger `skylight-family-calendar-card.js` depuis la [derniere release](https://github.com/tienou/ha-skylight-family-calendar-card/releases)
+1. Telecharger `skylight-family-calendar-card.js` depuis la [derniere release](https://github.com/tienou/family-calendar-card/releases)
 2. Le copier dans `config/www/skylight-family-calendar-card.js`
 3. Ajouter la ressource dans votre dashboard :
 
@@ -96,7 +98,7 @@ resources:
 ### Exemple basique
 
 ```yaml
-type: custom:skylight-family-calendar-card
+type: custom:family-calendar-card
 title: Calendrier Familial
 locale: fr
 defaultView: Week
