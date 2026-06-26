@@ -5,6 +5,8 @@
 A family calendar card for Home Assistant. Displays events from multiple calendars with a beautiful touchscreen-friendly interface, multiple themes, weather integration, and full event management (create, edit, delete).
 
 > **Renamed in v2.0.0** (was *Skylight Family Calendar Card*). The card type is now `custom:family-calendar-card`. Dashboards still using `custom:skylight-family-calendar-card` keep working — the old type is kept as a backward-compatible alias.
+>
+> ⚠️ **Upgrading from before the rename?** HACS may leave a **duplicate Lovelace resource** (the old `ha-skylight-family-calendar-card` one), which serves a stale copy that overrides the update — so the card looks stuck on an old version no matter how often you clear the cache. **Fix:** go to **Settings → Dashboards → (⋮ top-right) → Resources**, delete the entry pointing to `/hacsfiles/ha-skylight-family-calendar-card/…`, keep the `/hacsfiles/family-calendar-card/…` one, then hard-reload (`Ctrl+Shift+R`). The card also prints a warning in the browser console when it detects this.
 
 ## Preview — "familial" theme
 
