@@ -2143,10 +2143,9 @@ export default css`
        their natural width without growing to push the view selector onto its own
        row, so filters (left) and view icons (right) share one line. */
     ha-card.theme-familial .filter-groups { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 10px 24px; flex: 0 1 auto; align-items: flex-start; }
-    ha-card.theme-familial .filter-group-label {
-        font-size: 11px; font-weight: 700; letter-spacing: .06em;
-        text-transform: uppercase; color: var(--fam-head); margin: 0 0 8px 2px;
-    }
+    /* Labels "Membres"/"Catégories" masqués : les pastilles rondes (membres) vs
+       carrées (catégories) distinguent déjà les deux groupes. */
+    ha-card.theme-familial .filter-group-label { display: none; }
     ha-card.theme-familial .calendar-filters { display: flex; flex-wrap: wrap; gap: 6px; }
     ha-card.theme-familial .filter-btn {
         display: inline-flex; align-items: center; gap: 6px;
@@ -2343,6 +2342,13 @@ export default css`
     }
     ha-card.theme-familial .container .day .events .event .title {
         font-size: 12.5px; font-weight: 600; color: var(--fam-ink);
+    }
+    /* Long titles stay on ONE line (ellipsis) in the month grid so nothing —
+       especially a leading 🔔 marker — wraps onto a 2nd line. min-width:0 lets the
+       title shrink inside the flex event so text-overflow can kick in. */
+    ha-card.theme-familial .container.month-view .day .events .event:not(.banner) .inner { min-width: 0; }
+    ha-card.theme-familial .container.month-view .day .events .event:not(.banner) .title {
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     /* "Member · Category" meta line (day-events panel / popup). */
     .container .day .events .event .event-meta {

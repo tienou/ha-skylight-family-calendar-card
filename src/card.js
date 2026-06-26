@@ -936,6 +936,11 @@ export class FamilyCalendarCard extends LitElement {
             return event._markerCache;
         }
         const result = this._computeEventMarker(event);
+        // Glue a leading 🔔 reminder to the start of the title (non-breaking
+        // space) so it is never left orphaned on its own line when a title wraps.
+        if (result.title) {
+            result.title = result.title.replace(/^(\u{1F514})\s+/u, '$1 ');
+        }
         event._markerCache = result;
         event._markerCacheKey = calKey;
         event._markerCacheRev = this._configRev;
