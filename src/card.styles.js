@@ -2107,7 +2107,7 @@ export default css`
        colours are preserved (per-event --border-color / filter --cal-color).
        ════════════════════════════════════════════════════════════════════ */
     ha-card.theme-familial {
-        --fam-panel: #ffffff;
+        --fam-panel: #f4f5f7;
         --fam-cell: #f4f5f7;
         --fam-weekend: #e9ebf0;
         --fam-trail: #e3e6ec;
@@ -2227,10 +2227,11 @@ export default css`
     ha-card.theme-familial .view-btn .view-icon { display: inline-flex; --mdc-icon-size: 20px; color: inherit; }
     ha-card.theme-familial .view-btn .view-label { display: none; }
     ha-card.theme-familial .view-btn.active {
-        background: var(--fam-panel); color: var(--fam-ink); font-weight: 700;
+        background: #ffffff; color: var(--fam-ink); font-weight: 700;
         border: 1px solid var(--fam-border); box-shadow: 0 1px 3px rgba(0, 0, 0, .22);
     }
     ha-card.theme-familial.dark .view-btn.active {
+        background: var(--fam-panel);
         border-color: color-mix(in srgb, var(--fam-border), #fff 12%);
         box-shadow: 0 1px 4px rgba(0, 0, 0, .5);
     }
