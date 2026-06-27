@@ -95,6 +95,16 @@ resources:
     type: module
 ```
 
+### 📺 Affichage mural / kiosque (tablette frigo)
+
+Vous affichez la carte en permanence sur une tablette murale ou au frigo ?
+Consultez le [**guide tablette frigo**](docs/tablette-frigo.md) — une installation
+réelle complète : Lenovo IdeaPad Duet 3i sous Ubuntu, kiosque Chromium + plein
+écran via wallpanel, écran allumé/éteint piloté par Home Assistant en MQTT
+(présence + horaire), luminosité adaptative depuis un capteur de lumière, et
+administration à distance (SSH/RDP). Tous les pièges rencontrés y sont listés
+(Wayland, rétroéclairage DSI, détection tactile…).
+
 ## Configuration
 
 ### Exemple basique

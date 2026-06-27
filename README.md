@@ -93,6 +93,15 @@ resources:
     type: module
 ```
 
+### 📺 Wall display / kiosk (fridge tablet)
+
+Running the card full-time on a wall- or fridge-mounted tablet? See the
+[**Fridge tablet kiosk guide**](docs/tablette-frigo.md) — a complete real-world
+setup: Lenovo IdeaPad Duet 3i under Ubuntu, Chromium kiosk + full-screen via
+wallpanel, screen on/off driven by Home Assistant over MQTT (presence + schedule),
+adaptive brightness from an ambient-light sensor, and remote admin (SSH/RDP). It
+also lists every gotcha encountered (Wayland, DSI backlight, touch detection…).
+
 ## Configuration
 
 ### Basic example

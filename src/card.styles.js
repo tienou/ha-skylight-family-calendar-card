@@ -141,6 +141,15 @@ export default css`
         gap: 8px;
     }
 
+    /* Left cluster of the controls row. Transparent to layout by default
+       (display:contents) so non-familial themes are unaffected — its children
+       act as direct flex items of .buttons-row exactly as before. The familial
+       theme turns it into a flex row to group the hoisted month/navigation with
+       the calendar filters. */
+    .controls-left {
+        display: contents;
+    }
+
     .calendar-filters {
         display: flex;
         gap: 6px;
@@ -2135,9 +2144,36 @@ export default css`
     /* Filters: two labelled groups (round dots = members, square = categories) */
     ha-card.theme-familial .controls { padding: 18px 18px 14px; }
     ha-card.theme-familial .buttons-row {
-        display: flex; align-items: flex-start; justify-content: space-between;
+        display: flex; align-items: center; justify-content: space-between;
         gap: 24px; flex-wrap: wrap;
     }
+    /* Left cluster: the month/navigation (hoisted from the grid header) sits on
+       the same line as the filter groups, at the top-left of the card. */
+    ha-card.theme-familial .controls-left {
+        display: flex; align-items: center; flex-wrap: wrap;
+        gap: 10px 18px; flex: 0 1 auto; min-width: 0;
+    }
+    /* Month + prev/today/next arrows. The month label is ordered first so
+       "juin 2026" sits at the very top-left. */
+    ha-card.theme-familial .buttons-row .navigation {
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    ha-card.theme-familial .buttons-row .navigation .month {
+        order: -1; font-size: 18px; font-weight: 800;
+        color: var(--fam-ink); text-transform: capitalize; white-space: nowrap;
+    }
+    ha-card.theme-familial .buttons-row .navigation ul {
+        display: inline-flex; align-items: center; gap: 2px;
+        margin: 0; padding: 0; list-style: none;
+    }
+    ha-card.theme-familial .buttons-row .navigation ul li {
+        display: inline-flex; align-items: center; justify-content: center;
+        cursor: pointer; color: var(--fam-muted); border-radius: 7px; padding: 2px;
+    }
+    ha-card.theme-familial .buttons-row .navigation ul li:hover {
+        color: var(--fam-ink); background: var(--fam-trail);
+    }
+    ha-card.theme-familial .buttons-row .navigation ul li ha-icon { --mdc-icon-size: 20px; }
     /* Keep "Membres" and "Catégories" side by side on ONE line each, AND on the
        SAME row as the (icon-only) view selector. flex:0 1 auto = the groups take
        their natural width without growing to push the view selector onto its own
@@ -2203,6 +2239,9 @@ export default css`
            own — otherwise it is squeezed to the right and the last button (Month)
            overflows the card (which has overflow:hidden) and gets clipped. */
         ha-card.theme-familial .buttons-row { flex-direction: column; align-items: stretch; gap: 12px; }
+        /* Hoisted month/nav on its own full-width row: "juin 2026" left, arrows right. */
+        ha-card.theme-familial .controls-left { width: 100%; }
+        ha-card.theme-familial .buttons-row .navigation { width: 100%; justify-content: space-between; }
         ha-card.theme-familial .view-selector {
             display: flex; flex-wrap: wrap; justify-content: center;
             align-self: stretch; width: 100%; box-sizing: border-box;

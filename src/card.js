@@ -1472,7 +1472,10 @@ export class FamilyCalendarCard extends LitElement {
                             </div>
                         ` : ''}
                         <div class="buttons-row">
-                            ${this._renderCalendarFilters()}
+                            <div class="controls-left">
+                                ${this._theme === 'familial' ? this._renderNavigation() : ''}
+                                ${this._renderCalendarFilters()}
+                            </div>
                             <div class="view-selector">
                                 ${this._views.map(view => html`
                                     <button
@@ -1533,13 +1536,16 @@ export class FamilyCalendarCard extends LitElement {
     }
 
     _renderHeader() {
-        if (!this._showLegend && !this._showNavigation) {
+        // The familial theme hoists the month + navigation up into the top
+        // controls row (.buttons-row), so don't render it again above the grid.
+        const navHere = this._theme !== 'familial';
+        if (!this._showLegend && !(this._showNavigation && navHere)) {
             return html``;
         }
 
         return html`
             <div class="header">
-                ${this._renderNavigation()}
+                ${navHere ? this._renderNavigation() : ''}
                 ${this._renderLegend()}
             </div>
         `;
