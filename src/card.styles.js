@@ -150,8 +150,8 @@ export default css`
         display: contents;
     }
 
-    /* Optional floating action button (opt-in via the `floatingButton` config).
-       Overlaid at the bottom-right of the card — anchored to .card-content so it
+    /* Optional floating action button (opt-in via the floatingButton config).
+       Overlaid at the bottom-right of the card, anchored to .card-content so it
        takes no layout space and, on a full-screen card, sits at the corner of
        the screen. */
     .card-content.skylight { position: relative; }
