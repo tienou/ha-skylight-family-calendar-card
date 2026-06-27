@@ -2143,15 +2143,19 @@ export default css`
 
     /* Filters: two labelled groups (round dots = members, square = categories) */
     ha-card.theme-familial .controls { padding: 18px 18px 14px; }
+    /* Everything on ONE line: month/nav + filters (left) and the view-selector
+       (right). nowrap keeps the view icons from dropping to a second row; the
+       left cluster shrinks (and its filter pills wrap internally) under pressure
+       while the view-selector keeps its natural width. */
     ha-card.theme-familial .buttons-row {
         display: flex; align-items: center; justify-content: space-between;
-        gap: 24px; flex-wrap: wrap;
+        gap: 16px; flex-wrap: nowrap;
     }
     /* Left cluster: the month/navigation (hoisted from the grid header) sits on
        the same line as the filter groups, at the top-left of the card. */
     ha-card.theme-familial .controls-left {
         display: flex; align-items: center; flex-wrap: wrap;
-        gap: 10px 18px; flex: 0 1 auto; min-width: 0;
+        gap: 10px 16px; flex: 1 1 auto; min-width: 0;
     }
     /* Month + prev/today/next arrows. The month label is ordered first so
        "juin 2026" sits at the very top-left. */
@@ -2178,7 +2182,7 @@ export default css`
        SAME row as the (icon-only) view selector. flex:0 1 auto = the groups take
        their natural width without growing to push the view selector onto its own
        row, so filters (left) and view icons (right) share one line. */
-    ha-card.theme-familial .filter-groups { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 10px 24px; flex: 0 1 auto; align-items: flex-start; }
+    ha-card.theme-familial .filter-groups { display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px 20px; flex: 0 1 auto; min-width: 0; align-items: center; }
     /* Labels "Membres"/"Catégories" masqués : les pastilles rondes (membres) vs
        carrées (catégories) distinguent déjà les deux groupes. */
     ha-card.theme-familial .filter-group-label { display: none; }
@@ -2206,9 +2210,12 @@ export default css`
     }
     ha-card.theme-familial .filter-btn.active .cal-dot { background: var(--cal-color, #888); }
 
-    /* Segmented control (view buttons) */
+    /* Segmented control (view buttons). flex:0 0 auto + nowrap = it keeps its
+       natural width and never drops to a second row; the left cluster shrinks
+       instead. */
     ha-card.theme-familial .view-selector {
-        display: inline-flex; gap: 2px; padding: 3px; align-self: flex-start;
+        display: inline-flex; flex-wrap: nowrap; flex: 0 0 auto;
+        gap: 2px; padding: 3px; align-self: center;
         background: var(--fam-trail); border: 1px solid var(--fam-border); border-radius: 10px;
     }
     ha-card.theme-familial .view-btn {
