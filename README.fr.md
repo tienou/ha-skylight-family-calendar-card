@@ -143,6 +143,7 @@ calendars:
 | `showHeaderClock` | boolean | `true` | Afficher l'horloge dans l'en-tete |
 | `showTitle` | boolean | `true` | Afficher le titre de la carte |
 | `showNavigation` | boolean | `true` | Afficher les fleches de navigation |
+| `swipeNavigation` | boolean | `true` | Sur ecran tactile, balayer gauche/droite pour changer de periode (`false` pour desactiver) |
 | `showWeekDayText` | boolean | `true` | Afficher les en-tetes des jours (Lun, Mar...) |
 | `showCurrentWeather` | boolean | `false` | Afficher la meteo actuelle dans l'en-tete |
 | `showWeather` | boolean | `true` | Afficher les previsions meteo par jour |
@@ -177,7 +178,9 @@ calendars:
 | `claudeApiKey` | string | - | Cle API Anthropic Claude → active la zone de dessin via Claude Vision |
 | `claudeModel` | string | `claude-opus-4-8` | Modele Claude pour la reconnaissance (ex. `claude-haiku-4-5` pour moins cher/rapide) |
 | `aiProvider` | string | auto | Forcer le fournisseur : `gemini` ou `claude` (auto si une seule cle ; Claude prioritaire si les deux) |
-| `theme` | string | `skylight` | Theme : `skylight` ou `homeassistant` |
+| `handwriting` | boolean | `true` | Canvas d'ecriture manuscrite sur tablette tactile (necessite une cle IA). `false` = toujours le formulaire clavier, meme sur tablette |
+| `floatingButton` | object | - | Petit bouton flottant en bas a droite de la carte (ne prend pas de place) — voir la section ci-dessous |
+| `theme` | string | `skylight` | Theme : `skylight`, `homeassistant` ou `familial` |
 
 ### Options des calendriers
 
@@ -260,6 +263,23 @@ automation:
 ```
 
 Voir [`examples/family_calendar.yaml`](examples/family_calendar.yaml) pour un exemple complet avec notifications vocales et telephone.
+
+### 🔘 Bouton flottant
+
+Un petit bouton rond optionnel superpose en bas a droite de la carte — il ne prend aucune place dans la grille ; sur une carte plein ecran (panel) il se retrouve au coin de l'ecran. Pratique sur une tablette murale pour ouvrir une page musique, un lecteur, ou appeler un service.
+
+```yaml
+floatingButton:
+  icon: mdi:music            # defaut mdi:music
+  label: Musique             # infobulle / aria-label
+  # UNE action au choix (priorite : service > navigationPath > entity) :
+  service: media_player.media_play_pause   # service HA a appeler
+  serviceData: {}                           # donnees optionnelles
+  navigationPath: /lovelace/musique         # navigation interne (chemins "/..." uniquement)
+  entity: media_player.cuisine              # ouvre la fiche (more-info) de l'entite
+```
+
+Par securite, `navigationPath` n'accepte que des chemins internes commencant par `/` (une valeur `javascript:`/`https://…` est ignoree).
 
 ## Sécurité & vie privée
 

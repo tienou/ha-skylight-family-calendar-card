@@ -140,6 +140,7 @@ calendars:
 | `showHeaderClock` | boolean | `true` | Show clock in header |
 | `showTitle` | boolean | `true` | Show card title |
 | `showNavigation` | boolean | `true` | Show month/week navigation arrows |
+| `swipeNavigation` | boolean | `true` | On touch screens, swipe left/right to change period (set `false` to disable) |
 | `showWeekDayText` | boolean | `true` | Show day headers (Mon, Tue...) |
 | `showCurrentWeather` | boolean | `false` | Show current weather in header |
 | `showWeather` | boolean | `true` | Show weather forecast per day |
@@ -174,6 +175,8 @@ calendars:
 | `claudeApiKey` | string | - | Anthropic Claude API key → enables the handwriting canvas via Claude Vision |
 | `claudeModel` | string | `claude-opus-4-8` | Claude model used for handwriting recognition (e.g. `claude-haiku-4-5` for lower cost/latency) |
 | `aiProvider` | string | auto | Force the handwriting provider: `gemini` or `claude` (auto-selected if only one key is set; Claude preferred when both) |
+| `handwriting` | boolean | `true` | Use the handwriting canvas on touch tablets (needs an AI key). Set `false` to always use the typed/keyboard dialog, even on a tablet |
+| `floatingButton` | object | - | Small floating action button overlaid at the bottom-right of the card (takes no layout space) — see [Floating action button](#-floating-action-button) |
 | `theme` | string | `skylight` | Theme: `skylight`, `homeassistant` or `familial` |
 
 ### Calendar options
@@ -286,6 +289,23 @@ condition:
 ```
 
 See [`examples/family_calendar.yaml`](examples/family_calendar.yaml) for a complete example with both voice and phone notifications.
+
+### 🔘 Floating action button
+
+An optional small round button overlaid at the bottom-right of the card — it takes no layout space, so on a full-screen (panel) card it sits at the corner of the screen. Handy on a wall tablet to jump to a music page, open a player, or call a service.
+
+```yaml
+floatingButton:
+  icon: mdi:music            # default mdi:music
+  label: Music               # tooltip / aria-label
+  # Pick ONE action (priority order: service > navigationPath > entity):
+  service: media_player.media_play_pause   # a HA service to call
+  serviceData: {}                           # optional service data
+  navigationPath: /lovelace/music           # internal navigation ("/..." paths only)
+  entity: media_player.kitchen              # opens the entity's more-info dialog
+```
+
+For safety, `navigationPath` only accepts same-origin paths starting with `/` (a `javascript:`/`https://…` value is ignored).
 
 ## Security & privacy
 

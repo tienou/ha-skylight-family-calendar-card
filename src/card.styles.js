@@ -1128,6 +1128,7 @@ export default css`
         }
 
         /* ── Month view: mini-calendar with 7 columns ── */
+        ha-card .container.month-view.hide-weekend .day { --days-columns: 5; }
         ha-card .container.month-view .day {
             --days-columns: 7;
             --days-spacing: 2px;
@@ -2316,6 +2317,7 @@ export default css`
        turned the month into a tall multi-row list ("étiré"). Forcing 7 keeps a
        compact Samsung-calendar-style month; cells just get narrower. */
     ha-card.theme-familial .container.month-view .day { --days-columns: 7 !important; }
+    ha-card.theme-familial .container.month-view.hide-weekend .day { --days-columns: 5 !important; }
     ha-card.theme-familial .container .day {
         background: var(--fam-cell);
         border-right: 1px solid var(--fam-line);

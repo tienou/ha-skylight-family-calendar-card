@@ -219,7 +219,7 @@ export class FamilyCalendarCardEditor extends LitElement {
                         ${this.addBooleanField('hideTodayWithoutEvents', 'Also hide today without events')}
                         ${this.addTextField('maxDayEvents', 'Maximum number of events per day (0 is no maximum)', 'number', 0)}
                         ${this.addHint('Limit events per day, extra shown as "+X more"')}
-                        ${this.addBooleanField('showNavigation', 'Show navigation')}
+                        ${this.addBooleanField('showNavigation', 'Show navigation', true)}
                         ${this.addHint('Show arrows to navigate between weeks/months')}
                         ${this.addBooleanField('swipeNavigation', 'Swipe to navigate (touch)', true)}
                         ${this.addHint('On a touchscreen, swipe left/right to change period. Turn off to disable swiping.')}
@@ -269,7 +269,7 @@ export class FamilyCalendarCardEditor extends LitElement {
                         ${this.addHint('Display current temperature and icon in the header')}
                         ${this.addBooleanField('showWeather', 'Show weather in calendar', true)}
                         ${this.addHint('Display weather forecast in day columns')}
-                        ${this.addBooleanField('weather.showCondition', 'Show condition icon')}
+                        ${this.addBooleanField('weather.showCondition', 'Show condition icon', true)}
                         ${this.addBooleanField('weather.showTemperature', 'Show temperature')}
                         ${this.addBooleanField('weather.showLowTemperature', 'Show low temperature')}
                         ${this.addBooleanField('weather.roundTemperature', 'Round temperatures to nearest integer')}
@@ -284,7 +284,7 @@ export class FamilyCalendarCardEditor extends LitElement {
                         ${this.addHint('Color entire event block with calendar color instead of left border only')}
                         ${this.addBooleanField('noCardBackground', 'No card background')}
                         ${this.addHint('Make the card background transparent')}
-                        ${this.addBooleanField('compact', 'Compact mode')}
+                        ${this.addBooleanField('compact', 'Compact mode', true)}
                         ${this.addHint('Reduce spacing and padding for smaller displays')}
                         ${this.addBooleanField('fillHeight', 'Fill available height')}
                         ${this.addHint('Stretch the day rows so the calendar fills the screen height (best in a panel / full-height view, e.g. a wall tablet)')}

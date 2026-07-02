@@ -155,8 +155,15 @@ export class FamilyCalendarCard extends LitElement {
         const wEnt = this._weather && this._weather.entity;
         const darkChanged = (hass.themes && hass.themes.darkMode)
             !== (prev.themes && prev.themes.darkMode);
-        const weatherChanged = wEnt && hass.states[wEnt] !== prev.states[wEnt];
-        const sunChanged = hass.states['sun.sun'] !== prev.states['sun.sun'];
+        // Compare VALUES the template actually reads, not object identity: HA
+        // replaces the sun/weather state objects on every position/attribute
+        // update (every ~30s–4min), which would otherwise re-render the whole
+        // grid all day. Header weather is also gated on _showCurrentWeather —
+        // day-cell weather comes from the forecast subscription, not hass.states.
+        const weatherChanged = !!wEnt && this._showCurrentWeather
+            && (hass.states[wEnt]?.state !== prev.states[wEnt]?.state
+                || hass.states[wEnt]?.attributes?.temperature !== prev.states[wEnt]?.attributes?.temperature);
+        const sunChanged = hass.states['sun.sun']?.state !== prev.states['sun.sun']?.state;
         if (darkChanged || weatherChanged || sunChanged) {
             this.requestUpdate();
         }
@@ -473,9 +480,12 @@ export class FamilyCalendarCard extends LitElement {
         // Initialize calendar visibility
         const newVisibility = {};
         (config.calendars || []).forEach(cal => {
+            // Keep the pill state in sync with _hideCalendars: an initiallyHidden
+            // calendar starts inactive (false), otherwise active. Otherwise the
+            // pill shows active while events are hidden and the first tap looks dead.
             newVisibility[cal.entity] = this._calendarVisibility?.hasOwnProperty(cal.entity)
                 ? this._calendarVisibility[cal.entity]
-                : true;
+                : !cal.initiallyHidden;
         });
         this._calendarVisibility = newVisibility;
 
@@ -489,6 +499,17 @@ export class FamilyCalendarCard extends LitElement {
         // which starts the clock itself).
         if (this.isConnected) {
             this._startClock();
+        }
+
+        // Live config changes (e.g. editing days/startingDay/filters in the card
+        // editor) recompute _startDate/filters above, but the rendered grid comes
+        // from _days, which is only rebuilt by _updateEvents (first render, user
+        // navigation, or the periodic timer). Refetch now so the preview updates
+        // immediately instead of after up to updateInterval seconds. Guarded on
+        // _initialized so the very first setConfig (before first render) leaves
+        // the initial fetch to the first render.
+        if (this._initialized && this.isConnected) {
+            this._updateEvents();
         }
     }
 
@@ -1285,8 +1306,12 @@ export class FamilyCalendarCard extends LitElement {
             // a phone reports an oddly wide CSS viewport).
             if (contRect.width > 0 && contRect.width <= 500) {
                 grid.style.removeProperty('--day-fill-height');
-                if (this._fillEventCap !== 0) {
+                // Also clear _fillUsable: _renderEvents gates its cap/compact
+                // logic on it, so a stale value from a previous wide measure
+                // keeps clipping month events after rotating to a narrow screen.
+                if (this._fillEventCap !== 0 || this._fillUsable !== 0) {
                     this._fillEventCap = 0;
+                    this._fillUsable = 0;
                     this.requestUpdate();
                 }
                 return;
@@ -1505,7 +1530,7 @@ export class FamilyCalendarCard extends LitElement {
                         </div>
                     </div>
                     <div class="calendar-container">
-                        <div class="container${this._actions ? ' hasActions' : ''}${this._numberOfDaysIsMonth ? ' month-view' : ''}" style="${this._dayHeaderFontSize ? '--day-header-font-size: ' + this._dayHeaderFontSize + ';' : ''}${this._dayHeaderColor ? '--day-header-color: ' + this._dayHeaderColor + ';' : ''}" @click="${this._handleContainerClick}" @pointerdown="${this._handlePointerDown}" @pointerup="${this._handlePointerUp}" @pointercancel="${this._handlePointerCancel}">
+                        <div class="container${this._actions ? ' hasActions' : ''}${this._numberOfDaysIsMonth ? ' month-view' : ''}${this._hideWeekend ? ' hide-weekend' : ''}" style="${this._dayHeaderFontSize ? '--day-header-font-size: ' + this._dayHeaderFontSize + ';' : ''}${this._dayHeaderColor ? '--day-header-color: ' + this._dayHeaderColor + ';' : ''}" @click="${this._handleContainerClick}" @pointerdown="${this._handlePointerDown}" @pointerup="${this._handlePointerUp}" @pointercancel="${this._handlePointerCancel}">
                             ${this._fullscreenOverlayOpen() ? '' : html`
                                 ${this._renderHeader()}
                                 ${this._renderWeekDays()}
@@ -1655,7 +1680,11 @@ export class FamilyCalendarCard extends LitElement {
             return html``;
         }
 
-        const days = this._days.slice(0, 7);
+        // One row is 5 columns when weekends are hidden (matches the grid), so the
+        // header shows the right distinct weekdays (Mon–Fri) instead of the first
+        // 7 _days entries, which would repeat Mon/Tue from the next week.
+        const perRow = this._hideWeekend ? 5 : 7;
+        const days = this._days.slice(0, perRow);
         const weekDays = [
             this._language.sunday,
             this._language.monday,
@@ -2380,6 +2409,9 @@ export class FamilyCalendarCard extends LitElement {
         const date = this._showCreateEventDialog?.date;
         const targetCal = this._calendars.find((c) => c.entity === this._createCalendar);
         const infoMode = !!(targetCal && targetCal.allDayOnly);
+        // Only writable calendars — creating on a read-only one (holidays, etc.)
+        // fails silently and loses the handwritten entry.
+        const writableCals = (this._calendars || []).filter((c) => this._isWritable(c.entity));
         return html`
             <div class="hw-overlay" @click="${(e) => { if (e.target === e.currentTarget) this._closeCreateEventDialog(); }}">
                 <div class="hw-modal create-event-form">
@@ -2389,9 +2421,9 @@ export class FamilyCalendarCard extends LitElement {
                             <ha-icon icon="mdi:close"></ha-icon>
                         </button>
                     </div>
-                    ${this._calendars && this._calendars.length > 1 ? html`
+                    ${writableCals.length > 1 ? html`
                     <div class="hw-cal-picker">
-                        ${this._calendars.map((cal) => html`
+                        ${writableCals.map((cal) => html`
                             <button type="button" class="hw-cal-btn ${this._createCalendar === cal.entity ? 'active' : ''}"
                                 style="--cal-color: ${cal.color || '#888'}"
                                 @click="${(e) => this._selectCreateCalendar(e, cal.entity)}">
@@ -2483,7 +2515,7 @@ export class FamilyCalendarCard extends LitElement {
                             <ha-icon class="field-icon" icon="mdi:calendar"></ha-icon>
                             <select id="edit-event-calendar" class="form-input cal-select"
                                 @change="${(e) => { this._editFormData = { ...this._editFormData, calendar: e.target.value }; }}">
-                                ${this._calendars.map((calendar) => html`
+                                ${(this._calendars || []).filter((c) => this._isWritable(c.entity) || c.entity === form.calendar).map((calendar) => html`
                                     <option value="${calendar.entity}" ?selected="${calendar.entity === form.calendar}">${this._getCalendarDisplayName(calendar)}</option>
                                 `)}
                             </select>
@@ -2679,9 +2711,9 @@ export class FamilyCalendarCard extends LitElement {
                         </button>
                     </div>
                     <div class="hw-edit-scroll">
-                        ${this._calendars && this._calendars.length > 1 ? html`
+                        ${(() => { const editCals = (this._calendars || []).filter((c) => this._isWritable(c.entity) || c.entity === form.calendar); return editCals.length > 1 ? html`
                         <div class="hw-cal-picker">
-                            ${this._calendars.map((cal) => html`
+                            ${editCals.map((cal) => html`
                                 <button type="button" class="hw-cal-btn ${form.calendar === cal.entity ? 'active' : ''}"
                                     style="--cal-color: ${cal.color || '#888'}"
                                     @click="${() => { this._editFormData = { ...this._editFormData, calendar: cal.entity }; }}">
@@ -2690,7 +2722,7 @@ export class FamilyCalendarCard extends LitElement {
                                 </button>
                             `)}
                         </div>
-                        ` : ''}
+                        ` : ''; })()}
                         <div class="form-row" style="${form.allDay ? 'display: none' : ''}">
                             <div class="field-row-icon slots">
                                 <ha-icon class="field-icon" icon="mdi:clock-outline"></ha-icon>
@@ -3706,7 +3738,7 @@ export class FamilyCalendarCard extends LitElement {
         let time = (data && data.time) ? this._parseTime(String(data.time)) : null;
         const raw = data && data.raw ? String(data.raw) : '';
         if (!time && raw) {
-            const m = raw.match(/(\d{1,2})\s*[hH:]\s*(\d{2})?/);
+            const m = raw.match(/(\d{1,2}(?::\d{2})?\s*[ap]\.?m\.?|\d{1,2}\s*[hH:]\s*\d{0,2})/i);
             if (m) {
                 time = this._parseTime(m[0]);
                 if (!title) {
@@ -3886,7 +3918,7 @@ export class FamilyCalendarCard extends LitElement {
     _handleQuickAdd(text) {
         if (!text || !text.trim()) return;
         const raw = text.trim();
-        const m = raw.match(/(\d{1,2})\s*[hH:]\s*(\d{2})?/);
+        const m = raw.match(/(\d{1,2}(?::\d{2})?\s*[ap]\.?m\.?|\d{1,2}\s*[hH:]\s*\d{0,2})/i);
         let title = raw;
         let time = null;
         if (m) {
@@ -4585,6 +4617,10 @@ export class FamilyCalendarCard extends LitElement {
     _parseTime(str) {
         if (!str) return null;
         let s = String(str).trim().toLowerCase().replace(/\s+/g, '');
+        // Strip a trailing am/pm marker (e.g. "9am", "9:30pm") and remember it.
+        let ampm = null;
+        const ap = s.match(/([ap])\.?m\.?$/);
+        if (ap) { ampm = ap[1]; s = s.slice(0, ap.index); }
         let h, m;
         const sep = s.match(/^(\d{1,2})[h:.,](\d{0,2})$/);
         if (sep) {
@@ -4600,6 +4636,8 @@ export class FamilyCalendarCard extends LitElement {
         } else {
             return null;
         }
+        if (ampm === 'p' && h < 12) h += 12;
+        if (ampm === 'a' && h === 12) h = 0;
         if (isNaN(h) || isNaN(m) || h > 23 || m > 59) return null;
         return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
     }
@@ -4767,6 +4805,11 @@ export class FamilyCalendarCard extends LitElement {
             hideCalendars.push(calendar.entity);
         }
         this._hideCalendars = hideCalendars;
+        // Keep the filter-pill state in sync so it doesn't desync from the legend.
+        this._calendarVisibility = {
+            ...this._calendarVisibility,
+            [calendar.entity]: hideIndex > -1,
+        };
     }
 
     _handleNavigationOriginalClick() {
